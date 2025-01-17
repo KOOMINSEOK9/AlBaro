@@ -1,0 +1,359 @@
+//IntelliJ를 처음사용해 보고 있어 spring 기본 정리와 함께 intelliJ에 익숙해지고 있습니다.
+
+
+// JPA에 대해 기초부터 공부하고 있습니다. 아래는 제가 정리한 내용입니다.
+
+## JPA
+
+- Java Persistence API
+- 자바 진영의 ORM 기술 표준
+
+### ORM
+
+- Object-relational mapping(객체 관계 매핑)
+    - 객체와 관계형 데이터베이스를 매핑(연결)해준다.
+- 객체는 객체대로 설계
+- 관계형 데이터베이스는 관계형 데이터베이스대로 설계
+- ORM 프레임워크가 중간에서 매핑
+- 대중적인 언어에는 대부분 ORM 기술이 존재
+
+### JPA는 애플리케이션과 JDBC 사이에서 동작
+
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/18ad7ac4-b1c2-4b23-944e-a2b5d8b53fd5/c2459854-bac4-47cc-a6be-aaea08bd6a64/image.png)
+
+- JDBC API를 JPA가 대신한다고 생각하면 됨
+
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/18ad7ac4-b1c2-4b23-944e-a2b5d8b53fd5/3272e0f9-79ca-45b4-9a1d-45b410ffbd07/image.png)
+
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/18ad7ac4-b1c2-4b23-944e-a2b5d8b53fd5/1936223b-d9af-4fa5-b62c-6e9a279db6d6/image.png)
+
+## JPA 어플리케이션 개발
+
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/18ad7ac4-b1c2-4b23-944e-a2b5d8b53fd5/22b36500-fdd3-4a1b-bba1-817a2ec1a6fa/image.png)
+
+- EntityManagerFactory는 필요할 때마다 EntityManager를 찍어 내는 공장이자 클래스
+
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/18ad7ac4-b1c2-4b23-944e-a2b5d8b53fd5/9b46fa57-6e0c-4a37-9758-bcdd2b9a41ed/image.png)
+
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/18ad7ac4-b1c2-4b23-944e-a2b5d8b53fd5/d3415e05-9c1f-4d17-94ce-7fd260e9921c/image.png)
+
+- 엔티티 매니저 팩토리는 DB당 하나만 생성 가능
+- 엔티티 매니저는 고객의 요청이 올 때마다 계속 썼다가 버렸다가 하는 식으로 사용
+- 엔티티 매니저: 쓰레드 간 공유 X, 데이터베이스 커넥션 처럼 빨리 쓰고 빨리 버려야 함
+
+```JpaMain.java
+package hellojpa;
+
+import jakarta.persistence.*;
+
+import java.util.List;
+
+public class JpaMain {
+
+    public static void main(String[] args) {
+
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("hello");
+        //persistence.xml에 나와있는 name 넣어주기
+        //Factory 만드는 순간 DB연결도 되고 웬만한 건 다 됨
+
+        //일관적인 한 단위를 할 때 마다 manager를 만들어줘야 함.
+        EntityManager em = emf.createEntityManager();
+
+        //code
+
+        //JPA에서는 트랜잭션의 단위가 중요. 모든 데이터를 변경하는 과정은 트랜잭션 안에서 행해져야 한다!
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();
+
+        try{
+
+            Member member = new Member(200L,"member200");
+            em.persist(member);
+            em.flush();
+
+            System.out.println("==============");
+            tx.commit();
+
+//            //1. 저장
+//
+//            //비영속
+//            Member member = new Member();
+//            member.setId(101L);
+//            member.setName("HelloJPA");
+//
+//            //영속
+//            System.out.println("========BEFORE=======");
+//            em.persist(member); //데이터에 저장
+//            System.out.println("========AFTER=======");
+//
+//            Member findMember = em.find(Member.class, 101L);
+//
+//            System.out.println("findMember.id = "+ findMember.getId());
+//            System.out.println("findMember.name = "+ findMember.getName());
+
+
+//            //2. 조회
+//            Member findMember = em.find(Member.class, 3L);
+//            //첫번째 파라미터는 엔티티 클래스 적어야 함. 찾아주는 메서드
+//            System.out.println("findMember.id = "+ findMember.getId());
+//            System.out.println("findMember.name = "+ findMember.getName());
+
+            //3. 삭제
+//            em.remove(findMember);
+
+//            //4. 수정
+//            Member findMember = em.find(Member.class, 3L);
+//            //첫번째 파라미터는 엔티티 클래스 적어야 함. 찾아주는 메서드
+//            findMember.setName("HelloJPA");
+//            //JPA가 관리하기 때문에 트랜잭션 커밋을 하기 전에 변경사항이 있는 것을 알아서 파악하고
+//            //update 쿼리를 사용함
+
+            //JPQL
+//            List <Member> result = em.createQuery("select m from Member as m", Member.class)
+//                    .setFirstResult(1)
+//                    .setMaxResults(8) //1번부터 8개 가져와! 라는 뜻
+//                    .getResultList();
+//            //Member 객체를 대상으로 쿼리를 하는 것임. 대상이 테이블이 아니고 객체임
+//
+//            for(Member member: result){
+//            System.out.println("member.name = "+ member.getName());
+//            }
+
+            tx.commit();
+        }catch (Exception e){
+            tx.rollback();
+        }finally {
+            em.close();
+        }
+        emf.close();
+    }
+}
+```
+```Member.java
+package hellojpa;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+//@Table(name = "USER")
+// <- (매핑 할 때) db에 저장된 테이블과 class 이름이 다를 때 어떤 테이블인지 지정, 없으면 기본으로 클래스 이름
+
+public class Member {
+
+    // 기본 키에는 Id annotation 붙이기
+    @Id
+    private Long id;
+//   @Column(name = "username") <- 아까와 마찬가지~
+    private String name;
+
+    Member(){
+
+    }
+
+    public Member(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+```
+```persistence.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.2" xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
+    <persistence-unit name="hello">
+        <properties>
+            <!-- 필수 속성 -->
+            <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="jakarta.persistence.jdbc.user" value="sa"/>
+            <property name="jakarta.persistence.jdbc.password" value=""/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/~/test"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+		<!--이 옵션을 넣어줘야 특정베이스 만의 고유한 명령어들을 감안해서 jpa가 고려해줌-->
+		<!--쓰는 드라이버에 따라 속성 다르게 설정해주면 된다. 같은 위치에!-->
+
+            <!-- 옵션 -->
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.use_sql_comments"  value="true"/>
+<!--            <property name="hibernate.hbm2ddl.auto" value="create" />-->
+        </properties>
+    </persistence-unit>
+
+</persistence>
+```
+
+
+## JPQL
+
+- JPA를 사용하면 엔티티 객체를 중심으로 개발
+- 문제는 검색 쿼리
+- 검색을 할 때도 테이블이 아닌 엔티티 객체를 대상으로 검색
+- 모든 DB 데이터를 객체로 변환해서 검색하는 것은 불가능
+- 애플리케이션이 필요한 데이터만 DB에서 불러오려면 결국 검색 조건이 포함된 SQL이 필요
+- JPA는 SQL을 추상화한 JPQL이라는 객체 지향 쿼리 언어 제공-
+- SQL과 문법 유사, SELECT, FROM, WHERE, GROUP BY,
+HAVING, JOIN 지원
+- JPQL은 엔티티 객체를 대상으로 쿼리
+- SQL은 데이터베이스 테이블을 대상으로 쿼리
+
+```java
+/검색 
+String jpql = "select m From Member m where m.name like ‘%hello%'"; 
+List<Member> result = em.createQuery(jpql, Member.class) 
+          .getResultList(); 
+          //결과 가져와
+```
+
+- 테이블이 아닌 객체를 대상으로 검색하는 객체 지향 쿼리
+- SQL을 추상화해서 특정 데이터베이스 SQL에 의존X
+- JPQL을 한마디로 정의하면 객체 지향 SQL
+
+```java
+ //검색 
+  String jpql = "select m from Member m where m.age > 18"; 
+ 
+  List<Member> result = em.createQuery(jpql, Member.class) 
+          .getResultList();
+```
+
+```java
+ // 실행된 SQL 
+        select 
+            m.id as id, 
+            m.age as age, 
+            m.USERNAME as USERNAME, 
+            m.TEAM_ID as TEAM_ID 
+        from 
+            Member m 
+        where 
+            m.age>18 
+```
+
+### Criteria
+
+<aside>
+💡
+
+//Criteria 사용 준비
+CriteriaBuilder cb = em.getCriteriaBuilder();
+CriteriaQuery<Member> query = cb.createQuery(Member.class);
+
+//루트 클래스 (조회를 시작할 클래스)
+Root<Member> m = query.from(Member.class);
+
+//쿼리 생성 CriteriaQuery<Member> cq =
+
+query.select(m).where(cb.equal(m.get("username"), “kim”));
+List<Member> resultList = em.createQuery(cq).getResultList();
+
+</aside>
+
+- 문자가 아닌 자바코드로 JPQL을 작성할 수 있음
+- JPQL 빌더 역할
+- JPA 공식 기능
+- 단점: 너무 복잡하고 실용성이 없다.
+- Criteria 대신에 QueryDSL 사용 권장
+
+### QueryDSL
+
+```java
+//select m from Member m where m.age >18;
+
+JPAFactoryQuery query = new JPAQueryFactory(em); 
+  QMember m = QMember.member; 
+ 
+  List<Member> list =  
+      query.selectFrom(m) 
+           .where(m.age.gt(18)) 
+           .orderBy(m.name.desc()) 
+           .fetch(); 
+   
+  
+```
+
+- 문자가 아닌 자바코드로 JPQL을 작성할 수 있음
+- JPQL 빌더 역할
+- 컴파일 시점에 문법 오류 찾기 가능
+- 동적쿼리 작성 편리함
+- 단순하고 쉬움
+
+### 네이티브 SQL
+
+- JPA가 제공하는 SQL을 직접 사용하는 기능
+- JPQL로 해결할 수 없는 특정 데이터베이스에 의존적인 기능
+- 예) 오라클 CONNECT BY, 특정 DB만 사용하는 SQL 힌트
+
+```java
+String sql =  
+    “SELECT ID, AGE, TEAM_ID, NAME FROM MEMBER WHERE NAME = ‘kim’";  
+List<Member> resultList =  
+            em.createNativeQuery(sql, Member.class).getResultList(); 
+```
+
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/18ad7ac4-b1c2-4b23-944e-a2b5d8b53fd5/7f943240-df37-4b02-b781-9c0578f8081f/image.png)
+
+### JPQL 문법
+
+<aside>
+💡
+
+select_문 :: =
+
+select_절
+from_절
+[where_절]
+[groupby_절]
+[having_절]
+[orderby_절]
+update_문 :: = update_절 [where_절]
+delete_문 :: = delete_절 [where_절]
+
+</aside>
+
+- select m from Member as m where m.age > 18
+- 엔티티와 속성은 대소문자 구분O (Member, age)
+- JPQL 키워드는 대소문자 구분X (SELECT, FROM, where)
+- 엔티티 이름 사용, 테이블 이름이 아님(Member)
+- 별칭은 필수(m) (as는 생략가능)
+
+### 집합과 정렬
+
+<aside>
+💡
+
+select
+COUNT(m),   //회원수
+SUM(m.age), //나이 합
+AVG(m.age), //평균 나이
+MAX(m.age), //최대 나이
+MIN(m.age)  //최소 나이
+from Member m
+
+</aside>
+
+### TypeQuery, Query
+
+- TypeQuery: 반환 타입이 명확할 때 사용
+- Query: 반환 타입이 명확하지 않을 때 사용
+
+
