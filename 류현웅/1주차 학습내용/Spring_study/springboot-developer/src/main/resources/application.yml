@@ -1,0 +1,18 @@
+# 애플리케이션 환경 설정을 정의하기 위한 구성 파일
+# YAML 형식을 사용하여 계층적인 설정 구조를 표현
+
+Spring:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql:true
+
+    defer-datasource-initialization: true
+
+    datasource:
+      url: jdbc:h2:mem:testdb
+
+    h2:
+      console:
+        enabled: true
