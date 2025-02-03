@@ -1,0 +1,45 @@
+# S12P11B105/docker-compose.yml
+version: '3'
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"  # React 포트 변경
+
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"      # Nginx 포트
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+
+  db:
+    image: mysql:latest  # MySQL 이미지로 변경
+    environment:
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: rootpassword  # 루트 비밀번호 추가
+    ports:
+      - "3306:3306"  # MySQL 포트
+    volumes:
+      - db_data:/var/lib/mysql  # MySQL 데이터 볼륨
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    ports:
+      - "8081:8080"  # Jenkins UI 포트
+    volumes:
+      - jenkins_home:/var/jenkins_home
+
+volumes:
+  db_data:
