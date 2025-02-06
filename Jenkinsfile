@@ -9,13 +9,13 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'Gitlab', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                withCredentials([sshUserPrivateKey(credentialsId: 'gitlab-ssh-key', keyVariable: 'SSH_KEY')]) {
                     script {
-                        // Git Clone with HTTPS & Credentials
+                        // Git Clone with SSH & Credentials
                         try {
                             sh '''
                             rm -rf project
-                            git clone -b develop https://$GIT_USER:$GIT_PASS@lab.ssafy.com/s12-webmobile1-sub1/S12P11B105.git project
+                            git clone -b develop git@gitlab.com:s12-webmobile1-sub1/S12P11B105.git project
                             '''
                         } catch (Exception e) {
                             error "Failed to clone repository: ${e.message}"
