@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        GIT_REPO = "lab.ssafy.com/s12-webmobile1-sub1/S12P11B105.git"
+        GIT_REPO = "git@gitlab.com:s12-webmobile1-sub1/S12P11B105.git"
         GIT_BRANCH = "develop"
     }
 
@@ -11,11 +11,10 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'gitlab-ssh-key', keyVariable: 'SSH_KEY')]) {
                     script {
-                        // Git Clone with SSH & Credentials
                         try {
                             sh '''
                             rm -rf project
-                            git clone -b develop git@gitlab.com:s12-webmobile1-sub1/S12P11B105.git project
+                            git clone -b $GIT_BRANCH $GIT_REPO project
                             '''
                         } catch (Exception e) {
                             error "Failed to clone repository: ${e.message}"
