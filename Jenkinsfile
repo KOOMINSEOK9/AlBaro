@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'gitlab1', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'Gitlab', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
                     script {
                         // Git Clone with HTTPS & Credentials
                         try {

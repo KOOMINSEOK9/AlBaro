@@ -1,1 +1,1 @@
-젠킨스 CICD 테스트용, jenkinsfile 테스트!
+Jenkins credentials 설정
