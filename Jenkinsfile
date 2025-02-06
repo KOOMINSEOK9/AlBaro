@@ -18,6 +18,15 @@ pipeline {
             }
         }
 
+        // PATH 확인용
+        stage('Check PATH') {
+            steps {
+                script {
+                    sh 'echo $PATH'
+                }
+            }
+        }
+
         // Docker Compose 버전 확인 후 빌드 하는거 확인용
         stage('Check Docker Compose Version') {
             steps {
