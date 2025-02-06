@@ -15,7 +15,7 @@ pipeline {
                         try {
                             sh '''
                             rm -rf project
-                            git clone -b $GIT_BRANCH https://${GIT_USER}:${GIT_PASS}@${GIT_REPO} project
+                            git clone -b $GIT_BRANCH https://${GIT_REPO} project
                             '''
                         } catch (Exception e) {
                             error "Failed to clone repository: ${e.message}"
