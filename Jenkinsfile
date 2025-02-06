@@ -17,6 +17,17 @@ pipeline {
                 git url: "${GIT_REPO_URL}", branch: "${GIT_BRANCH}", credentialsId: 'gitlab-test'
             }
         }
+
+        // Docker Compose 버전 확인 후 빌드 하는거 확인용
+        stage('Check Docker Compose Version') {
+            steps {
+                script {
+                    sh 'docker-compose --version'
+                }
+            }
+        }
+
+
         stage('Build') {
             steps {
                 script {
@@ -43,6 +54,7 @@ pipeline {
                 }
             }
         }
+        
     }
 
     post {
