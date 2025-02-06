@@ -1,2 +1,2 @@
 Jenkins credentials 설정
-진짜 진짜 되겠지?
+진짜 진짜 진짜 되겠지?
