@@ -14,7 +14,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // GitLab에서 코드 체크아웃
-                git url: "${GIT_REPO_URL}", branch: "${GIT_BRANCH}"
+                git url: "${GIT_REPO_URL}", branch: "${GIT_BRANCH}", credentialsId: 'gitlab-test'
             }
         }
         stage('Build') {
