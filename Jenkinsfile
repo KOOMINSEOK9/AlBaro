@@ -1,61 +1,54 @@
 pipeline {
     agent any
+
     environment {
-        EC2_HOST = "http://i12b105.p.ssafy.io/"  // **[필수 변경]** EC2 탄력적 IP 주소 (예: "3.123.45.67")
-        GIT_REPOSITORY_URL = "lab.ssafy.com/s12-webmobile1-sub1/S12P11B105" // **[필수 변경]** Git 저장소 URL
+        // 환경 변수 설정
+        EC2_IP = 'i12b105.p.ssafy.io'  // EC2 인스턴스의 IP 주소
+        SSH_KEY = 'C:/Users/SSAFY/Desktop/I12B105T.pem'  // SSH 키 경로
+        PROJECT_PATH = '/home/ubuntu/S12P11B105'  // EC2 환경의 Docker Compose 파일이 위치한 경로
+        GIT_REPO_URL = 'https://lab.ssafy.com/s12-webmobile1-sub1/S12P11B105.git'  // GitLab 저장소 URL
+        GIT_BRANCH = 'develop'  // 사용할 브랜치
     }
+
     stages {
         stage('Checkout') {
             steps {
-                script {
-                    // Git 사용자 이름과 토큰을 안전하게 전달하기 위해 withCredentials 사용
-                    withCredentials([usernamePassword(credentialsId: 'gitlab-test', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_TOKEN')]) {
-                        echo "현재 브랜치: ${env.BRANCH_NAME}"
-                        
-                        // Git 저장소 URL을 username과 token을 포함하여 안전하게 형성
-                        def repoUrl = "https://${GIT_USERNAME}:${GIT_TOKEN}@${GIT_REPOSITORY_URL}.git"
-                        
-                        // Git 저장소에서 소스 코드 Checkout
-                        git url: repoUrl, branch: "develop"
-                    }
-                }
+                // GitLab에서 코드 체크아웃
+                git url: "${GIT_REPO_URL}", branch: "${GIT_BRANCH}"
             }
         }
-        
-        stage('Deploy') {
+        stage('Build') {
             steps {
                 script {
-                    // 배포 명령어를 여기에 추가하세요
-                    echo "배포 중..."
-                    // 예시: sh 'deploy_script.sh'
-                }
-            }
-            post {
-                success {
-                    echo "✅ 배포 성공!"
-                }
-                failure {
-                    echo "❌ 배포 실패!"
+                    // Docker 이미지 빌드
+                    sh 'docker-compose build'
                 }
             }
         }
-        
-        stage('Stage 1') {
+        // stage('Test') {
+        //     steps {
+        //         script {
+        //             // 테스트 실행 (예: 백엔드 테스트)
+        //             sh 'docker-compose run backend ./gradlew test'
+        //         }
+        //     }
+        // }
+        stage('Deploy to EC2') {
             steps {
-                echo "Stage 1 is running"
+                script {
+                    // EC2에 SSH로 접속하여 Docker Compose로 서비스 시작
+                    sh """
+                    ssh -i ${SSH_KEY} ec2-user@${EC2_IP} 'cd ${PROJECT_PATH} && docker-compose up -d'
+                    """
+                }
             }
         }
-        
-        stage('Stage 2') {
-            steps {
-                echo "Stage 2 is running"
-            }
-        }
-        
-        stage('Stage 3') {
-            steps {
-                echo "Stage 3 is running"
-            }
+    }
+
+    post {
+        always {
+            // 항상 실행되는 단계 (예: 로그 수집)
+            sh 'docker-compose logs'
         }
     }
 }
