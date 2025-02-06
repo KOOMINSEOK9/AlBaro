@@ -1,6 +1,6 @@
-Starting health checks at Thu Feb 06 05:41:48 UTC 2025
-Health check results at Thu Feb 06 05:41:48 UTC 2025:
- * disk-space: Result{isHealthy=true, duration=0, timestamp=2025-02-06T05:41:48.125Z}
- * plugins: Result{isHealthy=false, message=There are 73 failed plugins: token-macro; build-timeout; credentials-binding; workflow-api; plugin-util-api; font-awesome-api; bootstrap5-api; jquery3-api; echarts-api; checks-api; junit; matrix-project; workflow-durable-task-step; workflow-scm-step; workflow-cps; workflow-job; workflow-basic-steps; gradle; pipeline-milestone-step; pipeline-build-step; pipeline-groovy-lib; pipeline-model-api; pipeline-model-extensions; branch-api; workflow-multibranch; pipeline-stage-tags-metadata; pipeline-input-step; pipeline-model-definition; workflow-aggregator; git; github; github-branch-source; pipeline-github-lib; pipeline-graph-analysis; email-ext; timestamper; workflow-support; plugin-util-api; font-awesome-api; bootstrap5-api; echarts-api; checks-api; junit; matrix-project; workflow-durable-task-step; workflow-cps; workflow-basic-steps; gradle; pipeline-milestone-step; pipeline-build-step; pipeline-groovy-lib; pipeline-stage-step; pipeline-model-extensions; workflow-multibranch; pipeline-stage-tags-metadata; pipeline-input-step; pipeline-model-definition; github-branch-source; pipeline-github-lib; pipeline-graph-analysis; pipeline-graph-view; email-ext; ws-cleanup; pipeline-groovy-lib; pipeline-model-extensions; workflow-multibranch; pipeline-model-definition; workflow-aggregator; pipeline-graph-analysis; pipeline-graph-view; pipeline-model-definition; workflow-aggregator; pipeline-graph-view, duration=0, timestamp=2025-02-06T05:41:48.125Z}
- * temporary-space: Result{isHealthy=true, duration=0, timestamp=2025-02-06T05:41:48.125Z}
- * thread-deadlock: Result{isHealthy=true, duration=0, timestamp=2025-02-06T05:41:48.125Z}
+Starting health checks at Thu Feb 06 21:42:24 UTC 2025
+Health check results at Thu Feb 06 21:42:24 UTC 2025:
+ * disk-space: Result{isHealthy=true, duration=0, timestamp=2025-02-06T21:42:24.049Z}
+ * plugins: Result{isHealthy=true, message=No failed plugins, duration=0, timestamp=2025-02-06T21:42:24.050Z}
+ * temporary-space: Result{isHealthy=true, duration=0, timestamp=2025-02-06T21:42:24.050Z}
+ * thread-deadlock: Result{isHealthy=true, duration=0, timestamp=2025-02-06T21:42:24.050Z}
