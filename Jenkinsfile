@@ -15,7 +15,7 @@ pipeline {
                         try {
                             sh '''
                             rm -rf project
-                            git clone -b $GIT_BRANCH https://lab.ssafy.com/s12-webmobile1-sub1/S12P11B105.git project
+                            git clone -b $GIT_BRANCH https://${GIT_REPO} project
                             '''
                         } catch (Exception e) {
                             error "Failed to clone repository: ${e.message}"
