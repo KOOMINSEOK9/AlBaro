@@ -32,6 +32,7 @@ pipeline {
             steps {
                 script {
                     sh 'docker-compose --version'
+                    sh 'docker --version'
                 }
             }
         }
