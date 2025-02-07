@@ -8,6 +8,8 @@ pipeline {
         PROJECT_PATH = '/home/ubuntu/S12P11B105'  // EC2 환경의 Docker Compose 파일이 위치한 경로
         GIT_REPO_URL = 'https://lab.ssafy.com/s12-webmobile1-sub1/S12P11B105.git'  // GitLab 저장소 URL
         GIT_BRANCH = 'develop'  // 사용할 브랜치
+
+        DOCKER_COMPOSE_PATH = '/usr/local/bin/docker-compose'  // Docker Compose 경로 추가
     }
 
     stages {
@@ -31,8 +33,8 @@ pipeline {
         stage('Check Docker Compose Version') {
             steps {
                 script {
-                    sh 'docker-compose --version'
                     sh 'docker --version'
+                    sh "${DOCKER_COMPOSE_PATH} --version"  // 경로를 사용하여 Docker Compose 버전 확인
                 }
             }
         }
