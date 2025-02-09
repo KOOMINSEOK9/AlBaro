@@ -42,8 +42,9 @@ pipeline {
 
         stage('Build') {
             steps {
+                echo 'Building Docker images...'
                 script {
-                    // Docker 이미지 빌드
+                    sh 'docker-compose down'
                     sh 'docker-compose build'
                 }
             }
@@ -56,13 +57,12 @@ pipeline {
         //         }
         //     }
         // }
-        stage('Deploy to EC2') {
+        
+        stage('Deploy') {
             steps {
+                echo 'Deploying application...'
                 script {
-                    // EC2에 SSH로 접속하여 Docker Compose로 서비스 시작
-                    sh """
-                    ssh -i ${SSH_KEY} ec2-user@${EC2_IP} 'cd ${PROJECT_PATH} && docker-compose up -d'
-                    """
+                    sh 'docker-compose up -d'
                 }
             }
         }
