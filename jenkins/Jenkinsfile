@@ -54,6 +54,8 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
+                    // Node.js 및 npm 설치
+                    sh 'apt-get update && apt-get install -y nodejs npm'
                     // 프론트엔드 애플리케이션 빌드
                     sh 'npm install'
                     sh 'npm run build'
