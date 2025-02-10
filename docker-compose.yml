@@ -2,16 +2,19 @@ version: '3.8'
 
 services:
   jenkins:
-    build: ./jenkins
-    container_name: jenkins
+    image: jenkins/jenkins:lts
+    user: root  # root 사용자로 실행
     ports:
       - "8081:8080"
     volumes:
-      - ./jenkins-data:/var/jenkins_home  
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock  # 호스트의 Docker 소켓을 컨테이너에 마운트
+      - jenkins_home:/var/jenkins_home
     environment:
       - JAVA_OPTS=-Djava.awt.headless=true
-    privileged: true
+    privileged: true  # Privileged 모드로 실행
+
+volumes:
+  jenkins_home:
 
   backend:
     build: ./backend
