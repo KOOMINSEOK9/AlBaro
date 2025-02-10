@@ -11,6 +11,9 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      gridTemplateColumns: {
+        '24': 'repeat(24, minmax(0, 1fr))',  // 24칸 그리드 추가
+      }
     },
   },
   plugins: [],
