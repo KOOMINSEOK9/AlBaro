@@ -3,7 +3,6 @@ version: '3.8'
 services:
   jenkins:
     image: jenkins/jenkins:lts
-    user: root  # root 사용자로 실행
     ports:
       - "8081:8080"
     volumes:
