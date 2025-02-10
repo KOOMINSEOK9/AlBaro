@@ -4,7 +4,6 @@ services:
   jenkins:
     build: ./jenkins
     container_name: jenkins
-    # user: ubuntu
     ports:
       - "8081:8080"
     volumes:
@@ -25,7 +24,6 @@ services:
   frontend:
     build: ./frontend
     container_name: frontend
-    user: root  # 이 줄을 추가합니다
     ports:
       - "3000:3000"
 
@@ -42,7 +40,7 @@ services:
     image: mysql:8
     container_name: db
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_ROOT_PASSWORD: rootpassword  # 환경 변수로 관리
       MYSQL_DATABASE: mydatabase
     ports:
       - "3306:3306"

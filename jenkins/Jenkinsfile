@@ -2,62 +2,18 @@ pipeline {
     agent any
 
     environment {
-        // 환경 변수 설정
-        EC2_IP = 'i12b105.p.ssafy.io'  // EC2 인스턴스의 IP 주소
-        SSH_KEY = 'C:/Users/SSAFY/Desktop/I12B105T.pem'  // SSH 키 경로
-        PROJECT_PATH = '/home/ubuntu/S12P11B105'  // EC2 환경의 Docker Compose 파일이 위치한 경로
-        GIT_REPO_URL = 'https://lab.ssafy.com/s12-webmobile1-sub1/S12P11B105.git'  // GitLab 저장소 URL
-        GIT_BRANCH = 'develop'  // 사용할 브랜치
-
-        DOCKER_COMPOSE_PATH = '/usr/local/bin/docker-compose'  // Docker Compose 경로 추가
+        EC2_IP = 'i12b105.p.ssafy.io'
+        SSH_KEY = 'C:/Users/SSAFY/Desktop/I12B105T.pem'
+        PROJECT_PATH = '/home/ubuntu/S12P11B105'
+        GIT_REPO_URL = 'https://lab.ssafy.com/s12-webmobile1-sub1/S12P11B105.git'
+        GIT_BRANCH = 'develop'
+        DOCKER_COMPOSE_PATH = '/usr/local/bin/docker-compose'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // GitLab에서 코드 체크아웃
                 git url: "${GIT_REPO_URL}", branch: "${GIT_BRANCH}", credentialsId: 'Gitlab'
-            }
-        }
-
-        // PATH 확인용
-        stage('Check PATH') {
-            steps {
-                script {
-                    sh 'echo $PATH'
-                }
-            }
-        }
-
-        // Docker Compose 버전 확인 후 빌드 하는거 확인용
-        stage('Check Docker Compose Version') {
-            steps {
-                script {
-                    sh 'docker --version'
-                    sh "${DOCKER_COMPOSE_PATH} --version"  // 경로를 사용하여 Docker Compose 버전 확인
-                }
-            }
-        }
-
-
-        stage('Build Backend') {
-            steps {
-                dir('backend') {
-                    // gradlew에 실행 권한 추가
-                    sh 'chmod +x ./gradlew'
-                    // 백엔드 애플리케이션 빌드
-                    sh './gradlew clean build'
-                }
-            }
-        }
-
-        stage('Build Frontend') {
-            steps {
-                dir('frontend') {
-                    // 프론트엔드 애플리케이션 빌드
-                    sh 'npm install'
-                    sh 'npm run build'
-                }
             }
         }
 
