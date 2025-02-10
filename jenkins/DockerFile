@@ -1,9 +1,11 @@
 FROM jenkins/jenkins:lts
 
+# user 변경
 USER root
 
 # Node.js 및 npm 설치
 RUN apt-get update && \
+
     apt-get install -y nodejs npm && \
     apt-get clean
 
