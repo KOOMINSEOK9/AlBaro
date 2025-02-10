@@ -1,1 +1,1 @@
-6
+파이프라인 PermissionError 해결 노력
