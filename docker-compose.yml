@@ -1,19 +1,52 @@
-version: '3.8'  # Docker Compose 파일 버전
+version: '3.8'
 
 services:
   jenkins:
-    image: jenkins/jenkins:lts-jdk17  # JDK 17을 사용하는 이미지
+    build: ./jenkins
     container_name: jenkins
-    user: root
+    # user: ubuntu
     ports:
-      - "8081:8080"  # 호스트의 8081 포트를 컨테이너의 8080 포트에 매핑
+      - "8081:8080"
     volumes:
-      - ./jenkins-data:/var/jenkins_home  # 현재 디렉토리의 jenkins-data를 컨테이너에 마운트
-      - /var/run/docker.sock:/var/run/docker.sock  # Docker 소켓을 컨테이너에 마운트
+      - ./jenkins-data:/var/jenkins_home  
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
-
       - JAVA_OPTS=-Djava.awt.headless=true
-    dns:
+    privileged: true
 
-      - 8.8.8.8  # Google DNS
-      - 8.8.4.4  # Google DNS
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend
+
+  db:
+    image: mysql:8
+    container_name: db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydatabase
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:

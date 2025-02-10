@@ -16,7 +16,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // GitLab에서 코드 체크아웃
-                git url: "${GIT_REPO_URL}", branch: "${GIT_BRANCH}", credentialsId: 'gitlab-test'
+                git url: "${GIT_REPO_URL}", branch: "${GIT_BRANCH}", credentialsId: 'Gitlab'
             }
         }
 
@@ -40,39 +40,48 @@ pipeline {
         }
 
 
-        stage('Build') {
+        stage('Build Backend') {
             steps {
-                script {
-                    // Docker 이미지 빌드
-                    sh 'docker-compose build'
+                dir('backend') {
+                    // gradlew에 실행 권한 추가
+                    sh 'chmod +x ./gradlew'
+                    // 백엔드 애플리케이션 빌드
+                    sh './gradlew clean build'
                 }
             }
         }
-        // stage('Test') {
-        //     steps {
-        //         script {
-        //             // 테스트 실행 (예: 백엔드 테스트)
-        //             sh 'docker-compose run backend ./gradlew test'
-        //         }
-        //     }
-        // }
-        stage('Deploy to EC2') {
+
+        stage('Build Frontend') {
             steps {
-                script {
-                    // EC2에 SSH로 접속하여 Docker Compose로 서비스 시작
-                    sh """
-                    ssh -i ${SSH_KEY} ec2-user@${EC2_IP} 'cd ${PROJECT_PATH} && docker-compose up -d'
-                    """
+                dir('frontend') {
+                    // 프론트엔드 애플리케이션 빌드
+                    sh 'npm install'
+                    sh 'npm run build'
                 }
             }
         }
-        
+
+        stage('Build Docker Images') {
+            steps {
+                // Docker 이미지를 빌드
+                sh 'docker-compose build'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                // Docker 컨테이너를 실행
+                sh 'docker-compose up -d'
+            }
+        }
     }
 
     post {
-        always {
-            // 항상 실행되는 단계 (예: 로그 수집)
-            sh 'docker-compose logs'
+        success {
+            echo '빌드 및 배포가 성공적으로 완료되었습니다!'
+        }
+        failure {
+            echo '빌드 또는 배포에 실패했습니다!'
         }
     }
 }
