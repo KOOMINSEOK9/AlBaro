@@ -23,10 +23,11 @@ services:
       - db
 
   frontend:
-    build: ./frontend
-    container_name: frontend
-    ports:
-      - "3000:3000"
+  build: ./frontend
+  container_name: frontend
+  user: root  # 이 줄을 추가합니다
+  ports:
+    - "3000:3000"
 
   nginx:
     build: ./nginx
