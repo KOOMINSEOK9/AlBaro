@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+
+    environment {
+        EC2_IP = 'i12b105.p.ssafy.io'
+        SSH_KEY = 'C:/Users/SSAFY/Desktop/I12B105T.pem'
+        PROJECT_PATH = '/home/ubuntu/S12P11B105'
+        GIT_REPO_URL = 'https://lab.ssafy.com/s12-webmobile1-sub1/S12P11B105.git'
+        GIT_BRANCH = 'develop'
+        DOCKER_COMPOSE_PATH = '/usr/local/bin/docker-compose'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git url: "${GIT_REPO_URL}", branch: "${GIT_BRANCH}", credentialsId: 'Gitlab'
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                // Docker 이미지를 빌드
+                sh 'docker-compose build'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                // Docker 컨테이너를 실행
+                sh 'docker-compose up -d'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '빌드 및 배포가 성공적으로 완료되었습니다!'
+        }
+        failure {
+            echo '빌드 또는 배포에 실패했습니다!'
+        }
+    }
+}

@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  jenkins:
+    build: ./jenkins 
+    user: jenkins
+    ports:
+      - "8081:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # 호스트의 Docker 소켓을 컨테이너에 마운트
+      - ./jenkins-data:/var/jenkins_home  
+    environment:
+      - JAVA_OPTS=-Djava.awt.headless=true
+    privileged: true  # Privileged 모드로 실행
+
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend
+
+  db:
+    image: mysql:8
+    container_name: db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword  # 환경 변수로 관리
+      MYSQL_DATABASE: mydatabase
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
+  jenkins_home:  # Named volume 선언
