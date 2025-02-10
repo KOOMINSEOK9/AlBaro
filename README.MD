@@ -1,1 +1,1 @@
-파이프라인 PermissionError 해결 노력
+/var/run/docker.sock의 그룹 소유권을 docker 그룹으로 변경
