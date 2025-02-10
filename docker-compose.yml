@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   jenkins:
-    build: /home/ubuntu/S12P11B105/jenkins  # 절대 경로로 수정
+    build: ./jenkins  # docker-compose.yml 기준 상대 경로로
     user: jenkins
     ports:
       - "8081:8080"
