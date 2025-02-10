@@ -40,39 +40,46 @@ pipeline {
         }
 
 
-        stage('Build') {
+        stage('Build Backend') {
             steps {
-                echo 'Building Docker images...'
-                script {
-                    sh 'docker-compose down'
-                    sh 'docker-compose build'
+                dir('backend') {
+                    // 백엔드 애플리케이션 빌드
+                    sh './gradlew clean build'
                 }
             }
         }
-        // stage('Test') {
-        //     steps {
-        //         script {
-        //             // 테스트 실행 (예: 백엔드 테스트)
-        //             sh 'docker-compose run backend ./gradlew test'
-        //         }
-        //     }
-        // }
-        
+
+        stage('Build Frontend') {
+            steps {
+                dir('frontend') {
+                    // 프론트엔드 애플리케이션 빌드
+                    sh 'npm install'
+                    sh 'npm run build'
+                }
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                // Docker 이미지를 빌드
+                sh 'docker-compose build'
+            }
+        }
+
         stage('Deploy') {
             steps {
-                echo 'Deploying application...'
-                script {
-                    sh 'docker-compose up -d'
-                }
+                // Docker 컨테이너를 실행
+                sh 'docker-compose up -d'
             }
         }
-        
     }
 
     post {
-        always {
-            // 항상 실행되는 단계 (예: 로그 수집)
-            sh 'docker-compose logs'
+        success {
+            echo '빌드 및 배포가 성공적으로 완료되었습니다!'
+        }
+        failure {
+            echo '빌드 또는 배포에 실패했습니다!'
         }
     }
 }
