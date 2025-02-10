@@ -1,1 +1,1 @@
-/var/run/docker.sock의 그룹 소유권을 docker 그룹으로 변경
+ Jenkins가 해당 디렉토리에 접근할 수 있는 권한 부여
