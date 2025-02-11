@@ -2,7 +2,6 @@
 package com.albaro.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDate;
@@ -10,7 +9,6 @@ import java.time.LocalTime;
 
 @Entity
 @Table(name = "workInformation")
-@Builder
 public class WorkInformation {
 
     // 스케줄 고유 ID
@@ -40,7 +38,7 @@ public class WorkInformation {
     @Column(name = "endTime", nullable = false)
     private LocalTime endTime;    // 마감 시간
 
-    @Column(name = "isVacant", nullable = false)
+    @Column(name = "isVacant", nullable = false, columnDefinition = "BIT(1) DEFAULT 0")
     private Boolean isVacant;    // 공석 여부
 
     @Column(name = "checkInTime")
