@@ -6,6 +6,11 @@ WORKDIR /app
 
 # package.json 및 package-lock.json 복사 후 의존성 설치
 COPY package*.json ./
+
+# .env 파일 복사
+COPY .env .env
+
+
 RUN npm install
 
 # 프로젝트 소스 복사
