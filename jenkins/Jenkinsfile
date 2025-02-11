@@ -17,27 +17,37 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images') {
+        stage('Stop and Remove Existing Containers') {
             steps {
-                // Docker 이미지를 빌드
-                sh 'docker-compose build'
+                script {
+                    // Jenkins 컨테이너 내부에서 도커 컴포즈를 사용하여 기존 컨테이너 중지 및 제거
+                    sh '''
+                    cd jenkins
+                    /usr/local/bin/docker-compose down
+                    '''
+                }
             }
         }
 
-        stage('Deploy') {
+        stage('Build and Start Containers') {
             steps {
-                // Docker 컨테이너를 실행
-                sh 'docker-compose up -d'
+                script {
+                    // Jenkins 컨테이너 내부에서 도커 컴포즈 실행
+                    sh '''
+                    cd jenkins
+                    /usr/local/bin/docker-compose -f docker-compose.yml up --build -d
+                    '''
+                }
             }
         }
     }
 
     post {
         success {
-            echo '빌드 및 배포가 성공적으로 완료되었습니다!'
+            echo '빌드 및 배포가 성공적으로 완료되었습니다! :)'
         }
         failure {
-            echo '빌드 또는 배포에 실패했습니다!'
+            echo '빌드 또는 배포에 실패했습니다!  ㅡ.ㅡ'
         }
     }
 }
