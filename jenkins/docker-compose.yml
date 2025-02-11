@@ -6,8 +6,8 @@ services:
       context: ../frontend
     ports:
       - "3000:3000"
-    environment:
-        NEXT_PUBLIC_KAKAO_KEY: ${NEXT_PUBLIC_KAKAO_KEY}
+    env_file:
+      - ../frontend/.env
 
   backend:
     build:
