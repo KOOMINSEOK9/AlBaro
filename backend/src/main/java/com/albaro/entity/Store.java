@@ -1,14 +1,15 @@
 // Store.java
 package com.albaro.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "store")
-@Builder
 public class Store {
 
     @Id
@@ -51,6 +52,10 @@ public class Store {
         this.latitude = latitude;
         this.longitude = longitude;
     }
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Notification> notifications;  // store_notification N:1
 
     public Integer getStoreId() {
         return storeId;
@@ -116,7 +121,7 @@ public class Store {
         this.longitude = longitude;
     }
 
-    //    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+//    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 //    private List<Manual> manuals;
 //
 //    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
