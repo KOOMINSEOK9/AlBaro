@@ -7,7 +7,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - .env 
+      - /home/ubuntu/S12P11B105/jenkins/.env  # 절대 경로로 변경
 
   backend:
     build:

@@ -4,7 +4,7 @@ pipeline {
     environment {
         EC2_IP = 'i12b105.p.ssafy.io'
         SSH_KEY = 'C:/Users/SSAFY/Desktop/I12B105T.pem'
-        PROJECT_PATH = "${WORKSPACE}/jenkins"
+        PROJECT_PATH = '/home/ubuntu/S12P11B105/jenkins'  // 절대 경로로 설정
         GIT_REPO_URL = 'https://lab.ssafy.com/s12-webmobile1-sub1/S12P11B105.git'
         GIT_BRANCH = 'develop'
         DOCKER_COMPOSE_PATH = '/usr/local/bin/docker-compose'
@@ -23,20 +23,18 @@ pipeline {
                 withCredentials([string(credentialsId: 'NEXT_PUBLIC_KAKAO_KEY', variable: 'NEXT_PUBLIC_KAKAO_KEY')]) {
                     script {
                         sh '''
-                        echo "NEXT_PUBLIC_KAKAO_KEY=$NEXT_PUBLIC_KAKAO_KEY" > ${PROJECT_PATH}/.env
+                        echo "NEXT_PUBLIC_KAKAO_KEY=$NEXT_PUBLIC_KAKAO_KEY" > /home/ubuntu/S12P11B105/jenkins/.env
                         '''
                     }
                 }
             }
         }
 
-
         stage('Stop and Remove Existing Containers') {
             steps {
                 script {
-                    // Jenkins 컨테이너 내부에서 도커 컴포즈를 사용하여 기존 컨테이너 중지 및 제거
                     sh '''
-                    cd ${PROJECT_PATH}
+                    cd /home/ubuntu/S12P11B105/jenkins
                     /usr/local/bin/docker-compose down
                     '''
                 }
@@ -46,9 +44,8 @@ pipeline {
         stage('Build and Start Containers') {
             steps {
                 script {
-                    // Jenkins 컨테이너 내부에서 도커 컴포즈 실행
                     sh '''
-                    cd jenkins
+                    cd /home/ubuntu/S12P11B105/jenkins
                     /usr/local/bin/docker-compose up --build -d
                     '''
                 }
