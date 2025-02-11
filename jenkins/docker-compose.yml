@@ -7,7 +7,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - ./jenkins/.env
+      - /var/jenkins_home/workspace/jenkinsTest/jenkins/.env
 
   backend:
     build:
