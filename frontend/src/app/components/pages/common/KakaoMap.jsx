@@ -14,6 +14,7 @@ const KakaoMap = () => {
   const [selectedStore, setSelectedStore] = useState({});
   const [markers, setMarkers] = useState([]);
   const [mapInstance, setMapInstance] = useState(null);
+  const [error, setError] = useState(null);
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [startTime, setStartTime] = useState(null);
@@ -94,30 +95,74 @@ const KakaoMap = () => {
     },
   ];
 
-  console.log(router);
-
-  // 지도 출력
+  // 지도 스크립트 로드
   useEffect(() => {
-    if (typeof window !== "undefined" && !window.kakao) {
+    // 이미 로드된 경우 처리
+    if (window.kakao && window.kakao.maps) {
+      setLoaded(true);
+      return;
+    }
+
+    try {
       const script = document.createElement("script");
-      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_KEY}&autoload=false&libraries=services`;
+      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_KEY}&autoload=false`;
       script.async = true;
-      document.head.appendChild(script);
 
       script.onload = () => {
         window.kakao.maps.load(() => {
-          setLoaded(true); // SDK 로드 완료 후 상태 변경
+          setLoaded(true);
         });
       };
-    } else {
-      setLoaded(true);
+
+      script.onerror = (error) => {
+        setError(new Error("카카오맵 스크립트 로드 실패"));
+      };
+
+      document.head.appendChild(script);
+
+      return () => {
+        script.remove();
+      };
+    } catch (error) {
+      setError(error);
     }
   }, []);
 
-  // 마커 출력
+  const setupMarkerEvents = (marker, markerObj, MARKER_IMAGES, map) => {
+    let selectedMarker = null;
+
+    kakao.maps.event.addListener(marker, "click", () => {
+      if (selectedMarker) {
+        selectedMarker.setImage(MARKER_IMAGES.normal);
+      }
+      marker.setImage(MARKER_IMAGES.selected);
+      selectedMarker = marker;
+      
+      setSelectedStore(markerObj.store);
+      map.panTo(marker.getPosition());
+    });
+
+    kakao.maps.event.addListener(marker, "mouseover", () => {
+      if (!selectedMarker || selectedMarker !== marker) {
+        marker.setImage(MARKER_IMAGES.hover);
+      }
+    });
+
+    kakao.maps.event.addListener(marker, "mouseout", () => {
+      if (!selectedMarker || selectedMarker !== marker) {
+        marker.setImage(MARKER_IMAGES.normal);
+      }
+    });
+  };
+
+  // 지도 및 마커 초기화
   useEffect(() => {
-    if (loaded && window.kakao && window.kakao.maps) {
+    if (!loaded || !window.kakao || !window.kakao.maps) return;
+
+    try {
       const container = document.getElementById("map");
+      if (!container) return;
+
       const options = {
         center: new window.kakao.maps.LatLng(
           storeData[0].latitude,
@@ -126,149 +171,95 @@ const KakaoMap = () => {
         level: 3,
       };
 
-      setSelectedStore(storeData[0]);
       const map = new window.kakao.maps.Map(container, options);
       setMapInstance(map);
+      setSelectedStore(storeData[0]);
 
-      let selectedMarker = null; // 선택된 마커
-
-      const selected = "/Location_red.png";
-      const unselected = "/Location_blue.png";
-
-      // 선택된 마커 이미지
-      const redMarkerImage = new kakao.maps.MarkerImage(
-        selected, // 기존 마커 이미지 URL
-        new kakao.maps.Size(24, 24), // 마커 크기
-        { offset: new kakao.maps.Point(12, 35) } // 마커 중심 점 설정
-      );
-      // 기본 마커 이미지
-      const normalMarkerImage = new kakao.maps.MarkerImage(
-        unselected,
-        new kakao.maps.Size(24, 24),
-        { offset: new kakao.maps.Point(12, 35) }
-      );
-      // hover 마커 이미지(확대)
-      const hoverMarkerImage = new kakao.maps.MarkerImage(
-        unselected,
-        new kakao.maps.Size(30, 30),
-        { offset: new kakao.maps.Point(12, 35) }
-      );
+      // 마커 이미지 객체들을 상수로 분리
+      const MARKER_IMAGES = {
+        selected: new kakao.maps.MarkerImage(
+          "/Location_red.png",
+          new kakao.maps.Size(24, 24),
+          { offset: new kakao.maps.Point(12, 35) }
+        ),
+        normal: new kakao.maps.MarkerImage(
+          "/Location_blue.png",
+          new kakao.maps.Size(24, 24),
+          { offset: new kakao.maps.Point(12, 35) }
+        ),
+        hover: new kakao.maps.MarkerImage(
+          "/Location_blue.png",
+          new kakao.maps.Size(30, 30),
+          { offset: new kakao.maps.Point(12, 35) }
+        )
+      };
 
       const createdMarkers = storeData.map((store, index) => {
         const marker = new kakao.maps.Marker({
           map,
           position: new kakao.maps.LatLng(store.latitude, store.longitude),
-          image: index === 0 ? redMarkerImage : normalMarkerImage,
+          image: index === 0 ? MARKER_IMAGES.selected : MARKER_IMAGES.normal,
         });
 
-        if (index === 0) {
-          selectedMarker = marker;
-        }
-
-        kakao.maps.event.addListener(marker, "click", function () {
-          if (selectedMarker) {
-            selectedMarker.setImage(normalMarkerImage);
-          }
-          marker.setImage(redMarkerImage);
-          selectedMarker = marker;
-
-          setSelectedStore(store);
-          map.panTo(marker.getPosition());
-        });
-
-        kakao.maps.event.addListener(marker, "mouseover", function () {
-          // 클릭된 마커가 없고, mouseover된 마커가 클릭된 마커가 아니면
-          // 마커의 이미지를 오버 이미지로 변경합니다
-          if (!selectedMarker || selectedMarker !== marker) {
-            marker.setImage(hoverMarkerImage);
-          }
-        });
-
-        kakao.maps.event.addListener(marker, "mouseout", function () {
-          if (!selectedMarker || selectedMarker !== marker) {
-            marker.setImage(normalMarkerImage);
-          }
-        });
-
-        return { store, marker };
+        const markerObj = { store, marker };
+        setupMarkerEvents(marker, markerObj, MARKER_IMAGES, map);
+        
+        return markerObj;
       });
 
       setMarkers(createdMarkers);
 
-      // storeData.forEach((store) => {
-      //   const latitude = store.latitude;
-      //   const longitude = store.longitude;
-      //   let coords = new kakao.maps.LatLng(latitude, longitude);
-
-      //   let marker = new kakao.maps.Marker({
-      //     map: map,
-      //     position: coords,
-      //     image: normalMarkerImage, // 기본 이미지 설정
-      //   });
-
-      //   // 마커 호버 이벤트(확대)
-      //   kakao.maps.event.addListener(marker, "mouseover", function () {
-      //     // 클릭된 마커가 없고, mouseover된 마커가 클릭된 마커가 아니면
-      //     // 마커의 이미지를 오버 이미지로 변경합니다
-      //     if (!selectedMarker || selectedMarker !== marker) {
-      //       marker.setImage(hoverMarkerImage);
-      //     }
-      //   });
-
-      //   kakao.maps.event.addListener(marker, "mouseout", function () {
-      //     if (!selectedMarker || selectedMarker !== marker) {
-      //       marker.setImage(normalMarkerImage);
-      //     }
-      //   });
-
-      //   // 마커 클릭 이벤트
-      //   kakao.maps.event.addListener(marker, "click", function () {
-      //     // 클릭된 마커가 없다면 클릭한 마커 이미지 변경
-      //     if (!selectedMarker || selectedMarker !== marker) {
-      //       if (selectedMarker) {
-      //         selectedMarker.setImage(normalMarkerImage); // 이전 마커 기본 이미지로 변경
-      //       }
-      //       marker.setImage(redMarkerImage); // 현재 클릭된 마커는 빨간색으로 변경
-      //       selectedMarker = marker; // 선택된 마커로 설정
-
-      //       map.panTo(marker.getPosition());
-      //     }
-      //   });
-      // });
+      return () => {
+        createdMarkers.forEach(({ marker }) => {
+          marker.setMap(null);
+        });
+      };
+    } catch (error) {
+      setError(error);
+      console.error("Error initializing map:", error);
     }
   }, [loaded]);
 
   const handleStoreClick = (store) => {
-    setSelectedStore(store);
+    try {
+      if (!markers || !window.kakao) return;
 
-    // 이전에 선택된 마커의 이미지 초기화
-    if (markers && selectedStore) {
-      const prevSelected = markers.find(
-        (m) => m.store.storeName === selectedStore.storeName
-      );
-      if (prevSelected) {
-        const newMarkerImage = new kakao.maps.MarkerImage(
-          "/Location_blue.png",
-          new kakao.maps.Size(24, 24)
+      // 이전 마커 초기화
+      if (selectedStore) {
+        const prevSelected = markers.find(
+          (m) => m.store.storeName === selectedStore.storeName
         );
-
-        prevSelected.marker.setImage(newMarkerImage);
+        if (prevSelected) {
+          const normalImage = new window.kakao.maps.MarkerImage(
+            "/Location_blue.png",
+            new window.kakao.maps.Size(24, 24),
+            { offset: new window.kakao.maps.Point(12, 35) }
+          );
+          prevSelected.marker.setImage(normalImage);
+        }
       }
-    }
 
-    // 새로 선택된 마커 이미지 변경
-    const selected = markers.find((m) => m.store.storeName === store.storeName);
+      // 새로운 마커 선택
+      const selected = markers.find((m) => m.store.storeName === store.storeName);
+      if (selected) {
+        const selectedImage = new window.kakao.maps.MarkerImage(
+          "/Location_red.png",
+          new window.kakao.maps.Size(24, 24),
+          { offset: new window.kakao.maps.Point(12, 35) }
+        );
+        selected.marker.setImage(selectedImage);
+        mapInstance?.panTo(selected.marker.getPosition());
+      }
 
-    if (selected) {
-      const newMarkerImage = new kakao.maps.MarkerImage(
-        "/Location_red.png", // 이미지 경로
-        new kakao.maps.Size(24, 24) // 이미지 크기
-      );
-
-      selected.marker.setImage(newMarkerImage); // setImage()에 MarkerImage 객체 전달
-      mapInstance.panTo(selected.marker.getPosition());
+      setSelectedStore(store);
+    } catch (error) {
+      console.error("Error handling store click:", error);
     }
   };
+
+  if (error) {
+    return <div>지도를 불러오는 중 오류가 발생했습니다: {error.message}</div>;
+  }
 
   return (
     <div className="flex">
