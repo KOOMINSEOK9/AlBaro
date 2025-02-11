@@ -17,6 +17,15 @@ pipeline {
             }
         }
 
+        stage('Prepare Environment') {
+            steps {
+                script {
+                    // .env 파일을 빌드 컨텍스트로 복사
+                    sh 'cp /home/ubuntu/S12P11B105/frontend/.env ./jenkins/.env'
+                }
+            }
+        }
+
         stage('Stop and Remove Existing Containers') {
             steps {
                 script {
