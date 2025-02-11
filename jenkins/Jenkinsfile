@@ -17,27 +17,31 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images') {
+         stage('Stop Existing Containers') {
             steps {
-                // Docker 이미지를 빌드
-                sh 'docker-compose build'
+                script {
+                    try {
+                        sh "${DOCKER_COMPOSE_PATH} -f jenkins/docker-compose.yml down"
+                    } catch (Exception e) {
+                        echo "No existing containers to stop."
+                    }
+                }
             }
         }
 
-        stage('Deploy') {
+        stage('Build and Start Containers') {
             steps {
-                // Docker 컨테이너를 실행
-                sh 'docker-compose up -d'
+                sh "${DOCKER_COMPOSE_PATH} -f jenkins/docker-compose.yml up --build -d"
             }
         }
     }
 
     post {
         success {
-            echo '빌드 및 배포가 성공적으로 완료되었습니다!'
+            echo '빌드 및 배포가 성공적으로 완료되었습니다! :)'
         }
         failure {
-            echo '빌드 또는 배포에 실패했습니다!'
+            echo '빌드 또는 배포에 실패했습니다!  ㅡ.ㅡ'
         }
     }
 }
