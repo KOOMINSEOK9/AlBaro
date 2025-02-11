@@ -8,7 +8,6 @@ import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "user")
-@Builder
 public class User {
 
     // 사용자 고유 ID
@@ -39,7 +38,7 @@ public class User {
     private String password;
 
     // 이름
-    @Column(name = "userName", nullable = false, length = 10)
+    @Column(name = "userName", nullable = false, length = 20)
     private String userName;
 
     // 휴대폰 번호
@@ -51,7 +50,7 @@ public class User {
     private String email;
 
     // 우편번호
-    @Column(name = "zipCode", length = 5)
+    @Column(name = "zipCode", length = 15)
     private String zipCode;
 
     // 도로명 주소

@@ -20,17 +20,10 @@ pipeline {
         stage('Stop and Remove Existing Containers') {
             steps {
                 script {
-                    // 모든 실행 중인 컨테이너 중지 및 제거
+                    // Jenkins 컨테이너 내부에서 도커 컴포즈를 사용하여 기존 컨테이너 중지 및 제거
                     sh '''
-                    # Stop existing containers
-                    if [ "$(docker ps -q)" ]; then
-                        docker stop $(docker ps -q)
-                    fi
-
-                    # Remove all containers
-                    if [ "$(docker ps -aq)" ]; then
-                        docker rm $(docker ps -aq)
-                    fi
+                    cd jenkins
+                    /usr/local/bin/docker-compose down
                     '''
                 }
             }
