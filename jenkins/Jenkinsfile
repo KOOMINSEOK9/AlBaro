@@ -24,7 +24,7 @@ pipeline {
                         sh '''
                         mkdir -p $PROJECT_PATH
                         echo "NEXT_PUBLIC_KAKAO_KEY=$NEXT_PUBLIC_KAKAO_KEY" > $PROJECT_PATH/.env
-                        cp $PROJECT_PATH/.env $PROJECT_PATH/../frontend/.env  // .env 파일을 Docker 빌드 컨텍스트로 복사
+                        cp $PROJECT_PATH/.env /var/jenkins_home/workspace/jenkinsTest/frontend/.env  // 정확한 경로로 복사
                         '''
                     }
                 }
