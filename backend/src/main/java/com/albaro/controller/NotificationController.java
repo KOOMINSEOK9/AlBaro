@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/notifications")
+@RequestMapping("api/notifications")
 public class NotificationController {
     private final NotificationService service;
 
@@ -30,7 +30,7 @@ public class NotificationController {
         return ResponseEntity.ok(notification);
     }
 
-    // 🔹 사용자의 storeId를 확인 후 공지사항 작성
+    // 사용자의 storeId에 공지사항 작성
     @PostMapping("/{userId}")
     public ResponseEntity<Notification> createNotificationForUser(@PathVariable Integer userId,
                                                                   @RequestBody Notification notification) {
