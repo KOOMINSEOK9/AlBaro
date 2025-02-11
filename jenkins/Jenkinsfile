@@ -20,7 +20,6 @@ pipeline {
         stage('Stop and Remove Existing Containers') {
             steps {
                 script {
-                    // Jenkins 컨테이너 내부에서 도커 컴포즈를 사용하여 기존 컨테이너 중지 및 제거
                     sh '''
                     cd jenkins
                     /usr/local/bin/docker-compose down
@@ -32,10 +31,9 @@ pipeline {
         stage('Build and Start Containers') {
             steps {
                 script {
-                    // Jenkins 컨테이너 내부에서 도커 컴포즈 실행
                     sh '''
                     cd jenkins
-                    /usr/local/bin/docker-compose -f docker-compose.yml up --build -d
+                    /usr/local/bin/docker-compose -f docker-compose.yml --env-file /var/jenkins_home/frontend.env up --build -d
                     '''
                 }
             }
