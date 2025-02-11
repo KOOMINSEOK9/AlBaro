@@ -1,5 +1,3 @@
-# 전부 root로 해버리기..일단..
-
 # jenkins/Dockerfile
 FROM jenkins/jenkins:lts
 
