@@ -4,7 +4,7 @@ pipeline {
     environment {
         EC2_IP = 'i12b105.p.ssafy.io'
         SSH_KEY = 'C:/Users/SSAFY/Desktop/I12B105T.pem'
-        PROJECT_PATH = "${WORKSPACE}"
+        PROJECT_PATH = "${WORKSPACE}/jenkins"
         GIT_REPO_URL = 'https://lab.ssafy.com/s12-webmobile1-sub1/S12P11B105.git'
         GIT_BRANCH = 'develop'
         DOCKER_COMPOSE_PATH = '/usr/local/bin/docker-compose'
@@ -36,7 +36,7 @@ pipeline {
                 script {
                     // Jenkins 컨테이너 내부에서 도커 컴포즈를 사용하여 기존 컨테이너 중지 및 제거
                     sh '''
-                    cd jenkins
+                    cd ${PROJECT_PATH}
                     /usr/local/bin/docker-compose down
                     '''
                 }
