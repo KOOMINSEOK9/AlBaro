@@ -46,7 +46,6 @@ pipeline {
                 script {
                     sh '''
                     cd $PROJECT_PATH
-                    cp .env $PROJECT_PATH/frontend/.env  // .env 파일을 올바른 디렉토리에 복사
                     $DOCKER_COMPOSE_PATH up --build -d
                     '''
                 }
