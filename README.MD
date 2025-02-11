@@ -1,1 +1,1 @@
-env test
+docker-compose 수정
