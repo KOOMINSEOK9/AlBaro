@@ -7,7 +7,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - ../frontend/.env
+      - /home/ubuntu/S12P11B105/frontend/.env
 
   backend:
     build:
