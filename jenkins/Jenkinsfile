@@ -24,6 +24,7 @@ pipeline {
                         sh '''
                         mkdir -p $PROJECT_PATH
                         echo "NEXT_PUBLIC_KAKAO_KEY=$NEXT_PUBLIC_KAKAO_KEY" > $PROJECT_PATH/.env
+                        mkdir -p /var/jenkins_home/workspace/jenkinsTest/frontend  // 대상 디렉토리 생성
                         cp $PROJECT_PATH/.env /var/jenkins_home/workspace/jenkinsTest/frontend/.env  // 정확한 경로로 복사
                         '''
                     }
