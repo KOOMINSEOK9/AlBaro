@@ -13,44 +13,5 @@ services:
       - JAVA_OPTS=-Djava.awt.headless=true
     privileged: true
 
-  backend:
-    build: ./backend
-    user: root
-    container_name: backend
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db
-
-  frontend:
-    build: ./frontend
-    user: root
-    container_name: frontend
-    ports:
-      - "3000:3000"
-
-  nginx:
-    build: ./nginx
-    user: root
-    container_name: nginx
-    ports:
-      - "80:80"
-    depends_on:
-      - frontend
-      - backend
-
-  db:
-    image: mysql:8
-    user: root
-    container_name: db
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: mydatabase
-    ports:
-      - "3306:3306"
-    volumes:
-      - db_data:/var/lib/mysql
-
 volumes:
-  db_data:
   jenkins_home:
