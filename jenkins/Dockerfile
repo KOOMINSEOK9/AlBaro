@@ -1,3 +1,6 @@
+# 전부 root로 해버리기..일단..
+
+# jenkins/Dockerfile
 FROM jenkins/jenkins:lts
 
 USER root
@@ -14,8 +17,8 @@ RUN apt-get update && \
 RUN curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && \
     chmod +x /usr/local/bin/docker-compose
 
-# Docker 그룹에 jenkins 사용자 추가
+# Docker 그룹에 jenkins 사용자 추가 (필요 시)
 RUN if ! getent group docker; then groupadd docker; fi && \
     usermod -aG docker jenkins
 
-USER jenkins
+# USER jenkins  # 이 줄은 주석 처리하거나 삭제
