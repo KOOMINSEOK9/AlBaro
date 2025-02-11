@@ -1,5 +1,5 @@
 // WorkInformation.java
-package com.project.albaro.entity;
+package com.albaro.entity;
 
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -16,7 +16,7 @@ public class WorkInformation {
     // 스케줄 고유 ID
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "scheduleId", columnDefinition = "UNSIGNED INT")
+    @Column(name = "scheduleId", columnDefinition = "INT UNSIGNED")
     private Integer scheduleId;
 
     // WorkInformation - store 관계 -> 다 대 1 : 여러개의 근무 정보가 하나의 지점에 연결 가능
@@ -26,7 +26,7 @@ public class WorkInformation {
     private Store store;
 
     // 근무정보 - 사용자 관계 -> 다 대 1
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false,  foreignKey = @ForeignKey(name = "FK_workInformation_user"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;// 근무자

@@ -1,4 +1,4 @@
-package com.albaro.backend;
+package com.albaro;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
