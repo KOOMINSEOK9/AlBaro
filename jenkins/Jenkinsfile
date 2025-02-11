@@ -4,11 +4,11 @@ pipeline {
     environment {
         EC2_IP = 'i12b105.p.ssafy.io'
         SSH_KEY = 'C:/Users/SSAFY/Desktop/I12B105T.pem'
-        PROJECT_PATH = '/home/ubuntu/S12P11B105'
+        PROJECT_PATH = "${WORKSPACE}"
         GIT_REPO_URL = 'https://lab.ssafy.com/s12-webmobile1-sub1/S12P11B105.git'
         GIT_BRANCH = 'develop'
         DOCKER_COMPOSE_PATH = '/usr/local/bin/docker-compose'
-         NEXT_PUBLIC_KAKAO_KEY = credentials('NEXT_PUBLIC_KAKAO_KEY')  // 젠킨스 Credentials 사용
+        NEXT_PUBLIC_KAKAO_KEY = credentials('NEXT_PUBLIC_KAKAO_KEY')
     }
 
     stages {
@@ -22,9 +22,9 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'NEXT_PUBLIC_KAKAO_KEY', variable: 'NEXT_PUBLIC_KAKAO_KEY')]) {
                     script {
-                        sh """
-                        echo 'NEXT_PUBLIC_KAKAO_KEY=${NEXT_PUBLIC_KAKAO_KEY}' > ${PROJECT_PATH}/.env
-                        """
+                        sh '''
+                        echo "NEXT_PUBLIC_KAKAO_KEY=$NEXT_PUBLIC_KAKAO_KEY" > ${PROJECT_PATH}/.env
+                        '''
                     }
                 }
             }
