@@ -25,7 +25,12 @@ pipeline {
                         mkdir -p $PROJECT_PATH
                         echo "NEXT_PUBLIC_KAKAO_KEY=$NEXT_PUBLIC_KAKAO_KEY" > $PROJECT_PATH/.env
                         mkdir -p /var/jenkins_home/workspace/jenkinsTest/frontend  // 대상 디렉토리 생성
-                        cp $PROJECT_PATH/.env /var/jenkins_home/workspace/jenkinsTest/frontend/.env  // 정확한 경로로 복사
+                        if [ -f "$PROJECT_PATH/.env" ]; then
+                            cp $PROJECT_PATH/.env /var/jenkins_home/workspace/jenkinsTest/frontend/.env  // 정확한 경로로 복사
+                        else
+                            echo ".env 파일이 존재하지 않습니다."
+                            exit 1
+                        fi
                         '''
                     }
                 }
