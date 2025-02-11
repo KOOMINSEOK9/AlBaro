@@ -17,14 +17,21 @@ pipeline {
             }
         }
 
-         stage('Stop Existing Containers') {
+        stage('Stop and Remove Existing Containers') {
             steps {
                 script {
-                    try {
-                        sh "${DOCKER_COMPOSE_PATH} -f jenkins/docker-compose.yml down"
-                    } catch (Exception e) {
-                        echo "No existing containers to stop."
-                    }
+                    // 모든 실행 중인 컨테이너 중지 및 제거
+                    sh '''
+                    # Stop existing containers
+                    if [ "$(docker ps -q)" ]; then
+                        docker stop $(docker ps -q)
+                    fi
+
+                    # Remove all containers
+                    if [ "$(docker ps -aq)" ]; then
+                        docker rm $(docker ps -aq)
+                    fi
+                    '''
                 }
             }
         }
