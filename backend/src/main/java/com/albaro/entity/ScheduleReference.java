@@ -1,5 +1,5 @@
 // ScheduleReference.java
-package com.project.albaro.entity;
+package com.albaro.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
