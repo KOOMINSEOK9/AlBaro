@@ -31,7 +31,13 @@ pipeline {
 
         stage('Build and Start Containers') {
             steps {
-                sh "${DOCKER_COMPOSE_PATH} -f jenkins/docker-compose.yml up --build -d"
+                script {
+                    // Jenkins 컨테이너 내부에서 도커 컴포즈 실행
+                    sh '''
+                    cd jenkins
+                    /usr/local/bin/docker-compose -f docker-compose.yml up --build -d
+                    '''
+                }
             }
         }
     }
