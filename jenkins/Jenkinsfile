@@ -53,7 +53,7 @@ pipeline {
                     // Jenkins 컨테이너 내부에서 도커 컴포즈 실행
                     sh '''
                     cd jenkins
-                    /usr/local/bin/docker-compose -f docker-compose.yml up --build -d
+                    /usr/local/bin/docker-compose up --build -d
                     '''
                 }
             }
