@@ -17,7 +17,7 @@ pipeline {
             }
         }
 
-        stage('Create .env file') {
+        stage('.env 파일 생성') {
             steps {
                 withCredentials([string(credentialsId: 'NEXT_PUBLIC_KAKAO_KEY', variable: 'NEXT_PUBLIC_KAKAO_KEY')]) {
                     script {
@@ -30,7 +30,7 @@ pipeline {
             }
         }
 
-        stage('Stop and Remove Existing Containers') {
+        stage('기존 컨테이너 중지 및 제거') {
             steps {
                 script {
                     sh '''
@@ -41,11 +41,12 @@ pipeline {
             }
         }
 
-        stage('Build and Start Containers') {
+        stage('컨테이너 빌드 및 시작') {
             steps {
                 script {
                     sh '''
                     cd $PROJECT_PATH
+                    cp .env $PROJECT_PATH/frontend/.env  // .env 파일을 올바른 디렉토리에 복사
                     $DOCKER_COMPOSE_PATH up --build -d
                     '''
                 }
