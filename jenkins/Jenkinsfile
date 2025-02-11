@@ -20,14 +20,15 @@ pipeline {
 
         stage('Create .env file') {
             steps {
-                withCredentials([string(credentialsId: 'NEXT_PUBLIC_KAKAO_KEY', variable: 'NEXT_PUBLIC_KAKAO_KEY')]) {
-                    script {
-                        sh '''
-                        echo "NEXT_PUBLIC_KAKAO_KEY=$NEXT_PUBLIC_KAKAO_KEY" > /home/ubuntu/S12P11B105/jenkins/.env
-                        '''
+                    withCredentials([string(credentialsId: 'NEXT_PUBLIC_KAKAO_KEY', variable: 'NEXT_PUBLIC_KAKAO_KEY')]) {
+                        script {
+                            sh '''
+                            mkdir -p $(pwd)/jenkins
+                            echo "NEXT_PUBLIC_KAKAO_KEY=$NEXT_PUBLIC_KAKAO_KEY" > $(pwd)/jenkins/.env
+                            '''
+                        }
                     }
                 }
-            }
         }
 
         stage('Stop and Remove Existing Containers') {
