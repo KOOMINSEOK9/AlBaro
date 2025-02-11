@@ -17,6 +17,15 @@ pipeline {
             }
         }
 
+        stage('Check Directory') {
+            steps {
+                script {
+                    sh 'pwd'
+                    sh 'ls -l /home/ubuntu/S12P11B105/jenkins/.env'
+                }
+            }
+        }
+
         stage('Prepare Environment') {
             steps {
                 script {
