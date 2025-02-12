@@ -1,32 +1,32 @@
-'use client'
-import { useState, useEffect } from 'react'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import axios from 'axios'
+"use client";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 // axios 인스턴스 생성
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   timeout: 5000,
   headers: {
-    'Content-Type': 'application/json',
-  }
+    "Content-Type": "application/json",
+  },
 });
 
 // 토큰 관리를 위한 유틸리티 함수들
 const tokenUtils = {
   setTokens: (accessToken, refreshToken) => {
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
   },
 
   clearTokens: () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
   },
 
-  getAccessToken: () => localStorage.getItem('accessToken'),
-  getRefreshToken: () => localStorage.getItem('refreshToken'),
+  getAccessToken: () => localStorage.getItem("accessToken"),
+  getRefreshToken: () => localStorage.getItem("refreshToken"),
 };
 
 // axios 인터셉터 설정
@@ -54,8 +54,8 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = tokenUtils.getRefreshToken();
-        const response = await axios.post('/api/auth/refresh', {
-          refreshToken
+        const response = await axios.post("/api/auth/refresh", {
+          refreshToken,
         });
 
         const { accessToken } = response.data;
@@ -65,7 +65,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         tokenUtils.clearTokens();
-        window.location.href = '/login';
+        window.location.href = "/login";
         return Promise.reject(refreshError);
       }
     }
@@ -77,36 +77,38 @@ export default function Login() {
   const router = useRouter();
   const [focused, setFocused] = useState({
     username: false,
-    password: false
+    password: false,
   });
   const [credentials, setCredentials] = useState({
-    username: '',
-    password: ''
+    username: "",
+    password: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   // 이미 로그인되어 있는지 확인
   useEffect(() => {
     const accessToken = tokenUtils.getAccessToken();
     if (accessToken) {
-      router.push('/main');
+      router.push("/main");
     }
   }, [router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     try {
-      const response = await api.post('/api/auth/login', credentials);
+      const response = await api.post("/api/auth/login", credentials);
       const { accessToken, refreshToken } = response.data;
 
       tokenUtils.setTokens(accessToken, refreshToken);
-      router.push('/main');
+      router.push("/main");
     } catch (err) {
-      const errorMessage = err.response?.data?.message || '사원번호 또는 비밀번호가 올바르지 않습니다.';
+      const errorMessage =
+        err.response?.data?.message ||
+        "사원번호 또는 비밀번호가 올바르지 않습니다.";
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -135,23 +137,31 @@ export default function Login() {
                   type="text"
                   className="w-full pb-2 pl-8 border-b border-gray-300 focus:outline-none focus:border-black transition-colors bg-transparent"
                   style={{
-                    borderColor: error ? '#ef4444' : ''
+                    borderColor: error ? "#ef4444" : "",
                   }}
                   value={credentials.username}
-                  onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
-                  onFocus={() => setFocused(prev => ({ ...prev, username: true }))}
+                  onChange={(e) =>
+                    setCredentials((prev) => ({
+                      ...prev,
+                      username: e.target.value,
+                    }))
+                  }
+                  onFocus={() =>
+                    setFocused((prev) => ({ ...prev, username: true }))
+                  }
                   onBlur={() => {
                     if (!credentials.username) {
-                      setFocused(prev => ({ ...prev, username: false }))
+                      setFocused((prev) => ({ ...prev, username: false }));
                     }
                   }}
                   disabled={isLoading}
                 />
                 <span
-                  className={`absolute left-0 transition-all duration-300 ${focused.username || credentials.username
-                    ? '-top-5 text-[0.60rem] text-gray-600'
-                    : 'top-[45%] -translate-y-1/2 left-8 text-sm text-gray-400'
-                    }`}
+                  className={`absolute left-0 transition-all duration-300 ${
+                    focused.username || credentials.username
+                      ? "-top-5 text-[0.60rem] text-gray-600"
+                      : "top-[45%] -translate-y-1/2 left-8 text-sm text-gray-400"
+                  }`}
                 >
                   사원번호
                 </span>
@@ -171,23 +181,31 @@ export default function Login() {
                   type="password"
                   className="w-full pb-2 pl-8 border-b border-gray-300 focus:outline-none focus:border-black transition-colors bg-transparent"
                   style={{
-                    borderColor: error ? '#ef4444' : ''
+                    borderColor: error ? "#ef4444" : "",
                   }}
                   value={credentials.password}
-                  onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
-                  onFocus={() => setFocused(prev => ({ ...prev, password: true }))}
+                  onChange={(e) =>
+                    setCredentials((prev) => ({
+                      ...prev,
+                      password: e.target.value,
+                    }))
+                  }
+                  onFocus={() =>
+                    setFocused((prev) => ({ ...prev, password: true }))
+                  }
                   onBlur={() => {
                     if (!credentials.password) {
-                      setFocused(prev => ({ ...prev, password: false }))
+                      setFocused((prev) => ({ ...prev, password: false }));
                     }
                   }}
                   disabled={isLoading}
                 />
                 <span
-                  className={`absolute left-0 transition-all duration-300 ${focused.password || credentials.password
-                    ? '-top-5 text-[0.60rem] text-gray-600'
-                    : 'top-[45%] -translate-y-1/2 left-8 text-sm text-gray-400'
-                    }`}
+                  className={`absolute left-0 transition-all duration-300 ${
+                    focused.password || credentials.password
+                      ? "-top-5 text-[0.60rem] text-gray-600"
+                      : "top-[45%] -translate-y-1/2 left-8 text-sm text-gray-400"
+                  }`}
                 >
                   비밀번호
                 </span>
@@ -200,11 +218,12 @@ export default function Login() {
 
               <button
                 type="submit"
-                className={`w-full py-3 mt-2 text-white bg-black hover:bg-gray-800 transition-colors rounded-md ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
+                className={`w-full py-3 mt-2 text-white bg-black hover:bg-gray-800 transition-colors rounded-md ${
+                  isLoading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
                 disabled={isLoading}
               >
-                {isLoading ? '로그인 중...' : '로그인'}
+                {isLoading ? "로그인 중..." : "로그인"}
               </button>
             </div>
           </form>
@@ -218,7 +237,7 @@ export default function Login() {
             alt="Coffee"
             fill
             className="object-fit"
-            style={{ objectPosition: 'center' }}
+            style={{ objectPosition: "center" }}
             priority
             sizes="50vw"
           />
