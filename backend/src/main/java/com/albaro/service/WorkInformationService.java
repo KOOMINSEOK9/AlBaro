@@ -54,5 +54,10 @@ public class WorkInformationService {
                 .map(User::getUserName)  // 사용자 이름 반환
                 .orElse("Unknown User");  // 사용자 이름이 없을 경우 기본값 반환
     }
+
+    // 스케줄 삭제
+    public void deleteSchedule(Integer scheduleId) {
+        workInformationRepository.deleteById(scheduleId);
+    }
 }
 

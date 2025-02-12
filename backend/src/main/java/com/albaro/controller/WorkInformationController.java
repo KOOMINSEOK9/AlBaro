@@ -3,10 +3,8 @@ package com.albaro.controller;
 import com.albaro.dto.WorkInformationResponse;
 import com.albaro.service.WorkInformationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,4 +20,12 @@ public class WorkInformationController {
     public List<WorkInformationResponse> getWorkInformationsByStoreId(@PathVariable Integer storeId) {
         return workInformationService.getWorkInformationByStoreId(storeId);
     }
+
+    // 스케줄 삭제
+    @DeleteMapping("/{scheduleId}")
+    public ResponseEntity<Void> deleteSchedule(@PathVariable Integer scheduleId) {
+        workInformationService.deleteSchedule(scheduleId);
+        return ResponseEntity.noContent().build();
+    }
+
 }
