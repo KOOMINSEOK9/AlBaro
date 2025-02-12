@@ -70,6 +70,7 @@ public class WorkInformationService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Schedule not found with id: " + scheduleId));
 
         workInfo.setVacant(true);
+        workInfo.setRealTimeWorker(null);
         workInformationRepository.save(workInfo);
     }
 
