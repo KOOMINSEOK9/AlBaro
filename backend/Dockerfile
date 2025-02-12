@@ -2,12 +2,14 @@
 FROM openjdk:17-jdk-slim
 WORKDIR /app
 
-# Gradle Wrapper 및 소스 코드 복사
 COPY gradlew .
 COPY gradle gradle
 COPY build.gradle .
 COPY settings.gradle .
 COPY src src
+
+# gradlew 파일에 실행 권한 부여
+RUN chmod +x gradlew
 
 # Gradle 빌드
 RUN ./gradlew build --no-daemon
