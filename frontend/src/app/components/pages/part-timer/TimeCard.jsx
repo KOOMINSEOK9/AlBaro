@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
-const TimeCard = ({ times }) => {
+const TimeCard = ({ times, selectedStore }) => {
+  console.log(times);
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const handleMouseEnter = (index) => {
@@ -34,17 +35,23 @@ const TimeCard = ({ times }) => {
             onMouseLeave={handleMouseLeave}
           >
             {/* 시간 표시 */}
-            {new Date(time.startTime).toLocaleTimeString("ko-KR", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            })}{" "}
+            {new Date(`${time.workDate}T${time.startTime}`).toLocaleTimeString(
+              "ko-KR",
+              {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              }
+            )}{" "}
             <span>-</span>{" "}
-            {new Date(time.endTime).toLocaleTimeString("ko-KR", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            })}
+            {new Date(`${time.workDate}T${time.endTime}`).toLocaleTimeString(
+              "ko-KR",
+              {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              }
+            )}
             {/* Hover 시 버튼 표시 */}
             {hoveredIndex === index && (
               <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center">
