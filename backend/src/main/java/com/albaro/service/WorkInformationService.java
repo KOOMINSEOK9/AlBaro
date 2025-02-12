@@ -5,8 +5,11 @@ import com.albaro.entity.User;
 import com.albaro.entity.WorkInformation;
 import com.albaro.repository.UserRepository;
 import com.albaro.repository.WorkInformationRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -58,6 +61,16 @@ public class WorkInformationService {
     // 스케줄 삭제
     public void deleteSchedule(Integer scheduleId) {
         workInformationRepository.deleteById(scheduleId);
+    }
+
+    // 근무 공석 처리
+    @Transactional
+    public void markAsVacant(Integer scheduleId) {
+        WorkInformation workInfo = workInformationRepository.findById(scheduleId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Schedule not found with id: " + scheduleId));
+
+        workInfo.setVacant(true);
+        workInformationRepository.save(workInfo);
     }
 }
 

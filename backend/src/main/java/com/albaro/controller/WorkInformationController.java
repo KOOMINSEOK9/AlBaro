@@ -28,4 +28,10 @@ public class WorkInformationController {
         return ResponseEntity.noContent().build();
     }
 
+    // 공석 처리
+    @PatchMapping("/{scheduleId}/vacant")
+    public ResponseEntity<Void> markAsVacant(@PathVariable Integer scheduleId) {
+        workInformationService.markAsVacant(scheduleId);
+        return ResponseEntity.noContent().build();
+    }
 }
