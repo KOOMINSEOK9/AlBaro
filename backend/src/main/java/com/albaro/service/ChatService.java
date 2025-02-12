@@ -1,19 +1,19 @@
-package com.albaro.service;
-
-import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.albaro.repository.ChatRoomRepository;
-import com.albaro.repository.UserRepository;
-import com.albaro.entity.ChatRoom;
-import com.albaro.dto.ChatMessageDto;
-import com.albaro.entity.User;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.time.LocalDateTime;
-
-@Service
-public class ChatService {
+//package com.albaro.service;
+//
+//import org.springframework.stereotype.Service;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
+//import com.albaro.repository.ChatRoomRepository;
+//import com.albaro.repository.UserRepository;
+//import com.albaro.entity.ChatRoom;
+//import com.albaro.dto.ChatMessageDto;
+//import com.albaro.entity.User;
+//import java.util.List;
+//import java.util.stream.Collectors;
+//import java.time.LocalDateTime;
+//
+//@Service
+//public class ChatService {
 //    private static final Logger logger = LoggerFactory.getLogger(ChatService.class);
 //
 //    private final ChatRoomRepository chatRoomRepository;
@@ -54,4 +54,4 @@ public class ChatService {
 //
 //        return dto;
 //    }
-}
+//}

@@ -1,4 +1,4 @@
-const Menual = () => {
+const Notice = () => {
   return (
     <>
       <div>notice</div>

@@ -5,8 +5,11 @@ import com.albaro.entity.User;
 import com.albaro.entity.WorkInformation;
 import com.albaro.repository.UserRepository;
 import com.albaro.repository.WorkInformationRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,5 +57,42 @@ public class WorkInformationService {
                 .map(User::getUserName)  // 사용자 이름 반환
                 .orElse("Unknown User");  // 사용자 이름이 없을 경우 기본값 반환
     }
+
+    // 스케줄 삭제
+    public void deleteSchedule(Integer scheduleId) {
+        workInformationRepository.deleteById(scheduleId);
+    }
+
+    // 근무 공석 처리
+    @Transactional
+    public void markAsVacant(Integer scheduleId) {
+        WorkInformation workInfo = workInformationRepository.findById(scheduleId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Schedule not found with id: " + scheduleId));
+
+        workInfo.setVacant(true);
+        workInfo.setRealTimeWorker(null);
+        workInformationRepository.save(workInfo);
+    }
+
+    // 대타자 요청 수락시 스케줄 정보 변경
+    @Transactional
+    public void acceptSubstitute(Integer scheduleId, Integer workerId) {
+        WorkInformation workInfo = workInformationRepository.findById(scheduleId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Schedule not found with id: " + scheduleId));
+
+        User newWorker = userRepository.findById(workerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Worker not found with id: " + workerId));
+
+        // 근무자의 정보를 변경
+        workInfo.setRealTimeWorker(newWorker.getAccountId());
+
+        // isVacant가 True였다면 False로 변경
+        if (workInfo.getVacant()) {
+            workInfo.setVacant(false);
+        }
+
+        workInformationRepository.save(workInfo);
+    }
+
 }
 
