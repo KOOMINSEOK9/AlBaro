@@ -60,7 +60,7 @@ public class WorkInformation {
 
     }
 
-    public WorkInformation(Integer scheduleId, Store store, User user, LocalDate workDate, LocalTime startTime, LocalTime endTime, Boolean isVacant, LocalTime checkInTime, LocalTime checkOutTime, int realTimeWorker) {
+    public WorkInformation(Integer scheduleId, Store store, User user, LocalDate workDate, LocalTime startTime, LocalTime endTime, Boolean isVacant, LocalTime checkInTime, LocalTime checkOutTime, Integer realTimeWorker) {
         this.scheduleId = scheduleId;
         this.store = store;
         this.user = user;

@@ -1,0 +1,158 @@
+package com.albaro.controller;
+
+import com.albaro.dto.StoreDto;
+import com.albaro.dto.UserDto;
+import com.albaro.dto.WorkInformationDto;
+import com.albaro.entity.WorkInformation;
+import com.albaro.service.StoreService;
+import com.albaro.service.SubstitutionService;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/api/substitute")
+public class SubstitutionController {
+
+    private final SubstitutionService substitutionService;
+    private final StoreService storeService;
+
+    public SubstitutionController(SubstitutionService substitutionService, StoreService storeService){
+        this.substitutionService = substitutionService;
+        this.storeService = storeService;
+    }
+
+    //--------------------알바생 -> 점장( 공석이 있는 지점 찾기)
+
+    //1. 반경 내 지점 리스트 조회 API
+    @GetMapping("/nearby-stores")
+    public ResponseEntity<?> findNearbyStores(@RequestParam int userId) {
+        List<StoreDto> nearbyStores = storeService.findNearbyStores(userId);
+
+        if(nearbyStores == null || nearbyStores.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("주변 지점이 없습니다.");
+        }
+        return ResponseEntity.ok(nearbyStores);
+    }
+
+    //2. 선택한 지점의 공석 확인 API
+    @GetMapping("/available-stores")
+    public ResponseEntity<?> checkVacantSchedule(
+            @RequestParam int storeId) {
+
+        List<WorkInformation> vacantInfo = storeService.checkVacantSchedule(storeId);
+
+        if(vacantInfo == null || vacantInfo.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("해당 시간대에 공석이 없습니다.");
+        }
+
+        List<WorkInformationDto> dtoList = vacantInfo.stream()
+                .map(WorkInformationDto::fromEntity)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(dtoList);
+    }
+
+    //3. 대타 요청 보내기 API
+    @PostMapping("/request")
+    public ResponseEntity<Void> sendSubstitutionRequest(
+            @RequestParam int senderId,
+            @RequestParam int storeId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate workDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime){
+
+        substitutionService.sendSubstitutionRequest(senderId, storeId, workDate, startTime, endTime);
+        return ResponseEntity.ok().build();
+    }
+
+    //4. 대타 요청 승인 API
+    @PostMapping("/approve/{alarmId}")
+    public ResponseEntity<Void> approveSubstitutionRequest(
+            @PathVariable int alarmId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate workDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)LocalTime startTime,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)LocalTime endTime){
+        substitutionService.approveSubstitutionRequest(alarmId, workDate, startTime, endTime);
+        return ResponseEntity.ok().build();
+    }
+
+    //5. 대타 요청 거절 API
+    @PostMapping("/reject/{alarmId}")
+    public ResponseEntity<Void> rejectSubstitutionRequest(@PathVariable int alarmId){
+        substitutionService.rejectSubstitutionRequest(alarmId);
+        return ResponseEntity.ok().build();
+    }
+
+    //----------------------점장 -> 알바생(공석 채우기)
+
+    //1. 지점별 근무 가능한 알바생 목록 조회
+    @GetMapping("/available-workers")
+    public ResponseEntity<?> getAvailableWorkers(@RequestParam int userId) {
+        List<UserDto> availableWorkers = substitutionService.getAvailableWorkers(userId);
+
+        if (availableWorkers.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("해당 지점에 근무 가능한 알바생이 없습니다.");
+        }
+
+        return ResponseEntity.ok(availableWorkers);
+    }
+
+    //2. 점장이 알바생에게 대타 요청하기
+    @PostMapping("/request-to-worker")
+    public ResponseEntity<Void> requestSubstitutionToWorker(
+            @RequestParam int userId, //로그인 하고 있는 사용자
+            @RequestParam String userName, // 대타를 요청 할 알바생 이름
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate workDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime) {
+
+        substitutionService.requestSubstitution(userId, userName,
+                workDate, startTime, endTime);
+        return ResponseEntity.ok().build();
+    }
+
+    // 알바생이 근무 수락
+    @PostMapping("/approve-work")
+    public ResponseEntity<Void> approveWorkRequest(
+            @RequestParam int alarmId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate workDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime) {
+
+        try {
+            substitutionService.approveWorkRequest(alarmId, workDate, startTime, endTime);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        }
+    }
+
+    // 알바생이 근무 거절
+    @PostMapping("/reject-work")
+    public ResponseEntity<Void> rejectWorkRequest(@RequestParam int alarmId) {
+        try {
+            substitutionService.rejectWorkRequest(alarmId);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        }
+    }
+
+}
