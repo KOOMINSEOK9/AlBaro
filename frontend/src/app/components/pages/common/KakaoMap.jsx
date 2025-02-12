@@ -98,9 +98,18 @@ const KakaoMap = () => {
 
   // 지도 출력
   useEffect(() => {
+    console.log("API Key:", process.env.NEXT_PUBLIC_KAKAO_KEY); // API 키가 제대로 로드되는지 확인
+  
+    if (!process.env.NEXT_PUBLIC_KAKAO_KEY) {
+      setError(new Error("API 키가 설정되지 않았습니다."));
+      return;
+    }
+
+
     if (typeof window !== "undefined" && !window.kakao) {
       const script = document.createElement("script");
-      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_KEY}&autoload=false&libraries=services`;
+      //script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_KEY}&autoload=false&libraries=services`;
+      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_KEY}&autoload=false&libraries=services`;
       script.async = true;
       document.head.appendChild(script);
 

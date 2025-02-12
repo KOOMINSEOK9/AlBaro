@@ -1,22 +1,26 @@
-# frontend/Dockerfile
-# node:20-alpine 이미지를 사용하여 Node.js 20.x 버전을 기반으로 합니다. 이는 최신 Next.js와 호환됩니다.
+# Node.js 20.x 버전 (Alpine 기반)
 FROM node:20-alpine
 
-# Create app directory
+# 작업 디렉토리 설정
 WORKDIR /app
 
-# Install app dependencies
+# package.json 및 package-lock.json 복사 후 의존성 설치
 COPY package*.json ./
+
+# .env 파일 복사
+COPY .env .env
+
+
 RUN npm install
 
-# Copy app source code
+# 프로젝트 소스 복사
 COPY . .
 
-# Build the app
+# Next.js 빌드 실행
 RUN npm run build
 
-# Expose the port the app runs on
+# 포트 개방
 EXPOSE 3000
 
-# Start the app
+# 앱 실행
 CMD ["npm", "start"]
