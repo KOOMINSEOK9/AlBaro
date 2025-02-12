@@ -1,0 +1,141 @@
+[33m652d626[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mYuJunghyun[m[33m, [m[1;31morigin/YuJunghyun[m[33m)[m feat: 대타 요청 기능 및 로그인 기능 추가
+[33m97b36d5[m Merge develop into YuJunghyun
+[33m6a7abfb[m workInformation 수정
+[33ma9e08ef[m test
+[33mdab0725[m DinD 방식
+[33m9de12a8[m DinD 방식
+[33m3ee89ac[m Merge branch 'develop' of https://lab.ssafy.com/s12-webmobile1-sub1/S12P11B105 into develop Please enter a commit message to explain why this merge is necessary,
+[33md21e02c[m test
+[33md3d992b[m rename: 폴더변경
+[33mce08916[m 폴더 변경
+[33mfa1c037[m test
+[33m3c7c0a8[m 도커 이미지 전부 다시 빌드
+[33m6488e88[m 권한 바꾸기
+[33m7afd34f[m Merge branch 'develop' of https://lab.ssafy.com/s12-webmobile1-sub1/S12P11B105 into develop
+[33meabb368[m test
+[33m7bc433d[m Update DockerFile
+[33m9cb80c8[m test
+[33m2bf7a0a[m 백엔드 도커파일 수정
+[33ma7021d3[m 수정
+[33mbff4566[m test
+[33mdd73b5d[m test
+[33m944a064[m feat: 공통 폴더 생성
+[33mf43623f[m Feat: 공통 엔티티 생성
+[33mb57f756[m Docker 데몬 작동
+[33ma84135d[m  Jenkins가 해당 디렉토리에 접근할 수 있는 권한 부여
+[33mc7f0cd2[m jenkins/Dockerfile 정보 절대 경로로 수정
+[33m1b92c59[m C:/Program Files/Git/var/run/docker.sock의 그룹 소유권을 docker
+[33maa66a00[m 파이프라인 PermissionError 해결 노력
+[33mf92f953[m test
+[33mfb92807[m test
+[33m996f067[m test
+[33m8966584[m merge resolved
+[33m2674cd3[m 젠킨스 도커파일 수정
+[33m373b8d4[m feat: 지도, 캘린더, 헤더 푸터 UI 구현
+[33m2bd96b6[m feat: 메인 페이지, 대타 구하기(지도) 페이지, 헤더 푸터
+[33m0be8acc[m test
+[33m0689a13[m test
+[33m931346c[m test
+[33mfda931e[m root 삭제
+[33maca2414[m test
+[33mafed7fa[m 젠킨스 복구
+[33mbd3fc63[m test
+[33mecf7830[m test
+[33m51e1b94[m test
+[33mdea0833[m test
+[33m531950c[m test
+[33m99f0d3a[m test
+[33mf934e98[m test
+[33m2d24753[m test
+[33m10e10ce[m jenkins 다시 테스트
+[33m2bf7e5a[m Merge changes from origin/develop
+[33m419af3a[m npm 설치 관련 Jenkinsfile 추가
+[33m9fb7f01[m Merge branch 'feature/login' into 'develop'
+[33m5446dbf[m feat: 로그인 UI 구현
+[33m9b4a1ff[m feat: 로그인 UI 구현
+[33me59f5fd[m test
+[33m2f9caf3[m gradlew 파일에 실행 권한 추가
+[33mae1e483[m 백엔드 빌드 테스트
+[33mc85a3b9[m push
+[33md938528[m test
+[33m22832c4[m 포트 다 열고, 모든 구조 도커 컴포즈에 들어간 상태 테스트
+[33m5a0c07a[m test
+[33m871acd4[m test
+[33meb9d832[m 5
+[33m10d1774[m 4
+[33me881ccb[m 3
+[33mfaff823[m 2
+[33m0d9c373[m 1
+[33m940952f[m test
+[33m8123b3b[m test
+[33m3669738[m test
+[33mcb9e971[m test
+[33m16ae6d7[m test
+[33m63f57e5[m test
+[33m5f2d4d4[m test
+[33mca8313b[m test
+[33mb7feb1f[m test
+[33m7b4ba89[m test
+[33mf476e1f[m test
+[33md23143c[m 젠킨스 새롭게 빌드 후 테스트
+[33m7220c2d[m Made Docker file to bulid Docker,Docker-compose in jenkins container
+[33m2c8a53a[m test
+[33m2c92b53[m docker-compose 설치 완료
+[33m6ef7cde[m test
+[33m20c2e16[m test
+[33m640e818[m  test
+[33m9e69d0a[m build test
+[33m12f3108[m 권한 주고 테스트
+[33me3451d4[m 다른 플러그인 추가 설치
+[33m8ca32b6[m After Docker pipeline plugin installed
+[33m787fd6e[m 20250207 도커 플러그인 설치 후 파이프라인 테스트
+[33mc555c6d[m 20250207 0757
+[33mcc71f7e[m 20250207 0753
+[33mb5b080c[m docker-compose 인식하는지 테스트
+[33m06abfe3[m 젠킨스 환경 변수 PATH 설정 변경
+[33m1d7a6ff[m 20250207 젠킨스 PATH 환경 변수 설정 후 테스트
+[33m2e8f469[m 20250207 build test
+[33mece5761[m docker-compose build test
+[33m0514951[m test18
+[33m23b9e10[m test17
+[33m1dcd8e0[m test16
+[33m12a5c86[m test15
+[33mc26187e[m test14
+[33mcf6b359[m test13
+[33m3155deb[m test12
+[33m10ed6d4[m test11
+[33m1169ce9[m test10
+[33m6baef74[m test9
+[33m21d47ff[m test8
+[33md1e7c94[m test7
+[33m4624089[m test6
+[33m6d77acd[m test5
+[33ma3cb985[m test3
+[33m2229f68[m test3
+[33m52e787b[m test2
+[33m020ddba[m test2
+[33m703d7af[m test
+[33m5552a0f[m Webhook Test입니다
+[33m80bf4b8[m Webhook text - README
+[33ma3fe55f[m 20250206 EC2 to repo
+[33me25a0f5[m 20250206 local to EC2
+[33madaa09e[m SEUNGHO - Initial commit
+[33m3a3878f[m[33m ([m[1;32mfeature/user[m[33m)[m Merge branch 'RyuHyunWoong' into 'feature/user'
+[33m4d5e60b[m 1주차 학습내용
+[33m3388ff3[m Merge branch 'alstkd2919-feature/user-patch-98745' into 'feature/user'
+[33m31c4f56[m 느낀점점 -> 느낀점 오타 수정
+[33m52336c0[m Merge branch 'RyuHyunWoong' into 'feature/user'
+[33m492f2cd[m Merge branch 'LeeMinSang' into 'feature/user'
+[33m24554e8[m Merge branch 'WooYeonJu' into 'feature/user'
+[33m52a8d8f[m 1주차 학습내용
+[33mfebbfdc[m 우연주 1주차 학습내용 정리
+[33md42ebab[m 학습 내용 제출
+[33m5eb4ab2[m Merge branch 'tmdgh0124-feature/user-patch-46623' into 'feature/user'
+[33m22ef6ca[m Update 유승호/20250116.md
+[33m20d79f9[m Merge branch 'YuJunghyun' into 'feature/user'
+[33m66d161b[m 유정현 제출
+[33m0d8da69[m Merge branch 'KooMinSeok' into 'feature/user'
+[33m0aeefed[m 20250107 이번주 학습 자료
+[33mbae40a2[m Merge branch 'YooSeungho' into 'feature/user'
+[33m150d36a[m Update 유승호/20250116.txt
+[33m9edbd2e[m 팀원 폴더 생성
