@@ -34,4 +34,15 @@ public class WorkInformationController {
         workInformationService.markAsVacant(scheduleId);
         return ResponseEntity.noContent().build();
     }
+
+    // 대타 요청 수락시 수락자 근무 내용 변경
+    @PatchMapping("/{scheduleId}/accept-substitute/{workerId}")
+    public ResponseEntity<Void> acceptSubstitute(
+            @PathVariable Integer scheduleId,
+            @PathVariable Integer workerId) {
+
+        workInformationService.acceptSubstitute(scheduleId, workerId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

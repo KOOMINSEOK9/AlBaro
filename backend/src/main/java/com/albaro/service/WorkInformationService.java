@@ -72,5 +72,26 @@ public class WorkInformationService {
         workInfo.setVacant(true);
         workInformationRepository.save(workInfo);
     }
+
+    // 대타자 요청 수락시 스케줄 정보 변경
+    @Transactional
+    public void acceptSubstitute(Integer scheduleId, Integer workerId) {
+        WorkInformation workInfo = workInformationRepository.findById(scheduleId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Schedule not found with id: " + scheduleId));
+
+        User newWorker = userRepository.findById(workerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Worker not found with id: " + workerId));
+
+        // 근무자의 정보를 변경
+        workInfo.setRealTimeWorker(newWorker.getAccountId());
+
+        // isVacant가 True였다면 False로 변경
+        if (workInfo.getVacant()) {
+            workInfo.setVacant(false);
+        }
+
+        workInformationRepository.save(workInfo);
+    }
+
 }
 
