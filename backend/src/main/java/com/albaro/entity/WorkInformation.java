@@ -143,11 +143,11 @@ public class WorkInformation {
         this.checkOutTime = checkOutTime;
     }
 
-    public int getRealTimeWorker() {
+    public Integer getRealTimeWorker() {
         return realTimeWorker;
     }
 
-    public void setRealTimeWorker(int realTimeWorker) {
+    public void setRealTimeWorker(Integer realTimeWorker) {
         this.realTimeWorker = realTimeWorker;
     }
 }
