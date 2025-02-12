@@ -1,8 +1,6 @@
-// ScheduleReference.java
 package com.albaro.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDate;
@@ -10,44 +8,36 @@ import java.time.LocalTime;
 
 @Entity
 @Table(name = "scheduleReference")
-@Builder
 public class ScheduleReference {
 
-    // 희망 근무 참조 일정 고유 ID
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)  // ✅ AUTO_INCREMENT 설정
     @Column(name = "scheduleReferenceId", columnDefinition = "INT UNSIGNED")
     private Integer scheduleReferenceId;
 
-    // 대타 희망자
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", foreignKey = @ForeignKey(name = "FK_scheduleReference_user"))
+    @JoinColumn(name = "userId", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
-    //가게 Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "storeId", foreignKey = @ForeignKey(name = "FK_scheduleReference_store"))
+    @JoinColumn(name = "storeId", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Store store;
 
-    // 대타 희망 날짜
-    @Column(name = "scheduleDate")
+    @Column(name = "scheduleDate", nullable = false)
     private LocalDate scheduleDate;
 
-    // 대타 희망 시작 시간
-    @Column(name = "scheduleStartTime")
+    @Column(name = "scheduleStartTime", nullable = false)
     private LocalTime scheduleStartTime;
 
-    // 대타 희망 종료 시간
-    @Column(name = "scheduleEndTime")
+    @Column(name = "scheduleEndTime", nullable = false)
     private LocalTime scheduleEndTime;
 
-    public ScheduleReference(){
-    }
+    public ScheduleReference() {}
 
-    public ScheduleReference(Integer scheduleReferenceId, User user, Store store, LocalDate scheduleDate, LocalTime scheduleStartTime, LocalTime scheduleEndTime) {
-        this.scheduleReferenceId = scheduleReferenceId;
+    // ✅ ID 제거 → JPA가 자동 증가(AUTO_INCREMENT)하도록 설정
+    public ScheduleReference(User user, Store store, LocalDate scheduleDate, LocalTime scheduleStartTime, LocalTime scheduleEndTime) {
         this.user = user;
         this.store = store;
         this.scheduleDate = scheduleDate;
@@ -57,10 +47,6 @@ public class ScheduleReference {
 
     public Integer getScheduleReferenceId() {
         return scheduleReferenceId;
-    }
-
-    public void setScheduleReferenceId(Integer scheduleReferenceId) {
-        this.scheduleReferenceId = scheduleReferenceId;
     }
 
     public User getUser() {
