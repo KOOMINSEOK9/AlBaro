@@ -11,7 +11,7 @@ import java.time.LocalTime;
 public class ScheduleReference {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // ✅ AUTO_INCREMENT 설정
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "scheduleReferenceId", columnDefinition = "INT UNSIGNED")
     private Integer scheduleReferenceId;
 
@@ -36,7 +36,7 @@ public class ScheduleReference {
 
     public ScheduleReference() {}
 
-    // ✅ ID 제거 → JPA가 자동 증가(AUTO_INCREMENT)하도록 설정
+
     public ScheduleReference(User user, Store store, LocalDate scheduleDate, LocalTime scheduleStartTime, LocalTime scheduleEndTime) {
         this.user = user;
         this.store = store;
