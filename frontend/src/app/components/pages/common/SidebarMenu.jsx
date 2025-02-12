@@ -1,58 +1,31 @@
-// SidebarMenu.jsx
-'use client';
+"use client";
 
-import React, { useState } from "react";
-import ChatRoom from "../chat/ChatRoom";
-import Notice from "../notice/Notice";
-import Manual from "../manual/Manual";
-import { MessageSquare, Bell, Book } from 'lucide-react';
+import { useState } from "react";
+// import Chat from "./Chat.jsx";
+// import Notice from "./Notice.jsx";
+// import Menual from "./Menual.jsx";
 
 const SidebarMenu = () => {
-  const [activeComponent, setActiveComponent] = useState(<ChatRoom />);
-  const [activeMenu, setActiveMenu] = useState('Chat');
-
-  const handleMenuClick = (component, menuName) => {
-    setActiveComponent(component);
-    setActiveMenu(menuName);
-  };
+  // const [activeComponent, setActiveComponent] = useState(<Chat />); // 초기 화면 설정
 
   return (
-    <div className="flex h-full min-h-screen bg-white">
+    <div style={{ display: "flex" }}>
       {/* 사이드바 메뉴 */}
-      <div className="w-16 bg-white border-r flex flex-col items-center py-4 space-y-6">
-        <div
-          className={`p-2.5 rounded-lg cursor-pointer transition-colors ${activeMenu === 'Chat'
-            ? 'bg-blue-50 text-blue-600'
-            : 'text-gray-500 hover:bg-gray-100'
-            }`}
-          onClick={() => handleMenuClick(<ChatRoom />, 'Chat')}
-        >
-          <MessageSquare size={20} />
+      {/* <div className="text-white-50 p-5">
+        <div className="py-7" onClick={() => setActiveComponent(<Chat />)}>
+          Chat
         </div>
-        <div
-          className={`p-2.5 rounded-lg cursor-pointer transition-colors ${activeMenu === 'Notice'
-            ? 'bg-blue-50 text-blue-600'
-            : 'text-gray-500 hover:bg-gray-100'
-            }`}
-          onClick={() => handleMenuClick(<Notice />, 'Notice')}
-        >
-          <Bell size={20} />
+        <div className="py-7" onClick={() => setActiveComponent(<Notice />)}>
+          Notice
         </div>
-        <div
-          className={`p-2.5 rounded-lg cursor-pointer transition-colors ${activeMenu === 'Manual'
-            ? 'bg-blue-50 text-blue-600'
-            : 'text-gray-500 hover:bg-gray-100'
-            }`}
-          onClick={() => handleMenuClick(<Manual />, 'Manual')}
-        >
-          <Book size={20} />
+        <div className="py-7" onClick={() => setActiveComponent(<Menual />)}>
+          Menual
         </div>
       </div>
 
-      {/* 컨텐츠 영역 */}
-      <div className="flex-1 overflow-hidden">
+      <div className="w-full h-full bg-[#eee] p-20 text-black">
         {activeComponent}
-      </div>
+      </div> */}
     </div>
   );
 };

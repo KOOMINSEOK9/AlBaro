@@ -7,6 +7,7 @@ import StoreCard from "./StoreCard.jsx";
 
 import { useRouter } from "next/navigation.js";
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 const KakaoMap = () => {
   const router = useRouter();
@@ -18,6 +19,8 @@ const KakaoMap = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
+
+  // const [storeData, setStoreData] = useState([]);
 
   const storeData = [
     {
@@ -94,22 +97,30 @@ const KakaoMap = () => {
     },
   ];
 
-  console.log(router);
+  // console.log(router);
+  const userId = 1;
+
+  // // 반경 내 지점 리스트 받아오기
+  // useEffect(() => {
+  //   axios
+  //     .get(`http://localhost:8080/api/substitute/nearby-stores`, {
+  //       params: { userId },
+  //     })
+  //     .then((res) => {
+  //       console.log("res: ", res.data);
+  //       setStoreData(res.data);
+  //     })
+  //     .catch((err) => {
+  //       console.log("err", err);
+  //     });
+  // }, []);
 
   // 지도 출력
   useEffect(() => {
-    console.log("API Key:", process.env.NEXT_PUBLIC_KAKAO_KEY); // API 키가 제대로 로드되는지 확인
-  
-    if (!process.env.NEXT_PUBLIC_KAKAO_KEY) {
-      setError(new Error("API 키가 설정되지 않았습니다."));
-      return;
-    }
-
-
     if (typeof window !== "undefined" && !window.kakao) {
       const script = document.createElement("script");
-      //script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_KEY}&autoload=false&libraries=services`;
-      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_KEY}&autoload=false&libraries=services`;
+
+      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_KEY}&autoload=false&libraries=services`;
       script.async = true;
       document.head.appendChild(script);
 
@@ -249,6 +260,20 @@ const KakaoMap = () => {
 
   const handleStoreClick = (store) => {
     setSelectedStore(store);
+    const storeId = store.storeId;
+
+    console.log("Sending request with storeId:", storeId);
+
+    // axios
+    //   .get(`http://localhost:8080/api/substitute/available-stores`, {
+    //     params: { storeId },
+    //   })
+    //   .then((res) => {
+    //     console.log(res);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
 
     // 이전에 선택된 마커의 이미지 초기화
     if (markers && selectedStore) {
