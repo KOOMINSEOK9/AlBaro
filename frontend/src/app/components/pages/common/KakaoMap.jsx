@@ -22,6 +22,8 @@ const KakaoMap = () => {
 
   // const [storeData, setStoreData] = useState([]);
 
+  // const [canDetaTime, setcanDetaTime] = useState([]);
+
   const storeData = [
     {
       storeName: "투썸플레이스 대전한밭대점",
@@ -100,7 +102,7 @@ const KakaoMap = () => {
   // console.log(router);
   const userId = 1;
 
-  // // 반경 내 지점 리스트 받아오기
+  // 반경 내 지점 리스트 받아오기
   // useEffect(() => {
   //   axios
   //     .get(`http://localhost:8080/api/substitute/nearby-stores`, {
@@ -215,46 +217,46 @@ const KakaoMap = () => {
 
       setMarkers(createdMarkers);
 
-      // storeData.forEach((store) => {
-      //   const latitude = store.latitude;
-      //   const longitude = store.longitude;
-      //   let coords = new kakao.maps.LatLng(latitude, longitude);
+      storeData.forEach((store) => {
+        const latitude = store.latitude;
+        const longitude = store.longitude;
+        let coords = new kakao.maps.LatLng(latitude, longitude);
 
-      //   let marker = new kakao.maps.Marker({
-      //     map: map,
-      //     position: coords,
-      //     image: normalMarkerImage, // 기본 이미지 설정
-      //   });
+        let marker = new kakao.maps.Marker({
+          map: map,
+          position: coords,
+          image: normalMarkerImage, // 기본 이미지 설정
+        });
 
-      //   // 마커 호버 이벤트(확대)
-      //   kakao.maps.event.addListener(marker, "mouseover", function () {
-      //     // 클릭된 마커가 없고, mouseover된 마커가 클릭된 마커가 아니면
-      //     // 마커의 이미지를 오버 이미지로 변경합니다
-      //     if (!selectedMarker || selectedMarker !== marker) {
-      //       marker.setImage(hoverMarkerImage);
-      //     }
-      //   });
+        // 마커 호버 이벤트(확대)
+        kakao.maps.event.addListener(marker, "mouseover", function () {
+          // 클릭된 마커가 없고, mouseover된 마커가 클릭된 마커가 아니면
+          // 마커의 이미지를 오버 이미지로 변경합니다
+          if (!selectedMarker || selectedMarker !== marker) {
+            marker.setImage(hoverMarkerImage);
+          }
+        });
 
-      //   kakao.maps.event.addListener(marker, "mouseout", function () {
-      //     if (!selectedMarker || selectedMarker !== marker) {
-      //       marker.setImage(normalMarkerImage);
-      //     }
-      //   });
+        kakao.maps.event.addListener(marker, "mouseout", function () {
+          if (!selectedMarker || selectedMarker !== marker) {
+            marker.setImage(normalMarkerImage);
+          }
+        });
 
-      //   // 마커 클릭 이벤트
-      //   kakao.maps.event.addListener(marker, "click", function () {
-      //     // 클릭된 마커가 없다면 클릭한 마커 이미지 변경
-      //     if (!selectedMarker || selectedMarker !== marker) {
-      //       if (selectedMarker) {
-      //         selectedMarker.setImage(normalMarkerImage); // 이전 마커 기본 이미지로 변경
-      //       }
-      //       marker.setImage(redMarkerImage); // 현재 클릭된 마커는 빨간색으로 변경
-      //       selectedMarker = marker; // 선택된 마커로 설정
+        // 마커 클릭 이벤트
+        kakao.maps.event.addListener(marker, "click", function () {
+          // 클릭된 마커가 없다면 클릭한 마커 이미지 변경
+          if (!selectedMarker || selectedMarker !== marker) {
+            if (selectedMarker) {
+              selectedMarker.setImage(normalMarkerImage); // 이전 마커 기본 이미지로 변경
+            }
+            marker.setImage(redMarkerImage); // 현재 클릭된 마커는 빨간색으로 변경
+            selectedMarker = marker; // 선택된 마커로 설정
 
-      //       map.panTo(marker.getPosition());
-      //     }
-      //   });
-      // });
+            map.panTo(marker.getPosition());
+          }
+        });
+      });
     }
   }, [loaded]);
 
@@ -262,14 +264,15 @@ const KakaoMap = () => {
     setSelectedStore(store);
     const storeId = store.storeId;
 
-    console.log("Sending request with storeId:", storeId);
+    // console.log("Sending request with storeId:", storeId);
 
     // axios
     //   .get(`http://localhost:8080/api/substitute/available-stores`, {
     //     params: { storeId },
     //   })
     //   .then((res) => {
-    //     console.log(res);
+    //     console.log(res.data);
+    //     setcanDetaTime(res.data);
     //   })
     //   .catch((err) => {
     //     console.log(err);
@@ -339,6 +342,7 @@ const KakaoMap = () => {
             selectedDate={selectedDate}
             workStartTime={startTime}
             workEndTime={endTime}
+            // times={canDetaTime}
           />
         </section>
         <div className="bg-[#eee] p-3">
