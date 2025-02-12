@@ -25,7 +25,7 @@ public class WorkInformationService {
 
     // 특정 storeId의 모든 근무 정보를 가져오는 서비스 메서드
     public List<WorkInformationResponse> getWorkInformationByStoreId(Integer storeId) {
-        List<WorkInformation> workInformations = workInformationRepository.findByStore_StoreId(storeId);
+        List<WorkInformation> workInformations = workInformationRepository.findByStoreId(storeId);
 
         // DTO로 변환하여 반환
         return workInformations.stream()
