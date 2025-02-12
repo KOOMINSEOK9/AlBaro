@@ -24,7 +24,7 @@ public class ScheduleReferenceRequest {
         this.scheduleEndTime = scheduleEndTime;
     }
 
-    // ✅ scheduleReferenceId를 자동 생성하도록 설정
+
     public ScheduleReference toEntity(User user, Store store) {
         return new ScheduleReference(user, store, scheduleDate, scheduleStartTime, scheduleEndTime);
     }
