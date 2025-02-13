@@ -23,5 +23,8 @@ RUN ./gradlew build -x test --no-daemon
 # JAR 파일 복사
 COPY build/libs/backend-0.0.1-SNAPSHOT.jar /app/app.jar
 
+# JAR 파일이 올바르게 복사되었는지 확인
+RUN ls -l /app
+
 # wait-for-it.sh를 사용하여 데이터베이스가 준비될 때까지 대기
 ENTRYPOINT ["/usr/local/bin/wait-for-it.sh", "db:3306", "--", "java", "-jar", "/app.jar"]
