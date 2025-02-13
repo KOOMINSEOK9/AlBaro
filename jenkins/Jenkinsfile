@@ -17,6 +17,19 @@ pipeline {
             }
         }
 
+
+        stage('Build') {
+            steps {
+                script {
+                    // Gradle 빌드 수행
+                    sh './backend/gradlew build -x test --no-daemon'
+                    
+                    // JAR 파일 존재 여부 확인
+                    sh 'ls -l backend/build/libs || echo "JAR 파일이 존재하지 않습니다!"'
+                }
+            }
+        }        
+
         stage('.env 파일 생성') {
             steps {
                 withCredentials([string(credentialsId: 'NEXT_PUBLIC_KAKAO_KEY', variable: 'NEXT_PUBLIC_KAKAO_KEY')]) {
