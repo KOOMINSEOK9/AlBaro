@@ -39,16 +39,16 @@ services:
 
 
   nginx:
-  build: ../nginx
-  ports:
-    - "80:80"
-    - "443:443"  # HTTPS 포트 추가
-  volumes:
-    - ../nginx/conf.d:/etc/nginx/conf.d
-    - /etc/letsencrypt/live/i12b105.p.ssafy.io:/etc/letsencrypt/live/i12b105.p.ssafy.io  # 호스트의 인증서 경로를 컨테이너에 마운트
-  depends_on:
-    - frontend
-    - backend
+    build: ../nginx  
+    ports:
+      - "80:80"
+      - "443:443"  # HTTPS 포트 추가
+    volumes:
+      - ../nginx/conf.d:/etc/nginx/conf.d
+      - /etc/letsencrypt/live/i12b105.p.ssafy.io:/etc/letsencrypt/live/i12b105.p.ssafy.io  # 호스트의 인증서 경로를 컨테이너에 마운트
+    depends_on:
+      - frontend
+      - backend
 
 
   certbot:
