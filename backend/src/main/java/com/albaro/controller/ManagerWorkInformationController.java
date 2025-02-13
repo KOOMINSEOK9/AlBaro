@@ -19,10 +19,10 @@ public class ManagerWorkInformationController {
     }
 
     // 현재 시간 확인 - 테스트용
-    @GetMapping("/system-time")
-    public ResponseEntity<String> getSystemTime() {
-        return ResponseEntity.ok("Current System Time: " + LocalDateTime.now());
-    }
+//    @GetMapping("/system-time")
+//    public ResponseEntity<String> getSystemTime() {
+//        return ResponseEntity.ok("Current System Time: " + LocalDateTime.now());
+//    }
 
     // 1. 특정 가게에서 공석 조회
     @GetMapping("/vacant/{storeId}")

@@ -47,11 +47,13 @@ public class WorkInformation {
     @Column(name = "checkOutTime")
     private LocalTime checkOutTime;    // 알바생 퇴근 시간
 
-    @Column(name = "realTimeWorker", columnDefinition = "INT UNSIGNED")
-    private Integer realTimeWorker;    // 실제 근무자
+    // realTimeWorker
     // 실제 근무자 - 대타 파악 용도
     // user: 원래 근무 배정자(외래키),  realTimeWorker: 실제 근무자
     // user == realTimeWorker: 배정 받은 사람이 근무함, user != realTimeWorker: 대타 받음
+    @Column(name = "realTimeWorker", columnDefinition = "INT UNSIGNED")
+    private Integer realTimeWorker;    // 실제 근무자
+
 
 
     public WorkInformation(){

@@ -33,7 +33,6 @@ public class ManagerWorkInformationResponse {
             this.realTimeWorkerName = "N/A";
         }
 
-
     }
 
     // Getter 메서드 추가
