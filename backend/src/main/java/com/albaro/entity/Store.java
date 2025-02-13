@@ -57,6 +57,10 @@ public class Store {
     @JsonManagedReference
     private List<Notification> notifications;  // store_notification N:1
 
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Manual> manuals;
+
+
     public Integer getStoreId() {
         return storeId;
     }
