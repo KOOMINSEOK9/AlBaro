@@ -49,7 +49,7 @@ services:
   depends_on:
     - frontend
     - backend
-    
+
 
   certbot:
     image: certbot/certbot
@@ -58,13 +58,12 @@ services:
       - ../nginx/conf.d:/etc/nginx/conf.d
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
-  face_recognition:
-    build:
-      context: ../face_recognition  
-    ports:
-      - "5000:5000"  
-    depends_on:
-      - backend  
+  # face_recognition:
+  #   build: ../face_recognition  
+  #   ports:
+  #     - "5000:5000"  
+  #   depends_on:
+  #     - backend  
 
 volumes:
   db_data:
