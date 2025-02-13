@@ -46,6 +46,7 @@ services:
     volumes:
       - /home/ubuntu/S12P11B105/nginx/conf.d:/etc/nginx/conf.d:rw
       - /var/jenkins_home/certs:/etc/letsencrypt/live/i12b105.p.ssafy.io  # Jenkins 컨테이너의 인증서 경로를 Nginx에 마운트
+      
     depends_on:
       - frontend
       - backend
