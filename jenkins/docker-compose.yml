@@ -10,11 +10,14 @@ services:
       - /var/jenkins_home/workspace/jenkinsTest/jenkins/.env  # Jenkins 컨테이너 내부 절대 경로
 
 
+  
   db:
     image: mysql:8
     environment:
-      MYSQL_ROOT_PASSWORD: ssafy5678
+      MYSQL_ROOT_PASSWORD: ssafyalbaro105
       MYSQL_DATABASE: albaro
+      MYSQL_USER: albaro
+      MYSQL_PASSWORD: ssafyalbaro105
     ports:
       - "3306:3306"
     volumes:
@@ -22,13 +25,14 @@ services:
 
   backend:
     build:
-      context: ../backend
+      context: ../  # This sets the context to /home/ubuntu/S12P11B105
+      dockerfile: backend/Dockerfile
     ports:
       - "8080:8080"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/albaro?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=albaro
-      - SPRING_DATASOURCE_PASSWORD=ssafy5678
+      - SPRING_DATASOURCE_PASSWORD=ssafyalbaro105
     depends_on:
       - db
     command: ["./wait-for-it.sh", "db:3306", "--", "java", "-jar", "/app.jar"]
