@@ -28,7 +28,7 @@ const MyCalendar = () => {
   useEffect(() => {
     axios
       .get(
-        `http://http://i12b105.p.ssafy.io:8080/api/work-information/${storeId}`
+        `http://i12b105.p.ssafy.io:8080/api/work-information/${storeId}`
       )
       .then((response) => {
         console.log(response);

@@ -3,6 +3,7 @@ package com.albaro.service;
 import com.albaro.dto.StoreDto;
 import com.albaro.entity.Store;
 import com.albaro.entity.WorkInformation;
+import com.albaro.repository.ScheduleReferenceRepository;
 import com.albaro.repository.StoreRepository;
 import com.albaro.repository.UserRepository;
 import com.albaro.repository.WorkInformationRepository;
@@ -11,7 +12,10 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,14 +24,18 @@ public class StoreService {
     private final StoreRepository storeRepository;
     private final WorkInformationRepository workInformationRepository;
     private final UserRepository userRepository;
+    private final ScheduleReferenceRepository scheduleReferenceRepository;
 
-    public StoreService(StoreRepository storeRepository, WorkInformationRepository workInformationRepository, UserRepository userRepository){
+    public StoreService(StoreRepository storeRepository, WorkInformationRepository workInformationRepository, UserRepository userRepository, ScheduleReferenceRepository scheduleReferenceRepository){
         this.storeRepository = storeRepository;
         this.workInformationRepository = workInformationRepository;
         this.userRepository = userRepository;
+        this.scheduleReferenceRepository = scheduleReferenceRepository;
     }
 
-    //반경 내 지점 리스트 조회
+    // -------------------------(알바생 -> 지점 찾기 로직)--------------------------------
+
+    //반경 내 지점 리스트 조회(알바생 -> 지점 찾기)
     public List<StoreDto> findNearbyStores(int userId) {
 
         // 사용자의 근무 지점 조회
@@ -53,6 +61,7 @@ public class StoreService {
         return nearbyStoreList;
     }
 
+
     // 선택한 지점의 공석 확인
     public List<WorkInformation> checkVacantSchedule(int storeId) {
         // 입력값 검증
@@ -60,6 +69,93 @@ public class StoreService {
 
         return workInformationRepository.findVacantSchedule(storeId);
     }
+
+
+    // --------------------------(점장 공석채우기(알바생 찾기) 로직)--------------------------------
+
+    //주변 지점 리스트 내의 근무 가능한 알바생 표시
+    public List<StoreDto> findNearbyStoresAndWorkers(int userId, int storeId) {
+
+        //시용자의 storeId 조회
+        Integer userStoreId = userRepository.findStoreIdByUserId(userId);
+
+        // 찾은 storeId로 지점 조회
+        Store userStoreEntity = storeRepository.findById(userStoreId)
+                .orElseThrow(() -> new RuntimeException("User's store not found"));
+
+        // 반경 5KM 내 지점 조회(위도/경도 기반 필터링)
+        double searchRadius = 5.0;
+        List<Store> nearbyStoreEntities = storeRepository.findNearbyStores(
+                userStoreEntity.getLatitude(),
+                userStoreEntity.getLongitude(),
+                searchRadius);
+
+        // 각 지점별 근무 가능한 알바생 조회 및 DTO 변환
+        List<StoreDto> nearbyStoreList = nearbyStoreEntities.stream()
+                .map(store -> {
+                    List<Integer> availableWorkers =
+                            scheduleReferenceRepository.findWorkerIdsByStoreId(store.getStoreId());
+                    return StoreDto.fromEntity(store, availableWorkers);
+                })
+                .collect(Collectors.toList());
+
+        // 사용자의 근무 지점을 리스트 맨 앞에 배치
+        List<Integer> userStoreWorkers =
+                scheduleReferenceRepository.findWorkerIdsByStoreId(userStoreEntity.getStoreId());
+        StoreDto userStoreDto = StoreDto.fromEntity(userStoreEntity, userStoreWorkers);
+        nearbyStoreList.removeIf(dto -> dto.getStoreId().equals(userStoreDto.getStoreId()));
+        nearbyStoreList.add(0, userStoreDto);
+
+        return nearbyStoreList;
+    }
+
+    // --------------------------(알바생 -> 알바생 대타 요청 로직)------------------------------
+
+    //1. 주변 지점 리스트 내의 근무 가능한 알바생 표시
+    public Map<String, List<StoreDto>> findWorkersInNearbyStores(int userId) {
+
+        // 사용자의 storeId 조회
+        Integer userStoreId = userRepository.findStoreIdByUserId(userId);
+
+        // 찾은 storeId로 지점 조회
+        Store userStoreEntity = storeRepository.findById(userStoreId)
+                .orElseThrow(() -> new RuntimeException("User's store not found"));
+
+        // 반경 5KM 내 지점 조회(위도/경도 기반 필터링)
+        double searchRadius = 5.0;
+        List<Store> nearbyStoreEntities = storeRepository.findNearbyStores(
+                userStoreEntity.getLatitude(),
+                userStoreEntity.getLongitude(),
+                searchRadius);
+
+        // 사용자 소속 지점의 근무 가능한 알바생 조회
+        List<Integer> userStoreWorkers =
+                scheduleReferenceRepository.findWorkerIdsByStoreIdExcludeUser(
+                        userStoreEntity.getStoreId(),
+                        userId
+                );
+        StoreDto userStoreDto = StoreDto.fromEntity(userStoreEntity, userStoreWorkers);
+
+        // 외부 지점들의 근무 가능한 알바생 조회
+        List<StoreDto> otherStoresList = nearbyStoreEntities.stream()
+                .filter(store -> !store.getStoreId().equals(userStoreId)) // 사용자 지점 제외
+                .map(store -> {
+                    List<Integer> availableWorkers =
+                            scheduleReferenceRepository.findWorkerIdsByStoreId(store.getStoreId());
+                    return StoreDto.fromEntity(store, availableWorkers);
+                })
+                .collect(Collectors.toList());
+
+        // 결과를 Map으로 구분하여 반환
+        Map<String, List<StoreDto>> result = new HashMap<>();
+        result.put("userStore", Collections.singletonList(userStoreDto));
+        result.put("nearbyStores", otherStoresList);
+
+        return result;
+    }
+
+
+
 
     // 검색 조건 유효성 검사
     private void validateSearchConditions(LocalDate workDate, LocalTime startTime, LocalTime endTime) {

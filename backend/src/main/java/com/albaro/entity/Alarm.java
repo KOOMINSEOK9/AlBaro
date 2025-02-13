@@ -2,6 +2,7 @@ package com.albaro.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
@@ -10,11 +11,11 @@ public class Alarm {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JoinColumn(name = "alarmId", columnDefinition = "INT UNSIGNDED")
+    @Column(name = "alarmId", columnDefinition = "INT UNSIGNED")
     private Integer alarmId;
 
     @ManyToOne
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "userId",foreignKey = @ForeignKey(name = "FK_alarm_user"))
     private User user;
 
     @Column(name = "alarmContent", length = 200)
@@ -33,22 +34,31 @@ public class Alarm {
     }
 
     @Column(name = "sentTime")
-    private LocalTime sentTime;
+    private LocalDateTime sentTime;
 
     @Column(name = "senderId", columnDefinition = "INT UNSIGNED")
     private Integer senderId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "alarmStatus")
+    private AlarmStatus alarmStatus;
+
+    public enum AlarmStatus {
+       WAIT, APPROVE, REJECT
+    }
 
     public Alarm(){
 
     }
 
-    public Alarm(Integer alarmId, User user, String alarmContent, AlarmType alarmType, LocalTime sentTime, Integer senderId) {
+    public Alarm(Integer alarmId, User user, String alarmContent, AlarmType alarmType, LocalDateTime sentTime, Integer senderId, AlarmStatus alarmStatus) {
         this.alarmId = alarmId;
         this.user = user;
         this.alarmContent = alarmContent;
         this.alarmType = alarmType;
         this.sentTime = sentTime;
         this.senderId = senderId;
+        this.alarmStatus = alarmStatus;
     }
 
     public Integer getSenderId() {
@@ -91,12 +101,20 @@ public class Alarm {
         this.alarmType = alarmType;
     }
 
-    public LocalTime getSentTime() {
+    public LocalDateTime getSentTime() {
         return sentTime;
     }
 
-    public void setSentTime(LocalTime sentTime) {
+    public void setSentTime(LocalDateTime sentTime) {
         this.sentTime = sentTime;
+    }
+
+    public AlarmStatus getAlarmStatus() {
+        return alarmStatus;
+    }
+
+    public void setAlarmStatus(AlarmStatus alarmStatus) {
+        this.alarmStatus = alarmStatus;
     }
 }
 

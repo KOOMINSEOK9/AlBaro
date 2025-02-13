@@ -11,10 +11,10 @@ public class WorkInformationResponse {
     private Boolean isVacant;
     private LocalTime checkInTime;
     private LocalTime checkOutTime;
-    private Integer realTimeWorker; // 실제 근무자 userId
-    private String userName;   // 사용자 이름
-    private Integer accountId;  // 사용자 계정 ID
-    private Integer userId; // 사용자 userID
+    private Integer realTimeWorker;
+    private String userName;
+    private Integer accountId;
+    private Integer userId;
 
     public WorkInformationResponse(Integer scheduleId, LocalDate workDate, LocalTime startTime, LocalTime endTime, Boolean isVacant, LocalTime checkInTime, LocalTime checkOutTime, Integer realTimeWorker, String userName, Integer accountId, Integer userId) {
         this.scheduleId = scheduleId;

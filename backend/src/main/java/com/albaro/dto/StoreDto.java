@@ -3,6 +3,7 @@ package com.albaro.dto;
 import com.albaro.entity.Store;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class StoreDto {
 
@@ -30,8 +31,26 @@ public class StoreDto {
         this.longitude = longitude;
     }
 
+
+    private List<Integer> availableWorkerIds;  // 추가된 필드
+
+    // 기존 생성자는 유지하고 새로운 생성자 추가
+    public StoreDto(Integer storeId, String storeName, String franchiseName,
+                    String zipCode, String roadAddress, String detailedAddress,
+                    BigDecimal latitude, BigDecimal longitude, List<Integer> availableWorkerIds) {
+        this.storeId = storeId;
+        this.storeName = storeName;
+        this.franchiseName = franchiseName;
+        this.zipCode = zipCode;
+        this.roadAddress = roadAddress;
+        this.detailedAddress = detailedAddress;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.availableWorkerIds = availableWorkerIds;
+    }
+
     // Entity -> DTO 변환
-    public static StoreDto fromEntity(Store store) {
+    public static StoreDto fromEntity(Store store, List<Integer> workerIds) {
         StoreDto dto = new StoreDto();
         dto.setStoreId(store.getStoreId());
         dto.setStoreName(store.getStoreName());
@@ -41,7 +60,13 @@ public class StoreDto {
         dto.setDetailedAddress(store.getDetailedAddress());
         dto.setLatitude(store.getLatitude());
         dto.setLongitude(store.getLongitude());
+        dto.setAvailableWorkerIds(workerIds);
         return dto;
+    }
+
+    // 기존 fromEntity 메소드도 오버로딩으로 유지
+    public static StoreDto fromEntity(Store store) {
+        return fromEntity(store, null);
     }
 
     //Getter, Setter
@@ -109,5 +134,11 @@ public class StoreDto {
         this.longitude = longitude;
     }
 
+    public List<Integer> getAvailableWorkerIds() {
+        return availableWorkerIds;
+    }
 
+    public void setAvailableWorkerIds(List<Integer> availableWorkerIds) {
+        this.availableWorkerIds = availableWorkerIds;
+    }
 }

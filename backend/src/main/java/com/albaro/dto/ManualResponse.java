@@ -14,29 +14,15 @@ public class ManualResponse {
 
     public ManualResponse(Manual manual) {
         this.manualId = manual.getManualId();
-        this.storeId = manual.getStoreId();
+        this.storeId = manual.getStore().getStoreId();  //  Store 엔티티에서 storeId 가져오기
         this.category = manual.getCategory();
         this.manualName = manual.getManualName();
         this.createdTime = manual.getCreatedTime();
     }
 
-    public Integer getManualId() {
-        return manualId;
-    }
-
-    public Integer getStoreId() {
-        return storeId;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public String getManualName() {
-        return manualName;
-    }
-
-    public LocalDateTime getCreatedTime() {
-        return createdTime;
-    }
+    public Integer getManualId() { return manualId; }
+    public Integer getStoreId() { return storeId; }
+    public String getCategory() { return category; }
+    public String getManualName() { return manualName; }
+    public LocalDateTime getCreatedTime() { return createdTime; }
 }

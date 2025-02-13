@@ -3,6 +3,8 @@ package com.albaro.controller;
 import com.albaro.dto.StoreDto;
 import com.albaro.dto.UserDto;
 import com.albaro.dto.WorkInformationDto;
+import com.albaro.entity.Store;
+import com.albaro.entity.User;
 import com.albaro.entity.WorkInformation;
 import com.albaro.service.StoreService;
 import com.albaro.service.SubstitutionService;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -72,7 +75,7 @@ public class SubstitutionController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime){
 
-        substitutionService.sendSubstitutionRequest(senderId, storeId, workDate, startTime, endTime);
+        substitutionService.sendAdditionSubstitutionRequest(senderId, storeId, workDate, startTime, endTime);
         return ResponseEntity.ok().build();
     }
 
@@ -83,35 +86,96 @@ public class SubstitutionController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate workDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)LocalTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)LocalTime endTime){
-        substitutionService.approveSubstitutionRequest(alarmId, workDate, startTime, endTime);
+        substitutionService.approveAdditionSubstitutionRequest(alarmId, workDate, startTime, endTime);
         return ResponseEntity.ok().build();
     }
 
     //5. 대타 요청 거절 API
     @PostMapping("/reject/{alarmId}")
     public ResponseEntity<Void> rejectSubstitutionRequest(@PathVariable int alarmId){
-        substitutionService.rejectSubstitutionRequest(alarmId);
+        substitutionService.rejectAdditionSubstitutionRequest(alarmId);
         return ResponseEntity.ok().build();
     }
 
     //----------------------점장 -> 알바생(공석 채우기)
 
-    //1. 지점별 근무 가능한 알바생 목록 조회
+    //1. 지점 별 근무 가능한 알바생 조회
     @GetMapping("/available-workers")
-    public ResponseEntity<?> getAvailableWorkers(@RequestParam int userId) {
-        List<UserDto> availableWorkers = substitutionService.getAvailableWorkers(userId);
+    public ResponseEntity<?> findNearbyStoresAndWorkers(@RequestParam int userId,
+                                                        @RequestParam int storeId) {
 
-        if (availableWorkers.isEmpty()) {
+        List<StoreDto> nearbyStores = storeService.findNearbyStoresAndWorkers(userId, storeId);
+
+        if(nearbyStores.isEmpty()) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body("해당 지점에 근무 가능한 알바생이 없습니다.");
+                    .body("주변 지점이 없습니다.");
         }
-
-        return ResponseEntity.ok(availableWorkers);
+        return ResponseEntity.ok(nearbyStores);
     }
 
     //2. 점장이 알바생에게 대타 요청하기
-    @PostMapping("/request-to-worker")
+    @PostMapping("/managerRequest")
+    public ResponseEntity<Void> sendVacantSubstitutionRequest(
+            @RequestParam int userId, //로그인 하고 있는 사용자
+            @RequestParam String userName, // 대타를 요청 할 알바생 이름
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate workDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime) {
+
+        substitutionService.requestSubstitution(userId, userName,
+                workDate, startTime, endTime);
+        return ResponseEntity.ok().build();
+    }
+
+    // 알바생이 근무 수락
+    @PostMapping("/approve-vacantWork/{alarmId}")
+    public ResponseEntity<Void> approveVacantSubstitutionRequest(
+            @PathVariable int alarmId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate workDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime) {
+
+        try {
+            substitutionService.approveVacantSubstitutionRequest(alarmId, workDate, startTime, endTime);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        }
+    }
+
+    // 알바생이 근무 거절
+    @PostMapping("/reject-vacantWork/{alarmId}")
+    public ResponseEntity<Void> rejectVacantSubstitutionRequest(@PathVariable int alarmId) {
+        try {
+            substitutionService.rejectVacantSubstitutionRequest(alarmId);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        }
+    }
+
+    // -------------------------------(알바생 -> 알바생 대타요청 로직)------------------------------
+
+    // 1. 내/외부 지점 나누어 근무 가능한 알바생 리스트 출력
+    @GetMapping("/my-schedule")
+    public ResponseEntity<?> findWorkersInNearbyStores(@RequestParam int userId) {
+        Map<String, List<StoreDto>> stores = storeService.findWorkersInNearbyStores(userId);
+
+        if(stores.get("userStore").isEmpty() && stores.get("nearbyStores").isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("지점이 없습니다.");
+        }
+        return ResponseEntity.ok(stores);
+    }
+
+    //2. (알바생 -> 알바생) 대타 요청 보내기
+    @PostMapping("/workerRequest")
     public ResponseEntity<Void> requestSubstitutionToWorker(
             @RequestParam int userId, //로그인 하고 있는 사용자
             @RequestParam String userName, // 대타를 요청 할 알바생 이름
@@ -125,15 +189,15 @@ public class SubstitutionController {
     }
 
     // 알바생이 근무 수락
-    @PostMapping("/approve-work")
-    public ResponseEntity<Void> approveWorkRequest(
-            @RequestParam int alarmId,
+    @PostMapping("/approve-work/{alarmId}")
+    public ResponseEntity<Void> approveWorkSubstitutionRequest(
+            @PathVariable int alarmId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate workDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime) {
 
         try {
-            substitutionService.approveWorkRequest(alarmId, workDate, startTime, endTime);
+            substitutionService.approveSubstitutionRequest(alarmId, workDate, startTime, endTime);
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             return ResponseEntity
@@ -143,10 +207,10 @@ public class SubstitutionController {
     }
 
     // 알바생이 근무 거절
-    @PostMapping("/reject-work")
-    public ResponseEntity<Void> rejectWorkRequest(@RequestParam int alarmId) {
+    @PostMapping("/reject-work/{alarmId}")
+    public ResponseEntity<Void> rejectWorkSubstitutionRequest(@PathVariable int alarmId) {
         try {
-            substitutionService.rejectWorkRequest(alarmId);
+            substitutionService.rejectSubstitutionRequest(alarmId);
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             return ResponseEntity
@@ -154,5 +218,7 @@ public class SubstitutionController {
                     .body(null);
         }
     }
+
+
 
 }
