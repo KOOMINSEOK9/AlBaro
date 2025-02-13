@@ -1,13 +1,9 @@
 package com.albaro.service;
 
-import com.albaro.dto.StoreDto;
-import com.albaro.dto.UserDto;
 import com.albaro.entity.Alarm;
-import com.albaro.entity.Store;
 import com.albaro.entity.User;
 import com.albaro.entity.WorkInformation;
 import com.albaro.repository.*;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class SubstitutionService {
@@ -35,9 +29,9 @@ public class SubstitutionService {
 
     //------------------ 알바생 -> 지점 근무 요청 --------------------
 
-    //대타 요청 보내기(알바생 -> 지점의 점장)
+    //대타 요청 보내기(알바생 -> 지점의 점장, AdditionSubstitutionRequest)
     @Transactional
-    public void sendSubstitutionRequest(int senderId, int storeId, LocalDate workDate, LocalTime startTime, LocalTime endTime) {
+    public void sendAdditionSubstitutionRequest(int senderId, int storeId, LocalDate workDate, LocalTime startTime, LocalTime endTime) {
         //sender: 알바생, receiver: 점장
         User sender = userRepository.findById(senderId)
                 .orElseThrow(() -> new RuntimeException("보낸 사람을 찾을 수 없음"));
@@ -69,7 +63,7 @@ public class SubstitutionService {
     //대타 요청 승인(알바생-> 지점 로직, 점장이 승인)
     //sender: 알바생, receiver: 점장
     @Transactional
-    public void approveSubstitutionRequest(int alarmId, LocalDate workDate, LocalTime startTime, LocalTime endTime){
+    public void approveAdditionSubstitutionRequest(int alarmId, LocalDate workDate, LocalTime startTime, LocalTime endTime){
         Alarm alarm = alarmRepository.findById(alarmId)
                 .orElseThrow(()-> new RuntimeException("알림이 없습니다."));
 
@@ -95,7 +89,7 @@ public class SubstitutionService {
 
     //대타 요청 거절 알림
     @Transactional
-    public void rejectSubstitutionRequest(int alarmId) {
+    public void rejectAdditionSubstitutionRequest(int alarmId) {
         Alarm alarm = alarmRepository.findById(alarmId)
                 .orElseThrow(() -> new RuntimeException("대타 요청 알림을 찾을 수 없음"));
 
@@ -114,9 +108,9 @@ public class SubstitutionService {
 
     //------------------ 점장 -> 알바생 근무 요청 --------------------
 
-    // 점장이 알바생에게 대타 요청 + 알림 전송
+    // 점장이 알바생에게 대타 요청 + 알림 전송(VacantSubstitutionRequest)
     @Transactional
-    public void requestSubstitution(int userId, String userName, LocalDate workDate, LocalTime startTime, LocalTime endTime) {
+    public void sendVacantSubstitutionRequest(int userId, String userName, LocalDate workDate, LocalTime startTime, LocalTime endTime) {
 
         // 점장 정보 확인 -> userId: 로그인 한 사용자
         User manager = userRepository.findById(userId)
@@ -140,7 +134,7 @@ public class SubstitutionService {
 
     //알바생 근무 수락 시 일정 반영
     @Transactional
-    public void approveWorkRequest(int alarmId, LocalDate workDate, LocalTime startTime, LocalTime endTime) {
+    public void approveVacantSubstitutionRequest(int alarmId, LocalDate workDate, LocalTime startTime, LocalTime endTime) {
 
         // 알람 조회
         Alarm alarm = alarmRepository.findById(alarmId)
@@ -178,7 +172,7 @@ public class SubstitutionService {
 
     //대타 요청 거절 알림(알바생이 점장 요청 거절했을 때)
     @Transactional
-    public void rejectWorkRequest(int alarmId) {
+    public void rejectVacantSubstitutionRequest(int alarmId) {
         Alarm alarm = alarmRepository.findById(alarmId)
                 .orElseThrow(() -> new RuntimeException("대타 요청 알림을 찾을 수 없음"));
 
@@ -194,6 +188,106 @@ public class SubstitutionService {
 
         alarmRepository.save(rejectionAlarm);
     }
+
+
+    // ----------------------------((알바생 -> 알바생) 대타요청 로직)-----------------------------
+
+    // 점장이 알바생에게 대타 요청 + 알림 전송
+    @Transactional
+    public void requestSubstitution(int userId, String userName, LocalDate workDate, LocalTime startTime, LocalTime endTime) {
+
+        // 알바생 정보 확인 -> userId: 로그인 한 알바생
+        User requestWorker = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("점장 정보를 찾을 수 없습니다."));
+
+        // 알바생 정보 확인
+        User worker = userRepository.findByUserName(userName)
+                .orElseThrow(() -> new RuntimeException("알바생 정보를 찾을 수 없습니다."));
+
+        // 알림 내용 생성
+        String content = String.format("%s 매장의 %s님이 %s %s~%s 시간대에 대타 근무를 요청했습니다.",
+                requestWorker.getStore().getStoreName(),
+                requestWorker.getUserName(),
+                workDate,
+                startTime,
+                endTime
+        );
+
+        // 알림 생성
+        insertAlarm(worker, content, Alarm.AlarmType.SUBSTITUTION_REQUEST,userId);
+    }
+
+    //알바생 근무 수락 시 일정 반영
+    @Transactional
+    public void approveSubstitutionRequest(int alarmId, LocalDate workDate, LocalTime startTime, LocalTime endTime) {
+
+        // 알람 조회
+        Alarm alarm = alarmRepository.findById(alarmId)
+                .orElseThrow(() -> new RuntimeException("알람을 찾을 수 없습니다."));
+
+        // 알바생(수락한 사람) 정보 조회
+        User worker = userRepository.findById(alarm.getUser().getUserId())
+                .orElseThrow(() -> new RuntimeException("알바생 정보를 찾을 수 없습니다."));
+
+        // 알바생(요청한 사람) 정보 조회
+        User requestWorker = userRepository.findById(alarm.getSenderId())
+                .orElseThrow(() -> new RuntimeException("알바생 정보를 찾을 수 없습니다."));
+
+        // WorkInformation에 근무 정보 저장
+        WorkInformation workInformation = new WorkInformation();
+        workInformation.setUser(requestWorker);
+        workInformation.setStore(requestWorker.getStore());
+        workInformation.setWorkDate(workDate);
+        workInformation.setStartTime(startTime);
+        workInformation.setEndTime(endTime);
+        workInformation.setVacant(false);  // 공석 아님으로 설정
+        workInformation.setRealTimeWorker(worker.getUserId());
+
+        workInformationRepository.save(workInformation);
+
+        //가게이름으로 점장아이디 찾기
+        int managerId = userRepository.findManagerIdByStoreId(requestWorker.getStore().getStoreId())
+                .orElseThrow(()-> new RuntimeException("해당하는 점장Id을 찾을 수 없습니다."));
+
+        User manager = userRepository.findById(managerId)
+                .orElseThrow(() -> new RuntimeException("해당하는 점장을 찾을 수 없습니다."));
+
+        // 점장에게 스케줄 변경 알림 보내기
+        String managerContent = String.format("%s님의 근무일정(%s일 %s~%s)에 %s의 %s님이 대신 근무합니다.",
+                requestWorker.getUserName(),
+                workDate,
+                startTime,
+                endTime,
+                worker.getStore().getStoreName(),
+                worker.getUserName());
+
+        insertAlarm(manager, managerContent, Alarm.AlarmType.SCHEDULE_UPDATE, requestWorker.getUserId());
+
+        //요청자에게 대타 요청 수락 알림 보내기
+        String workerContent = String.format("%s님이 %s %s~%s 시간대에 대타 근무를 요청을 수락했습니다.",
+                worker.getUserName(),
+                workDate,
+                startTime,
+                endTime);
+
+        insertAlarm(requestWorker, workerContent, Alarm.AlarmType.SUBSTITUTION_APPROVAL, worker.getUserId());
+
+    }
+
+    //대타 요청 거절 알림(알바생이 대타 요청 거절했을 때)
+    @Transactional
+    public void rejectSubstitutionRequest(int alarmId) {
+        Alarm alarm = alarmRepository.findById(alarmId)
+                .orElseThrow(() -> new RuntimeException("대타 요청 알림을 찾을 수 없음"));
+
+        User sender = userRepository.findById(alarm.getSenderId())
+                .orElseThrow(() -> new RuntimeException("보낸 사용자를 찾을 수 없음"));
+
+        // 대타 요청 거절 알림 전송
+        insertAlarm(sender,"대타 요청이 거절되었습니다.", Alarm.AlarmType.SUBSTITUTION_REJECT,null);
+
+    }
+
 
 
 

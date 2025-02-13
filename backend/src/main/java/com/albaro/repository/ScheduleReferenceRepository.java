@@ -19,5 +19,8 @@ public interface ScheduleReferenceRepository extends JpaRepository<ScheduleRefer
     @Query("SELECT DISTINCT sr.user.userId FROM ScheduleReference sr WHERE sr.store.storeId = :storeId")
     List<Integer> findWorkerIdsByStoreId(@Param("storeId") Integer storeId);
 
+    // ScheduleReferenceRepository에 새로운 메서드 추가
+    @Query("SELECT DISTINCT sr.user.userId FROM ScheduleReference sr WHERE sr.store.storeId = :storeId AND sr.user.userId != :excludeUserId")
+    List<Integer> findWorkerIdsByStoreIdExcludeUser(@Param("storeId") Integer storeId, @Param("excludeUserId") Integer excludeUserId);
 
 }
