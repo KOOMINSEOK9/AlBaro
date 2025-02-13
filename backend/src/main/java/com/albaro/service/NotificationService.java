@@ -21,6 +21,7 @@ public class NotificationService {
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;  // 🔹 사용자 정보 조회를 위해 추가
 
+
     public List<Notification> getAllNotifications() {
         return notificationRepository.findAll();
     }
