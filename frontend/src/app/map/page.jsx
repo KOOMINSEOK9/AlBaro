@@ -11,7 +11,7 @@ const Map = () => {
   const [eventData, setEventData] = useState(null);
 
   // const { date, start, end } = router.query;
-  console.log(router.query);
+  // console.log(router.query);
 
   return (
     <div className="bg-[#eee] text-black">

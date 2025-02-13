@@ -59,14 +59,15 @@ const TimeList = ({
   selectedDate,
   workStartTime,
   workEndTime,
+  // times,
 }) => {
   const selectedDateString = selectedDate
     ? selectedDate.toISOString().split("T")[0]
     : null;
 
   const filteredTime = times.filter((time) => {
-    const timeStartTime = new Date(time.startTime);
-    const timeEndTime = new Date(time.endTime);
+    const timeStartTime = new Date(`${time.workDate}T${time.startTime}`);
+    const timeEndTime = new Date(`${time.workDate}T${time.endTime}`);
 
     return (
       time.workDate === selectedDateString && // 날짜 비교 (문자열 비교)
@@ -81,7 +82,7 @@ const TimeList = ({
       <p className="mt-3">
         {selectedStore.roadAddress} {selectedStore.detailedAddress}
       </p>
-      <TimeCard times={filteredTime} />
+      <TimeCard times={filteredTime} selectedStore={selectedStore} />
     </div>
   );
 };

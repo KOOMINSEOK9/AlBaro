@@ -6,29 +6,46 @@ services:
       context: ../frontend
     ports:
       - "3000:3000"
+    env_file:
+      - /var/jenkins_home/workspace/jenkinsTest/jenkins/.env  # Jenkins 컨테이너 내부 절대 경로
+
 
   backend:
     build:
       context: ../backend
     ports:
       - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://i12b105.p.ssafy.io:3306/albaro?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=albaro
+      - SPRING_DATASOURCE_PASSWORD=ssafy5678
     depends_on:
       - db
 
   nginx:
-    build:
-      context: ../nginx
+    build: ../nginx
     ports:
       - "80:80"
+      - "443:443"  # HTTPS 포트 추가
+    volumes:
+      - ../nginx/conf.d:/etc/nginx/conf.d
+      - ../nginx/certs:/etc/letsencrypt  # 인증서 마운트 추가
     depends_on:
       - frontend
       - backend
 
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ../nginx/certs:/etc/letsencrypt
+      - ../nginx/conf.d:/etc/nginx/conf.d
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
   db:
     image: mysql:8
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: mydatabase
+      MYSQL_ROOT_PASSWORD: ssafy5678
+      MYSQL_DATABASE: albaro
     ports:
       - "3306:3306"
     volumes:

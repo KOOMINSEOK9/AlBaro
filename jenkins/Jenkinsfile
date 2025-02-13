@@ -4,7 +4,7 @@ pipeline {
     environment {
         EC2_IP = 'i12b105.p.ssafy.io'
         SSH_KEY = 'C:/Users/SSAFY/Desktop/I12B105T.pem'
-        PROJECT_PATH = '/home/ubuntu/S12P11B105'
+        PROJECT_PATH = '/var/jenkins_home/workspace/jenkinsTest/jenkins'  // Jenkins 컨테이너 내부 절대 경로
         GIT_REPO_URL = 'https://lab.ssafy.com/s12-webmobile1-sub1/S12P11B105.git'
         GIT_BRANCH = 'develop'
         DOCKER_COMPOSE_PATH = '/usr/local/bin/docker-compose'
@@ -17,21 +17,38 @@ pipeline {
             }
         }
 
-         stage('Stop Existing Containers') {
+        stage('.env 파일 생성') {
             steps {
-                script {
-                    try {
-                        sh "${DOCKER_COMPOSE_PATH} -f jenkins/docker-compose.yml down"
-                    } catch (Exception e) {
-                        echo "No existing containers to stop."
+                withCredentials([string(credentialsId: 'NEXT_PUBLIC_KAKAO_KEY', variable: 'NEXT_PUBLIC_KAKAO_KEY')]) {
+                    script {
+                        sh '''
+                        echo "NEXT_PUBLIC_KAKAO_KEY=$NEXT_PUBLIC_KAKAO_KEY" > /var/jenkins_home/workspace/jenkinsTest/jenkins/.env
+                        cp /var/jenkins_home/workspace/jenkinsTest/jenkins/.env /var/jenkins_home/workspace/jenkinsTest/frontend/.env
+                        '''
                     }
                 }
             }
         }
 
-        stage('Build and Start Containers') {
+        stage('기존 컨테이너 중지 및 제거') {
             steps {
-                sh "${DOCKER_COMPOSE_PATH} -f jenkins/docker-compose.yml up --build -d"
+                script {
+                    sh '''
+                    cd /var/jenkins_home/workspace/jenkinsTest/jenkins
+                    $DOCKER_COMPOSE_PATH down
+                    '''
+                }
+            }
+        }
+
+        stage('컨테이너 빌드 및 시작') {
+            steps {
+                script {
+                    sh '''
+                    cd /var/jenkins_home/workspace/jenkinsTest/jenkins
+                    $DOCKER_COMPOSE_PATH up --build -d
+                    '''
+                }
             }
         }
     }

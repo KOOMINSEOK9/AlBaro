@@ -7,6 +7,7 @@ import StoreCard from "./StoreCard.jsx";
 
 import { useRouter } from "next/navigation.js";
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 const KakaoMap = () => {
   const router = useRouter();
@@ -18,6 +19,10 @@ const KakaoMap = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
+
+  // const [storeData, setStoreData] = useState([]);
+
+  // const [canDetaTime, setcanDetaTime] = useState([]);
 
   const storeData = [
     {
@@ -94,12 +99,29 @@ const KakaoMap = () => {
     },
   ];
 
-  console.log(router);
+  // console.log(router);
+  const userId = 1;
+
+  // 반경 내 지점 리스트 받아오기
+  // useEffect(() => {
+  //   axios
+  //     .get(`http://localhost:8080/api/substitute/nearby-stores`, {
+  //       params: { userId },
+  //     })
+  //     .then((res) => {
+  //       console.log("res: ", res.data);
+  //       setStoreData(res.data);
+  //     })
+  //     .catch((err) => {
+  //       console.log("err", err);
+  //     });
+  // }, []);
 
   // 지도 출력
   useEffect(() => {
     if (typeof window !== "undefined" && !window.kakao) {
       const script = document.createElement("script");
+
       script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_KEY}&autoload=false&libraries=services`;
       script.async = true;
       document.head.appendChild(script);
@@ -195,51 +217,66 @@ const KakaoMap = () => {
 
       setMarkers(createdMarkers);
 
-      // storeData.forEach((store) => {
-      //   const latitude = store.latitude;
-      //   const longitude = store.longitude;
-      //   let coords = new kakao.maps.LatLng(latitude, longitude);
+      storeData.forEach((store) => {
+        const latitude = store.latitude;
+        const longitude = store.longitude;
+        let coords = new kakao.maps.LatLng(latitude, longitude);
 
-      //   let marker = new kakao.maps.Marker({
-      //     map: map,
-      //     position: coords,
-      //     image: normalMarkerImage, // 기본 이미지 설정
-      //   });
+        let marker = new kakao.maps.Marker({
+          map: map,
+          position: coords,
+          image: normalMarkerImage, // 기본 이미지 설정
+        });
 
-      //   // 마커 호버 이벤트(확대)
-      //   kakao.maps.event.addListener(marker, "mouseover", function () {
-      //     // 클릭된 마커가 없고, mouseover된 마커가 클릭된 마커가 아니면
-      //     // 마커의 이미지를 오버 이미지로 변경합니다
-      //     if (!selectedMarker || selectedMarker !== marker) {
-      //       marker.setImage(hoverMarkerImage);
-      //     }
-      //   });
+        // 마커 호버 이벤트(확대)
+        kakao.maps.event.addListener(marker, "mouseover", function () {
+          // 클릭된 마커가 없고, mouseover된 마커가 클릭된 마커가 아니면
+          // 마커의 이미지를 오버 이미지로 변경합니다
+          if (!selectedMarker || selectedMarker !== marker) {
+            marker.setImage(hoverMarkerImage);
+          }
+        });
 
-      //   kakao.maps.event.addListener(marker, "mouseout", function () {
-      //     if (!selectedMarker || selectedMarker !== marker) {
-      //       marker.setImage(normalMarkerImage);
-      //     }
-      //   });
+        kakao.maps.event.addListener(marker, "mouseout", function () {
+          if (!selectedMarker || selectedMarker !== marker) {
+            marker.setImage(normalMarkerImage);
+          }
+        });
 
-      //   // 마커 클릭 이벤트
-      //   kakao.maps.event.addListener(marker, "click", function () {
-      //     // 클릭된 마커가 없다면 클릭한 마커 이미지 변경
-      //     if (!selectedMarker || selectedMarker !== marker) {
-      //       if (selectedMarker) {
-      //         selectedMarker.setImage(normalMarkerImage); // 이전 마커 기본 이미지로 변경
-      //       }
-      //       marker.setImage(redMarkerImage); // 현재 클릭된 마커는 빨간색으로 변경
-      //       selectedMarker = marker; // 선택된 마커로 설정
+        // 마커 클릭 이벤트
+        kakao.maps.event.addListener(marker, "click", function () {
+          // 클릭된 마커가 없다면 클릭한 마커 이미지 변경
+          if (!selectedMarker || selectedMarker !== marker) {
+            if (selectedMarker) {
+              selectedMarker.setImage(normalMarkerImage); // 이전 마커 기본 이미지로 변경
+            }
+            marker.setImage(redMarkerImage); // 현재 클릭된 마커는 빨간색으로 변경
+            selectedMarker = marker; // 선택된 마커로 설정
 
-      //       map.panTo(marker.getPosition());
-      //     }
-      //   });
-      // });
+            map.panTo(marker.getPosition());
+          }
+        });
+      });
     }
   }, [loaded]);
 
   const handleStoreClick = (store) => {
     setSelectedStore(store);
+    const storeId = store.storeId;
+
+    // console.log("Sending request with storeId:", storeId);
+
+    // axios
+    //   .get(`http://localhost:8080/api/substitute/available-stores`, {
+    //     params: { storeId },
+    //   })
+    //   .then((res) => {
+    //     console.log(res.data);
+    //     setcanDetaTime(res.data);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
 
     // 이전에 선택된 마커의 이미지 초기화
     if (markers && selectedStore) {
@@ -305,6 +342,7 @@ const KakaoMap = () => {
             selectedDate={selectedDate}
             workStartTime={startTime}
             workEndTime={endTime}
+            // times={canDetaTime}
           />
         </section>
         <div className="bg-[#eee] p-3">
