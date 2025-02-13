@@ -16,8 +16,10 @@ COPY src src
 RUN chmod +x gradlew
 
 # Gradle 빌드
-RUN ./gradlew build --no-daemon
+# RUN ./gradlew build --no-daemon
 
+# 임시로 테스트 안해도 되도록 -> 지금 디비 안되어있어서
+RUN ./gradlew build -x test --no-daemon
 # JAR 파일 복사
 COPY build/libs/backend-0.0.1-SNAPSHOT.jar app.jar
 
