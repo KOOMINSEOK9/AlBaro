@@ -21,7 +21,7 @@ RUN chmod +x gradlew
 # 임시로 테스트 안해도 되도록 -> 지금 디비 안되어있어서
 RUN ./gradlew build -x test --no-daemon
 # JAR 파일 복사
-COPY backend/build/libs/backend-0.0.1-SNAPSHOT.jar /app/app.jar
+COPY build/libs/backend-0.0.1-SNAPSHOT.jar /app/app.jar
 
 # wait-for-it.sh를 사용하여 데이터베이스가 준비될 때까지 대기
 ENTRYPOINT ["/usr/local/bin/wait-for-it.sh", "db:3306", "--", "java", "-jar", "/app.jar"]
