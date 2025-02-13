@@ -15,4 +15,9 @@ public interface ScheduleReferenceRepository extends JpaRepository<ScheduleRefer
             "AND YEAR(s.scheduleDate) = YEAR(CURRENT_DATE) " +
             "AND MONTH(s.scheduleDate) = MONTH(CURRENT_DATE)")
     List<ScheduleReference> findByUserIdAndCurrentMonth(@Param("userId") Integer userId);
+
+    @Query("SELECT DISTINCT sr.user.userId FROM ScheduleReference sr WHERE sr.store.storeId = :storeId")
+    List<Integer> findWorkerIdsByStoreId(@Param("storeId") Integer storeId);
+
+
 }

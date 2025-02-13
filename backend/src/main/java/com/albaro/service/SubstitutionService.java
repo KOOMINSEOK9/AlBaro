@@ -1,17 +1,19 @@
 package com.albaro.service;
 
+import com.albaro.dto.StoreDto;
 import com.albaro.dto.UserDto;
 import com.albaro.entity.Alarm;
+import com.albaro.entity.Store;
 import com.albaro.entity.User;
 import com.albaro.entity.WorkInformation;
-import com.albaro.repository.AlarmRepository;
-import com.albaro.repository.UserRepository;
-import com.albaro.repository.WorkInformationRepository;
+import com.albaro.repository.*;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,11 +24,13 @@ public class SubstitutionService {
     private final AlarmRepository alarmRepository;
     private final UserRepository userRepository;
     private final WorkInformationRepository workInformationRepository;
+    private final StoreRepository storeRepository;
 
-    public SubstitutionService(AlarmRepository alarmRepository, UserRepository userRepository, WorkInformationRepository workInformationRepository){
+    public SubstitutionService(AlarmRepository alarmRepository, UserRepository userRepository, WorkInformationRepository workInformationRepository, StoreRepository storeRepository){
         this.alarmRepository = alarmRepository;
         this.userRepository = userRepository;
         this.workInformationRepository = workInformationRepository;
+        this.storeRepository = storeRepository;
     }
 
     //------------------ 알바생 -> 지점 근무 요청 --------------------
@@ -103,24 +107,12 @@ public class SubstitutionService {
         rejectionAlarm.setUser(sender);
         rejectionAlarm.setAlarmContent("대타 요청이 거절되었습니다.");
         rejectionAlarm.setAlarmType(Alarm.AlarmType.SUBSTITUTION_REJECT);
-        rejectionAlarm.setSentTime(LocalTime.now());
+        rejectionAlarm.setSentTime(LocalDateTime.now());
 
         alarmRepository.save(rejectionAlarm);
     }
 
     //------------------ 점장 -> 알바생 근무 요청 --------------------
-
-    // 지점별 근무 가능한 알바생 목록 조회
-    public List<UserDto> getAvailableWorkers(int userId) {
-
-        // userId로 storeId 찾기
-        int storeId = userRepository.findStoreIdByUserId(userId);
-
-        return workInformationRepository.findAvailableWorkersByStore(storeId)
-                .stream()
-                .map(UserDto::fromEntity)
-                .collect(Collectors.toList());
-    }
 
     // 점장이 알바생에게 대타 요청 + 알림 전송
     @Transactional
@@ -198,7 +190,7 @@ public class SubstitutionService {
         rejectionAlarm.setUser(alarm.getUser()); //alarm 받은 객체(점장 객체)
         rejectionAlarm.setAlarmContent("대타 요청이 거절되었습니다.");
         rejectionAlarm.setAlarmType(Alarm.AlarmType.SUBSTITUTION_REJECT);
-        rejectionAlarm.setSentTime(LocalTime.now());
+        rejectionAlarm.setSentTime(LocalDateTime.now());
 
         alarmRepository.save(rejectionAlarm);
     }
@@ -214,7 +206,7 @@ public class SubstitutionService {
         alarm.setAlarmContent(alarmContent);
         alarm.setAlarmType(alarmType);
         alarm.setSenderId(senderId);
-        alarm.setSentTime(LocalTime.now());
+        alarm.setSentTime(LocalDateTime.now());
         alarmRepository.save(alarm);
     }
 
