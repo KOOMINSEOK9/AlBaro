@@ -3,6 +3,8 @@ package com.albaro.controller;
 import com.albaro.dto.StoreDto;
 import com.albaro.dto.UserDto;
 import com.albaro.dto.WorkInformationDto;
+import com.albaro.entity.Store;
+import com.albaro.entity.User;
 import com.albaro.entity.WorkInformation;
 import com.albaro.service.StoreService;
 import com.albaro.service.SubstitutionService;
@@ -96,18 +98,19 @@ public class SubstitutionController {
 
     //----------------------점장 -> 알바생(공석 채우기)
 
-    //1. 지점별 근무 가능한 알바생 목록 조회
+    //1. 지점 별 근무 가능한 알바생 조회
     @GetMapping("/available-workers")
-    public ResponseEntity<?> getAvailableWorkers(@RequestParam int userId) {
-        List<UserDto> availableWorkers = substitutionService.getAvailableWorkers(userId);
+    public ResponseEntity<?> findNearbyStoresAndWorkers(@RequestParam int storeId,
+                                                        @RequestParam int userId) {
 
-        if (availableWorkers.isEmpty()) {
+        List<StoreDto> nearbyStores = storeService.findNearbyStoresAndWorkers(userId, storeId);
+
+        if(nearbyStores.isEmpty()) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body("해당 지점에 근무 가능한 알바생이 없습니다.");
+                    .body("주변 지점이 없습니다.");
         }
-
-        return ResponseEntity.ok(availableWorkers);
+        return ResponseEntity.ok(nearbyStores);
     }
 
     //2. 점장이 알바생에게 대타 요청하기

@@ -6,10 +6,12 @@ import com.albaro.entity.WorkInformation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Repository
 public interface WorkInformationRepository extends JpaRepository<WorkInformation, Integer> {
     List<WorkInformation> findByStore_StoreId(Integer storeId);
 
@@ -27,11 +29,5 @@ public interface WorkInformationRepository extends JpaRepository<WorkInformation
     // 특정 가게에서 특정 날짜의 근무자 조회
     List<WorkInformation> findByStoreAndWorkDate(Store store, LocalDate workDate);
 
-    // 지점별 근무 가능한 알바생 조회( 점장 -> 알바생 찾기)
-    @Query("SELECT DISTINCT u FROM User u " +
-            "JOIN ScheduleReference sr ON sr.user = u " +
-            "WHERE sr.store.id = :storeId " +
-            "AND u.role = 'staff'")
-    List<User> findAvailableWorkersByStore(@Param("storeId") int storeId);
 
 }
