@@ -39,16 +39,17 @@ services:
 
 
   nginx:
-    build: ../nginx
-    ports:
-      - "80:80"
-      - "443:443"  # HTTPS 포트 추가
-    volumes:
-      - ../nginx/conf.d:/etc/nginx/conf.d
-      - ../nginx/certs:/etc/letsencrypt  # 인증서 마운트 추가
-    depends_on:
-      - frontend
-      - backend
+  build: ../nginx
+  ports:
+    - "80:80"
+    - "443:443"  # HTTPS 포트 추가
+  volumes:
+    - ../nginx/conf.d:/etc/nginx/conf.d
+    - /etc/letsencrypt/live/i12b105.p.ssafy.io:/etc/letsencrypt/live/i12b105.p.ssafy.io  # 호스트의 인증서 경로를 컨테이너에 마운트
+  depends_on:
+    - frontend
+    - backend
+    
 
   certbot:
     image: certbot/certbot
@@ -57,6 +58,13 @@ services:
       - ../nginx/conf.d:/etc/nginx/conf.d
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
+  face_recognition:
+    build:
+      context: ../face_recognition  
+    ports:
+      - "5000:5000"  
+    depends_on:
+      - backend  
 
 volumes:
   db_data:
