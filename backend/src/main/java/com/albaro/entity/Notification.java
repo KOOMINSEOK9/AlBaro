@@ -31,7 +31,7 @@ public class Notification {
 
     // store 테이블의 storeId를 1:N 관계 외래키 참조
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(foreignKey = @ForeignKey(name = "FK_notification_store"))
+    @JoinColumn(name="storeId", foreignKey = @ForeignKey(name = "FK_notification_store"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonBackReference
     private Store store;
