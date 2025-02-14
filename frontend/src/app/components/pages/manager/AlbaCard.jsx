@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 
 const AlbaCard = ({ albas }) => {
@@ -19,6 +19,19 @@ const AlbaCard = ({ albas }) => {
       confirm(`${alba.scheduleDate} ${alba.scheduleStartTime} ~ ${alba.scheduleEndTime}까지
       ${alba.userName}님께 대타 요청을 하시겠습니까?`)
     ) {
+      axios.post(
+        `http://i12b105.p.ssafy.io:8080/api/substitute/request-to-worker`,
+        {
+          params: {
+            userId,
+            userName,
+            workDate,
+            startTime,
+            endTime,
+          },
+        }
+      );
+
       alert(`${alba.userName}님께 대타를 요청했습니다.`);
     }
   };
@@ -48,7 +61,7 @@ const AlbaCard = ({ albas }) => {
 
             {/* Hover 시 오버레이와 버튼 추가 */}
             {hoveredIndex === index && (
-              <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center rounded-lg">
                 <button
                   className="z-10 bg-white text-black m-2 px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white"
                   onClick={() => handleButtonClick(alba)}

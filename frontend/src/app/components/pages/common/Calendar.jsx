@@ -27,11 +27,9 @@ const MyCalendar = () => {
 
   useEffect(() => {
     axios
-      .get(
-        `http://i12b105.p.ssafy.io:8080/api/work-information/${storeId}`
-      )
+      .get(`http://i12b105.p.ssafy.io:8080/api/work-information/${storeId}`)
       .then((response) => {
-        console.log(response);
+        // console.log(response);
 
         // 새 배열을 생성해서 반환값을 담기
         const updatedWorkSchedule = response.data.map((event) => {
@@ -74,11 +72,11 @@ const MyCalendar = () => {
           }
           // 디폴트 초록색(정상 출근)
           else {
-            console.log(
-              event.userName,
-              " ",
-              new Date(`${event.workDate}T${event.startTime}`)
-            );
+            // console.log(
+            //   event.userName,
+            //   " ",
+            //   new Date(`${event.workDate}T${event.startTime}`)
+            // );
 
             event.color = "#DEFFD9";
             event.borderColor = "#DEFFD9";
@@ -91,6 +89,7 @@ const MyCalendar = () => {
             backgroundColor: event.color,
             borderColor: event.borderColor,
             extendedProps: {
+              scheduleId: event.scheduleId,
               userId: event.userId,
               isVacant: event.vacant,
               checkInTime: event.checkInTime,
@@ -505,18 +504,20 @@ const MyCalendar = () => {
   // }, []);
 
   const gotoDeta = (info) => {
-    console.log(info);
+    // console.log(info);
     // start와 end가 Date 객체인지 확인 후 처리
     const startTime = new Date(info.event.start).getTime();
 
     const endTime = new Date(info.event.end).getTime();
+
+    // console.log(info.event.extendedProps.workDate);
 
     alert(
       `${info.event.workDate} ${startTime} ~ ${endTime}의 대타를 구하시겠습니까?`
     );
 
     router.push(
-      `/map?date=${info.event.eventDate}&start=${info.event.start}&end=${info.event.end}`
+      `/map?scheduleId=${info.event.extendedProps.scheduleId}&date=${info.event.extendedProps.workDate}&start=${info.event.start}&end=${info.event.end}`
     );
   };
 
@@ -572,7 +573,7 @@ const MyCalendar = () => {
   };
 
   return (
-    <div className="App">
+    <div className="App h-full">
       <div className="flex justify-between items-center mb-5">
         <h1 className="text-3xl font-bold">MEGASSAFY 덕명점</h1>
         <div className="flex gap-3 text-lg">
@@ -613,7 +614,7 @@ const MyCalendar = () => {
         select={handleDateSelect}
         events={events}
         locale="kr"
-        eventClick={(info) => console.log(info.event)}
+        // eventClick={(info) => console.log(info.event)}
         dayCellContent={(info) => info.date.getDate()}
         eventDisplay="block"
         eventContent={(info) => (

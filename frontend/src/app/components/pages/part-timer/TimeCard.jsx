@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 const TimeCard = ({ times, selectedStore }) => {
-  console.log(times);
+  const userId = 1;
+
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const handleMouseEnter = (index) => {
@@ -14,13 +16,28 @@ const TimeCard = ({ times, selectedStore }) => {
 
   const handleButtonClick = (time) => {
     // 버튼 클릭 시 처리할 로직
-    console.log(time);
+    // console.log(time);
     if (
       confirm(
         `${time.startTime} ~ ${time.endTime} 시간대에 대타를 요청하시겠습니까?`
       )
     ) {
-      alert(`대타 요청을 완료했습니다.`);
+      axios
+        .post(`http://i12b105.p.ssafy.io:8080/api/substitute/request`, null, {
+          params: {
+            senderId: userId,
+            storeId: selectedStore.storeId,
+            workDate: time.workDate,
+            startTime: time.startTime,
+            endTime: time.endTime,
+          },
+        })
+        .then((res) => {
+          alert(`대타 요청을 완료했습니다.`);
+        })
+        .catch((err) => {
+          console.log("대타 요청 보내기 에러: ", err);
+        });
     }
   };
 
@@ -30,7 +47,7 @@ const TimeCard = ({ times, selectedStore }) => {
         {times.map((time, index) => (
           <div
             key={index}
-            className="border rounded-full mt-5 p-2 cursor-pointer min-w-[150px] min-h-[50px] text-center align-middle pt-2 relative"
+            className="border-gray-500 border-2 rounded-full mt-5 p-2 cursor-pointer min-w-[150px] min-h-[50px] text-center align-middle pt-2 relative"
             onMouseEnter={() => handleMouseEnter(index)}
             onMouseLeave={handleMouseLeave}
           >
@@ -54,7 +71,7 @@ const TimeCard = ({ times, selectedStore }) => {
             )}
             {/* Hover 시 버튼 표시 */}
             {hoveredIndex === index && (
-              <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center rounded-full">
                 <button
                   className="z-10 bg-white text-black m-2 px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white"
                   onClick={() => handleButtonClick(time)}

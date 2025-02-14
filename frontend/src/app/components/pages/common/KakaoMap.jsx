@@ -8,114 +8,153 @@ import StoreCard from "./StoreCard.jsx";
 import { useRouter } from "next/navigation.js";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { setDate } from "date-fns";
 
-const KakaoMap = () => {
+const KakaoMap = ({ scheduleId, date, start, end }) => {
   const router = useRouter();
   const [loaded, setLoaded] = useState(false);
   const [selectedStore, setSelectedStore] = useState({});
   const [markers, setMarkers] = useState([]);
   const [mapInstance, setMapInstance] = useState(null);
 
+  const [scheduleIdNum, setScheduleId] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
 
-  // const [storeData, setStoreData] = useState([]);
+  const [storeData, setStoreData] = useState([]);
 
-  // const [canDetaTime, setcanDetaTime] = useState([]);
+  const [canDetaTime, setcanDetaTime] = useState([]);
 
-  const storeData = [
-    {
-      storeName: "투썸플레이스 대전한밭대점",
-      franchiseName: "투썸플레이스",
-      zipCode: 34159,
-      roadAddress: "대전 유성구 학하서로121번길 81",
-      detailedAddress: "1층",
-      latitude: 36.3504,
-      longitude: 127.2978,
-    },
-    {
-      storeName: "투썸플레이스 유성점",
-      franchiseName: "투썸플레이스",
-      zipCode: 34159,
-      roadAddress: "대전 유성구 학하서로121번길 87",
-      detailedAddress: "1층",
-      latitude: 36.35,
-      longitude: 127.2978,
-    },
-    {
-      storeName: "투썸플레이스 학하점",
-      franchiseName: "투썸플레이스",
-      zipCode: 34159,
-      roadAddress: "대전 유성구 학하서로121번길 71-10",
-      detailedAddress: "1층",
-      latitude: 36.3502,
-      longitude: 127.2977,
-    },
-    {
-      storeName: "투썸플레이스 봉명점",
-      franchiseName: "투썸플레이스",
-      zipCode: 34159,
-      roadAddress: "대전 유성구 학하서로121번길 55-13",
-      detailedAddress: "3층",
-      latitude: 36.3497,
-      longitude: 127.2987,
-    },
-    {
-      storeName: "투썸플레이스 덕명점",
-      franchiseName: "투썸플레이스",
-      zipCode: 34159,
-      roadAddress: "대전 유성구 학하서로121번길 51",
-      detailedAddress: "1층",
-      latitude: 36.3497,
-      longitude: 127.298,
-    },
-    {
-      storeName: "투썸플레이스 수통골점",
-      franchiseName: "투썸플레이스",
-      zipCode: 34158,
-      roadAddress: "대전 유성구 동서대로 125",
-      detailedAddress: "1층",
-      latitude: 36.3452,
-      longitude: 127.3052,
-    },
-    {
-      storeName: "투썸플레이스 한밭대남문점",
-      franchiseName: "투썸플레이스",
-      zipCode: 34153,
-      roadAddress: "대전 유성구 동서대로 130",
-      detailedAddress: "1층",
-      latitude: 36.351,
-      longitude: 127.2971,
-    },
-    {
-      storeName: "투썸플레이스 한밭대북문점",
-      franchiseName: "투썸플레이스",
-      zipCode: 34154,
-      roadAddress: "대전 유성구 동서대로 138",
-      detailedAddress: "2층",
-      latitude: 36.3503,
-      longitude: 127.2967,
-    },
-  ];
+  useEffect(() => {
+    console.log("scheduleId:", scheduleId);
+    console.log("date:", date);
+    console.log("start:", start);
+    console.log("end:", end);
+
+    if (date) {
+      const parsedDate = new Date(date);
+      console.log("Parsed Date:", parsedDate);
+      setSelectedDate(parsedDate);
+    }
+
+    if (start) {
+      const parsedStart = new Date(start);
+      // 한국 표준시(KST)로 출력
+      const startInKST = parsedStart.toLocaleString("en-US", {
+        timeZone: "Asia/Seoul",
+      });
+      console.log("Parsed Start in KST:", startInKST); // KST로 출력
+      setStartTime(startInKST);
+    }
+
+    if (end) {
+      const parsedEnd = new Date(end);
+      // 한국 표준시(KST)로 출력
+      const endInKST = parsedEnd.toLocaleString("en-US", {
+        timeZone: "Asia/Seoul",
+      });
+      console.log("Parsed End in KST:", endInKST); // KST로 출력
+      setEndTime(endInKST);
+    }
+
+    if (scheduleId) {
+      setScheduleId(scheduleId);
+    }
+  }, [date, start, end, scheduleId]);
+
+  // const storeData = [
+  //   {
+  //     storeName: "투썸플레이스 대전한밭대점",
+  //     franchiseName: "투썸플레이스",
+  //     zipCode: 34159,
+  //     roadAddress: "대전 유성구 학하서로121번길 81",
+  //     detailedAddress: "1층",
+  //     latitude: 36.3504,
+  //     longitude: 127.2978,
+  //   },
+  //   {
+  //     storeName: "투썸플레이스 유성점",
+  //     franchiseName: "투썸플레이스",
+  //     zipCode: 34159,
+  //     roadAddress: "대전 유성구 학하서로121번길 87",
+  //     detailedAddress: "1층",
+  //     latitude: 36.35,
+  //     longitude: 127.2978,
+  //   },
+  //   {
+  //     storeName: "투썸플레이스 학하점",
+  //     franchiseName: "투썸플레이스",
+  //     zipCode: 34159,
+  //     roadAddress: "대전 유성구 학하서로121번길 71-10",
+  //     detailedAddress: "1층",
+  //     latitude: 36.3502,
+  //     longitude: 127.2977,
+  //   },
+  //   {
+  //     storeName: "투썸플레이스 봉명점",
+  //     franchiseName: "투썸플레이스",
+  //     zipCode: 34159,
+  //     roadAddress: "대전 유성구 학하서로121번길 55-13",
+  //     detailedAddress: "3층",
+  //     latitude: 36.3497,
+  //     longitude: 127.2987,
+  //   },
+  //   {
+  //     storeName: "투썸플레이스 덕명점",
+  //     franchiseName: "투썸플레이스",
+  //     zipCode: 34159,
+  //     roadAddress: "대전 유성구 학하서로121번길 51",
+  //     detailedAddress: "1층",
+  //     latitude: 36.3497,
+  //     longitude: 127.298,
+  //   },
+  //   {
+  //     storeName: "투썸플레이스 수통골점",
+  //     franchiseName: "투썸플레이스",
+  //     zipCode: 34158,
+  //     roadAddress: "대전 유성구 동서대로 125",
+  //     detailedAddress: "1층",
+  //     latitude: 36.3452,
+  //     longitude: 127.3052,
+  //   },
+  //   {
+  //     storeName: "투썸플레이스 한밭대남문점",
+  //     franchiseName: "투썸플레이스",
+  //     zipCode: 34153,
+  //     roadAddress: "대전 유성구 동서대로 130",
+  //     detailedAddress: "1층",
+  //     latitude: 36.351,
+  //     longitude: 127.2971,
+  //   },
+  //   {
+  //     storeName: "투썸플레이스 한밭대북문점",
+  //     franchiseName: "투썸플레이스",
+  //     zipCode: 34154,
+  //     roadAddress: "대전 유성구 동서대로 138",
+  //     detailedAddress: "2층",
+  //     latitude: 36.3503,
+  //     longitude: 127.2967,
+  //   },
+  // ];
 
   // console.log(router);
   const userId = 1;
 
   // 반경 내 지점 리스트 받아오기
-  // useEffect(() => {
-  //   axios
-  //     .get(`http://localhost:8080/api/substitute/nearby-stores`, {
-  //       params: { userId },
-  //     })
-  //     .then((res) => {
-  //       console.log("res: ", res.data);
-  //       setStoreData(res.data);
-  //     })
-  //     .catch((err) => {
-  //       console.log("err", err);
-  //     });
-  // }, []);
+  useEffect(() => {
+    axios
+      .get(`http://i12b105.p.ssafy.io:8080/api/substitute/nearby-stores`, {
+        params: { userId },
+      })
+      .then((res) => {
+        console.log("res: ", res.data);
+        setStoreData(res.data);
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });
+  }, []);
 
   // 지도 출력
   useEffect(() => {
@@ -137,146 +176,135 @@ const KakaoMap = () => {
   }, []);
 
   // 마커 출력
+  // 지도 출력 useEffect
   useEffect(() => {
-    if (loaded && window.kakao && window.kakao.maps) {
-      const container = document.getElementById("map");
-      const options = {
-        center: new window.kakao.maps.LatLng(
-          storeData[0].latitude,
-          storeData[0].longitude
-        ),
-        level: 3,
-      };
-
-      setSelectedStore(storeData[0]);
-      const map = new window.kakao.maps.Map(container, options);
-      setMapInstance(map);
-
-      let selectedMarker = null; // 선택된 마커
-
-      const selected = "/Location_red.png";
-      const unselected = "/Location_blue.png";
-
-      // 선택된 마커 이미지
-      const redMarkerImage = new kakao.maps.MarkerImage(
-        selected, // 기존 마커 이미지 URL
-        new kakao.maps.Size(24, 24), // 마커 크기
-        { offset: new kakao.maps.Point(12, 35) } // 마커 중심 점 설정
-      );
-      // 기본 마커 이미지
-      const normalMarkerImage = new kakao.maps.MarkerImage(
-        unselected,
-        new kakao.maps.Size(24, 24),
-        { offset: new kakao.maps.Point(12, 35) }
-      );
-      // hover 마커 이미지(확대)
-      const hoverMarkerImage = new kakao.maps.MarkerImage(
-        unselected,
-        new kakao.maps.Size(30, 30),
-        { offset: new kakao.maps.Point(12, 35) }
-      );
-
-      const createdMarkers = storeData.map((store, index) => {
-        const marker = new kakao.maps.Marker({
-          map,
-          position: new kakao.maps.LatLng(store.latitude, store.longitude),
-          image: index === 0 ? redMarkerImage : normalMarkerImage,
-        });
-
-        if (index === 0) {
-          selectedMarker = marker;
-        }
-
-        kakao.maps.event.addListener(marker, "click", function () {
-          if (selectedMarker) {
-            selectedMarker.setImage(normalMarkerImage);
-          }
-          marker.setImage(redMarkerImage);
-          selectedMarker = marker;
-
-          setSelectedStore(store);
-          map.panTo(marker.getPosition());
-        });
-
-        kakao.maps.event.addListener(marker, "mouseover", function () {
-          // 클릭된 마커가 없고, mouseover된 마커가 클릭된 마커가 아니면
-          // 마커의 이미지를 오버 이미지로 변경합니다
-          if (!selectedMarker || selectedMarker !== marker) {
-            marker.setImage(hoverMarkerImage);
-          }
-        });
-
-        kakao.maps.event.addListener(marker, "mouseout", function () {
-          if (!selectedMarker || selectedMarker !== marker) {
-            marker.setImage(normalMarkerImage);
-          }
-        });
-
-        return { store, marker };
-      });
-
-      setMarkers(createdMarkers);
-
-      storeData.forEach((store) => {
-        const latitude = store.latitude;
-        const longitude = store.longitude;
-        let coords = new kakao.maps.LatLng(latitude, longitude);
-
-        let marker = new kakao.maps.Marker({
-          map: map,
-          position: coords,
-          image: normalMarkerImage, // 기본 이미지 설정
-        });
-
-        // 마커 호버 이벤트(확대)
-        kakao.maps.event.addListener(marker, "mouseover", function () {
-          // 클릭된 마커가 없고, mouseover된 마커가 클릭된 마커가 아니면
-          // 마커의 이미지를 오버 이미지로 변경합니다
-          if (!selectedMarker || selectedMarker !== marker) {
-            marker.setImage(hoverMarkerImage);
-          }
-        });
-
-        kakao.maps.event.addListener(marker, "mouseout", function () {
-          if (!selectedMarker || selectedMarker !== marker) {
-            marker.setImage(normalMarkerImage);
-          }
-        });
-
-        // 마커 클릭 이벤트
-        kakao.maps.event.addListener(marker, "click", function () {
-          // 클릭된 마커가 없다면 클릭한 마커 이미지 변경
-          if (!selectedMarker || selectedMarker !== marker) {
-            if (selectedMarker) {
-              selectedMarker.setImage(normalMarkerImage); // 이전 마커 기본 이미지로 변경
-            }
-            marker.setImage(redMarkerImage); // 현재 클릭된 마커는 빨간색으로 변경
-            selectedMarker = marker; // 선택된 마커로 설정
-
-            map.panTo(marker.getPosition());
-          }
-        });
-      });
+    if (
+      !loaded ||
+      !window.kakao ||
+      !window.kakao.maps ||
+      storeData.length === 0
+    ) {
+      return;
     }
-  }, [loaded]);
+
+    const container = document.getElementById("map");
+
+    const options = {
+      center: new window.kakao.maps.LatLng(
+        storeData[0].latitude,
+        storeData[0].longitude
+      ),
+      level: 3,
+    };
+
+    setSelectedStore(storeData[0]);
+    const map = new window.kakao.maps.Map(container, options);
+    setMapInstance(map);
+
+    let selectedMarker = null; // 선택된 마커
+
+    const selected = "/Location_red.png";
+    const unselected = "/Location_blue.png";
+
+    // 선택된 마커 이미지
+    const redMarkerImage = new kakao.maps.MarkerImage(
+      selected,
+      new kakao.maps.Size(24, 24),
+      { offset: new kakao.maps.Point(12, 35) }
+    );
+
+    // 기본 마커 이미지
+    const normalMarkerImage = new kakao.maps.MarkerImage(
+      unselected,
+      new kakao.maps.Size(24, 24),
+      { offset: new kakao.maps.Point(12, 35) }
+    );
+
+    // hover 마커 이미지(확대)
+    const hoverMarkerImage = new kakao.maps.MarkerImage(
+      unselected,
+      new kakao.maps.Size(30, 30),
+      { offset: new kakao.maps.Point(12, 35) }
+    );
+
+    const createdMarkers = storeData.map((store, index) => {
+      const marker = new kakao.maps.Marker({
+        map,
+        position: new kakao.maps.LatLng(store.latitude, store.longitude),
+        image: index === 0 ? redMarkerImage : normalMarkerImage,
+      });
+
+      if (index === 0) {
+        selectedMarker = marker;
+      }
+
+      kakao.maps.event.addListener(marker, "click", function () {
+        if (selectedMarker) {
+          selectedMarker.setImage(normalMarkerImage);
+        }
+        marker.setImage(redMarkerImage);
+        selectedMarker = marker;
+
+        setSelectedStore(store);
+        map.panTo(marker.getPosition());
+      });
+
+      kakao.maps.event.addListener(marker, "mouseover", function () {
+        if (!selectedMarker || selectedMarker !== marker) {
+          marker.setImage(hoverMarkerImage);
+        }
+      });
+
+      kakao.maps.event.addListener(marker, "mouseout", function () {
+        if (!selectedMarker || selectedMarker !== marker) {
+          marker.setImage(normalMarkerImage);
+        }
+      });
+
+      return { store, marker };
+    });
+
+    setMarkers(createdMarkers);
+  }, [loaded, storeData]);
 
   const handleStoreClick = (store) => {
     setSelectedStore(store);
     const storeId = store.storeId;
 
-    // console.log("Sending request with storeId:", storeId);
+    // 선택한 지점의 대타 가능 알바생 조회
+    axios
+      .get(`http://i12b105.p.ssafy.io:8080/api/substitute/available-workers`, {
+        params: { storeId },
+      })
+      .then((res) => {
+        console.log("알바 리스트 출력; ", res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
 
-    // axios
-    //   .get(`http://localhost:8080/api/substitute/available-stores`, {
-    //     params: { storeId },
-    //   })
-    //   .then((res) => {
-    //     console.log(res.data);
-    //     setcanDetaTime(res.data);
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
+    // 선택한 지점의 공석 확인(시간)
+    axios
+      .get(`http://i12b105.p.ssafy.io:8080/api/substitute/available-stores`, {
+        params: { storeId },
+        validateStatus: function (status) {
+          // 2xx와 4xx 상태 코드에 대해서 모두 then 블록에서 처리하도록 설정
+          return status >= 200 && status < 500;
+        },
+      })
+      .then((res) => {
+        if (res.status === 400) {
+          // 400 에러인 경우, 에러 처리 로직
+          console.log("Bad Request: No data available.");
+          return;
+        } else {
+          // console.log(res.data);
+          setcanDetaTime(res.data);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
 
     // 이전에 선택된 마커의 이미지 초기화
     if (markers && selectedStore) {
@@ -308,8 +336,9 @@ const KakaoMap = () => {
   };
 
   return (
-    <div className="flex">
-      <nav className="w-1/4 border-r-2">
+    <div className="h-[calc(100vh-4rem)] flex overflow-hidden">
+      {/* 왼쪽 네비게이션 (스크롤 가능) */}
+      <nav className="w-1/4 border-r-2 h-full flex flex-col">
         <section className="ml-5 mt-5">
           <DatePickerModule
             selectedDate={selectedDate}
@@ -318,10 +347,11 @@ const KakaoMap = () => {
             setStartTime={setStartTime}
             endTime={endTime}
             setEndTime={setEndTime}
+            scheduleIdNum={scheduleIdNum}
           />
         </section>
         <hr className="text-black my-3 w-full" />
-        <div className="mx-5 ">
+        <div className="mx-5 flex-grow overflow-y-auto">
           <StoreCard
             stores={storeData}
             onSelectStore={handleStoreClick}
@@ -329,27 +359,29 @@ const KakaoMap = () => {
           />
         </div>
       </nav>
-      <article className="w-3/4">
-        <section className="mb-10 ml-5 mt-10">
+
+      {/* 오른쪽 콘텐츠 (스크롤 가능) */}
+      <article className="w-3/4 flex flex-col overflow-hidden">
+        {/* 상단 리스트 영역 (스크롤 가능) */}
+        <section className=" overflow-auto mb-5 ml-5 mt-10">
+          {/* <TimeList
+            selectedStore={selectedStore}
+            selectedDate={selectedDate}
+            workStartTime={startTime}
+            workEndTime={endTime}
+            times={canDetaTime}
+          /> */}
           <AlbaList
             selectedStore={selectedStore}
             selectedDate={selectedDate}
             startTime={startTime}
             endTime={endTime}
           />
-          <TimeList
-            selectedStore={selectedStore}
-            selectedDate={selectedDate}
-            workStartTime={startTime}
-            workEndTime={endTime}
-            // times={canDetaTime}
-          />
         </section>
-        <div className="bg-[#eee] p-3">
-          <div
-            id="map"
-            style={{ width: "100%", height: "500px", borderRadius: "10px" }}
-          ></div>
+
+        {/* 지도 영역 */}
+        <div className="flex-grow bg-[#eee] p-3">
+          <div id="map" className="w-full h-full rounded-lg"></div>
         </div>
       </article>
     </div>

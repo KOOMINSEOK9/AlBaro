@@ -3,18 +3,24 @@ package com.albaro.dto;
 import com.albaro.entity.User;
 
 public class UserDto {
-    private Integer userId;
-    private String userName;
-    private String role;
-    private String phoneNumber;
+        private Integer userId;
+        private String userName;
+        private String role;
+        private String phoneNumber;
 
-    public static UserDto fromEntity(User user) {
-        return new UserDto(
-                user.getUserId(),
-                user.getUserName(),
-                user.getRole(),
-                user.getPhoneNumber()
-        );
+        public static com.albaro.dto.UserDto fromEntity(User user) {
+            return new com.albaro.dto.UserDto(
+                    user.getUserId(),
+                    user.getUserName(),
+                    user.getRole(),
+                    user.getPhoneNumber()
+            );
+        }
+
+    // 새로운 생성자 추가
+    public UserDto(Integer userId, String userName) {
+        this.userId = userId;
+        this.userName = userName;
     }
 
     public UserDto(){
