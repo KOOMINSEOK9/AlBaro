@@ -1,9 +1,9 @@
 "use client";
 
-import TimeList from "../part-timer/TimeList.jsx";
-import AlbaList from "../manager/AlbaList.jsx";
-import DatePickerModule from "./DatePicker.jsx";
-import StoreCard from "./StoreCard.jsx";
+import TimeList from "../components/pages/part-timer/TimeList.jsx";
+import AlbaList from "../components/pages/manager/AlbaList.jsx";
+import DatePickerModule from "../components/pages/common/DatePicker.jsx";
+import StoreCard from "../components/pages/common/StoreCard.jsx";
 
 import { useRouter, useSearchParams } from "next/navigation.js";
 import { useEffect, useState } from "react";
