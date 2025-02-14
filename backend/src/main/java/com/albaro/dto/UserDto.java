@@ -2,11 +2,17 @@ package com.albaro.dto;
 
 import com.albaro.entity.User;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 public class UserDto {
         private Integer userId;
         private String userName;
         private String role;
         private String phoneNumber;
+        private LocalDate scheduleDate;
+        private LocalTime scheduleStartTime ;
+        private LocalTime scheduleEndTime ;
 
         public static com.albaro.dto.UserDto fromEntity(User user) {
             return new com.albaro.dto.UserDto(
@@ -32,6 +38,16 @@ public class UserDto {
         this.userName = userName;
         this.role = role;
         this.phoneNumber = phoneNumber;
+    }
+
+    //점장 -> 알바생 로직에 사용
+    public UserDto(Integer userId, String userName, LocalDate scheduleDate,
+                   LocalTime scheduleStartTime, LocalTime scheduleEndTime) {
+        this.userId = userId;
+        this.userName = userName;
+        this.scheduleDate = scheduleDate;
+        this.scheduleStartTime = scheduleStartTime;
+        this.scheduleEndTime = scheduleEndTime;
     }
 
     public Integer getUserId() {
@@ -64,5 +80,29 @@ public class UserDto {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public LocalDate getScheduleDate() {
+        return scheduleDate;
+    }
+
+    public void setScheduleDate(LocalDate scheduleDate) {
+        this.scheduleDate = scheduleDate;
+    }
+
+    public LocalTime getScheduleStartTime() {
+        return scheduleStartTime;
+    }
+
+    public void setScheduleStartTime(LocalTime scheduleStartTime) {
+        this.scheduleStartTime = scheduleStartTime;
+    }
+
+    public LocalTime getScheduleEndTime() {
+        return scheduleEndTime;
+    }
+
+    public void setScheduleEndTime(LocalTime scheduleEndTime) {
+        this.scheduleEndTime = scheduleEndTime;
     }
 }

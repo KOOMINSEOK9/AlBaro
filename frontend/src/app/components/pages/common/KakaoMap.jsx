@@ -26,15 +26,17 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
 
   const [canDetaTime, setcanDetaTime] = useState([]);
 
+  const [canDetaAlbaList, setcanDetaAlbaList] = useState([]);
+
   useEffect(() => {
-    console.log("scheduleId:", scheduleId);
-    console.log("date:", date);
-    console.log("start:", start);
-    console.log("end:", end);
+    // console.log("scheduleId:", scheduleId);
+    // console.log("date:", date);
+    // console.log("start:", start);
+    // console.log("end:", end);
 
     if (date) {
       const parsedDate = new Date(date);
-      console.log("Parsed Date:", parsedDate);
+      // console.log("Parsed Date:", parsedDate);
       setSelectedDate(parsedDate);
     }
 
@@ -44,7 +46,7 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
       const startInKST = parsedStart.toLocaleString("en-US", {
         timeZone: "Asia/Seoul",
       });
-      console.log("Parsed Start in KST:", startInKST); // KST로 출력
+      // console.log("Parsed Start in KST:", startInKST); // KST로 출력
       setStartTime(startInKST);
     }
 
@@ -54,7 +56,7 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
       const endInKST = parsedEnd.toLocaleString("en-US", {
         timeZone: "Asia/Seoul",
       });
-      console.log("Parsed End in KST:", endInKST); // KST로 출력
+      // console.log("Parsed End in KST:", endInKST); // KST로 출력
       setEndTime(endInKST);
     }
 
@@ -144,11 +146,11 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
   // 반경 내 지점 리스트 받아오기
   useEffect(() => {
     axios
-      .get(`http://i12b105.p.ssafy.io:8080/api/substitute/nearby-stores`, {
+      .get(`http://localhost:8080/api/substitute/nearby-stores`, {
         params: { userId },
       })
       .then((res) => {
-        console.log("res: ", res.data);
+        // console.log("res: ", res.data);
         setStoreData(res.data);
       })
       .catch((err) => {
@@ -273,11 +275,12 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
 
     // 선택한 지점의 대타 가능 알바생 조회
     axios
-      .get(`http://i12b105.p.ssafy.io:8080/api/substitute/available-workers`, {
+      .get(`http://localhost:8080/api/substitute/available-workers`, {
         params: { storeId },
       })
       .then((res) => {
-        console.log("알바 리스트 출력; ", res);
+        console.log("알바 리스트 출력; ", res.data);
+        setcanDetaAlbaList(res.data);
       })
       .catch((err) => {
         console.log(err);
@@ -285,7 +288,7 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
 
     // 선택한 지점의 공석 확인(시간)
     axios
-      .get(`http://i12b105.p.ssafy.io:8080/api/substitute/available-stores`, {
+      .get(`http://localhost:8080/api/substitute/available-stores`, {
         params: { storeId },
         validateStatus: function (status) {
           // 2xx와 4xx 상태 코드에 대해서 모두 then 블록에서 처리하도록 설정
@@ -364,24 +367,29 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
       <article className="w-3/4 flex flex-col overflow-hidden">
         {/* 상단 리스트 영역 (스크롤 가능) */}
         <section className=" overflow-auto mb-5 ml-5 mt-10">
-          {/* <TimeList
+          <TimeList
             selectedStore={selectedStore}
             selectedDate={selectedDate}
             workStartTime={startTime}
             workEndTime={endTime}
             times={canDetaTime}
-          /> */}
-          <AlbaList
+          />
+          {/* <AlbaList
             selectedStore={selectedStore}
             selectedDate={selectedDate}
             startTime={startTime}
             endTime={endTime}
-          />
+            canDetaAlbaList={canDetaAlbaList}
+          /> */}
         </section>
 
         {/* 지도 영역 */}
         <div className="flex-grow bg-[#eee] p-3">
-          <div id="map" className="w-full h-full rounded-lg"></div>
+          {loaded ? (
+            <div id="map" className="w-full h-full rounded-lg"></div>
+          ) : (
+            <div>Loading map...</div>
+          )}{" "}
         </div>
       </article>
     </div>

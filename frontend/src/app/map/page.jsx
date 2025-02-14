@@ -19,7 +19,6 @@ const Map = () => {
       {/* 본문 (스크롤 가능) */}
       <section className="flex-1 flex-grow overflow-hidden bg-[#fff]">
         <Suspense fallback={<div>Loading map...</div>}>
-          {/* useSearchParams를 Suspense 내부로 이동 */}
           {() => {
             const searchParams = useSearchParams();
             const getScheduleId = searchParams.get("scheduleId");

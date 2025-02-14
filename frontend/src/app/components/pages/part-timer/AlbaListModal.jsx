@@ -66,7 +66,7 @@ import axios from "axios";
 //   },
 // ];
 
-const AlbaList = ({
+const AlbaListModal = ({
   selectedStore,
   selectedDate,
   startTime,
@@ -77,12 +77,8 @@ const AlbaList = ({
 
   const filteredAlba = canDetaAlbaList.filter((alba) => {
     const albaDate = new Date(alba.scheduleDate);
-    const albaStartTime = new Date(
-      `${alba.scheduleDate}T${alba.scheduleStartTime}`
-    );
-    const albaEndTime = new Date(
-      `${alba.scheduleDate}T${alba.scheduleEndTime}`
-    );
+    const albaStartTime = new Date(alba.scheduleStartTime);
+    const albaEndTime = new Date(alba.scheduleEndTime);
 
     return (
       albaDate.toDateString() === selectedDate.toDateString() &&
@@ -115,4 +111,4 @@ const AlbaList = ({
   );
 };
 
-export default AlbaList;
+export default AlbaListModal;

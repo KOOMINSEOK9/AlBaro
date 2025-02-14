@@ -23,7 +23,12 @@ public interface ScheduleReferenceRepository extends JpaRepository<ScheduleRefer
     List<Integer> findWorkerIdsByStoreId(@Param("storeId") Integer storeId);
 
     //점장 -> 공석채우기
-    @Query("SELECT new com.albaro.dto.UserDto(sr.user.userId, sr.user.userName) " +
+    @Query("SELECT new com.albaro.dto.UserDto(" +
+            "sr.user.userId, " +
+            "sr.user.userName, " +
+            "sr.scheduleDate, " +
+            "sr.scheduleStartTime, " +
+            "sr.scheduleEndTime) " +
             "FROM ScheduleReference sr " +
             "WHERE sr.store.storeId = :storeId")
     List<UserDto> findWorkersByStoreId(@Param("storeId") Integer storeId);
