@@ -29,7 +29,7 @@ const MyCalendar = () => {
   const [eventInfo, setEventInfo] = useState(null);
 
   const storeId = 1;
-  const role = "staff";
+  const role = "manager";
 
   useEffect(() => {
     axios
@@ -685,7 +685,7 @@ const MyCalendar = () => {
             </h2>
 
             <DatePicker
-              selected={selectedDate}
+              selected={eventInfo}
               onChange={(date) => setSelectedDate(date)}
               className="border-b-2 pl-1   ml-2"
               dateFormat="yyyy-MM-dd"

@@ -5,12 +5,13 @@ import AlbaList from "../manager/AlbaList.jsx";
 import DatePickerModule from "./DatePicker.jsx";
 import StoreCard from "./StoreCard.jsx";
 
-import { useRouter } from "next/navigation.js";
+import { useRouter, useSearchParams } from "next/navigation.js";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { setDate } from "date-fns";
 
-const KakaoMap = ({ scheduleId, date, start, end }) => {
+// const KakaoMap = ({ scheduleId, date, start, end }) => {
+const KakaoMap = () => {
   const router = useRouter();
   const [loaded, setLoaded] = useState(false);
   const [selectedStore, setSelectedStore] = useState({});
@@ -28,20 +29,26 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
 
   const [canDetaAlbaList, setcanDetaAlbaList] = useState([]);
 
+  const searchParams = useSearchParams();
+  const getScheduleId = searchParams.get("scheduleId");
+  const getDate = searchParams.get("date");
+  const getStart = searchParams.get("start");
+  const getEnd = searchParams.get("end");
+
   useEffect(() => {
     // console.log("scheduleId:", scheduleId);
     // console.log("date:", date);
     // console.log("start:", start);
     // console.log("end:", end);
 
-    if (date) {
-      const parsedDate = new Date(date);
+    if (getDate) {
+      const parsedDate = new Date(getDate);
       // console.log("Parsed Date:", parsedDate);
       setSelectedDate(parsedDate);
     }
 
-    if (start) {
-      const parsedStart = new Date(start);
+    if (getStart) {
+      const parsedStart = new Date(getStart);
       // 한국 표준시(KST)로 출력
       const startInKST = parsedStart.toLocaleString("en-US", {
         timeZone: "Asia/Seoul",
@@ -50,8 +57,8 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
       setStartTime(startInKST);
     }
 
-    if (end) {
-      const parsedEnd = new Date(end);
+    if (getEnd) {
+      const parsedEnd = new Date(getEnd);
       // 한국 표준시(KST)로 출력
       const endInKST = parsedEnd.toLocaleString("en-US", {
         timeZone: "Asia/Seoul",
@@ -60,10 +67,10 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
       setEndTime(endInKST);
     }
 
-    if (scheduleId) {
-      setScheduleId(scheduleId);
+    if (getScheduleId) {
+      setScheduleId(getScheduleId);
     }
-  }, [date, start, end, scheduleId]);
+  }, [getDate, getStart, getEnd, getScheduleId]);
 
   // const storeData = [
   //   {
@@ -298,7 +305,7 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
       .then((res) => {
         if (res.status === 400) {
           // 400 에러인 경우, 에러 처리 로직
-          console.log("Bad Request: No data available.");
+          // console.log("Bad Request: No data available.");
           return;
         } else {
           // console.log(res.data);
