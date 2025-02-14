@@ -22,29 +22,27 @@ public class UserWorkInformationService {
         this.userRepository = userRepository;
     }
 
-
-     // 특정 사용자의 결근한 근무 기록 조회
+    // 특정 사용자의 결근한 근무 기록 조회
     public List<UserWorkInformationResponse> getAbsentWorkInformation(Integer userId) {
         return workInformationRepository.findAll().stream()
                 .filter(info -> info.getUser() != null && info.getUser().getUserId().equals(userId))
                 .filter(info -> info.getRealTimeWorker() != null && !info.getRealTimeWorker().equals(userId))
-                .filter(info -> LocalDateTime.now().isBefore(info.getWorkDate().atTime(info.getEndTime())))
+                .filter(info -> LocalDateTime.now().isAfter(info.getWorkDate().atTime(info.getEndTime())))
                 .filter(info -> info.getWorkDate().getYear() == LocalDateTime.now().getYear())
                 .filter(info -> info.getWorkDate().getMonth() == LocalDateTime.now().getMonth())
-                .map(info -> new UserWorkInformationResponse(info, userRepository))
+                .map(info -> new UserWorkInformationResponse(info, userRepository)) // storeName 포함해서 반환
                 .collect(Collectors.toList());
     }
-
 
     // 특정 사용자가 대타 근무한 기록 조회
     public List<UserWorkInformationResponse> getSubstitutedWorkInformation(Integer userId) {
         return workInformationRepository.findAll().stream()
                 .filter(info -> info.getRealTimeWorker() != null && info.getRealTimeWorker().equals(userId))
                 .filter(info -> !info.getUser().getUserId().equals(userId))
-                .filter(info -> LocalDateTime.now().isBefore(info.getWorkDate().atTime(info.getEndTime())))
+                .filter(info -> LocalDateTime.now().isAfter(info.getWorkDate().atTime(info.getEndTime())))
                 .filter(info -> info.getWorkDate().getYear() == LocalDateTime.now().getYear())
                 .filter(info -> info.getWorkDate().getMonth() == LocalDateTime.now().getMonth())
-                .map(info -> new UserWorkInformationResponse(info, userRepository))
+                .map(info -> new UserWorkInformationResponse(info, userRepository)) // storeName 포함해서 반환
                 .collect(Collectors.toList());
     }
 

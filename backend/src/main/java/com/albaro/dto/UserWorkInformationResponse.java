@@ -21,6 +21,7 @@ public class UserWorkInformationResponse {
     private Integer accountId;
     private Integer userId;
     private String realTimeWorkerName;
+    private String storeName; // 추가된 필드 (가게 이름)
 
     public UserWorkInformationResponse(WorkInformation workInformation, UserRepository userRepository) {
         this.scheduleId = workInformation.getScheduleId();
@@ -34,6 +35,7 @@ public class UserWorkInformationResponse {
         this.userName = workInformation.getUser().getUserName();
         this.accountId = workInformation.getUser().getAccountId();
         this.userId = workInformation.getUser().getUserId();
+        this.storeName = workInformation.getStore().getStoreName(); // 추가된 storeName 값 설정
 
         // realTimeWorker -> UserRepository에서 userName 조회
         if (workInformation.getRealTimeWorker() != null) {
@@ -56,4 +58,5 @@ public class UserWorkInformationResponse {
     public Integer getAccountId() { return accountId; }
     public Integer getUserId() { return userId; }
     public String getRealTimeWorkerName() { return realTimeWorkerName; }
+    public String getStoreName() { return storeName; } // 추가된 getter 메서드
 }
