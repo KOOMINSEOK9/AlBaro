@@ -124,6 +124,8 @@ public class SubstitutionController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime) {
 
+        System.out.println(userId);
+
         substitutionService.requestSubstitution(userId, userName,
                 workDate, startTime, endTime);
         return ResponseEntity.ok().build();
@@ -199,6 +201,8 @@ public class SubstitutionController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate workDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime) {
+
+
 
         substitutionService.requestSubstitution(userId, userName,
                 workDate, startTime, endTime);

@@ -1,16 +1,17 @@
 "use client";
 
-import TimeList from "../part-timer/TimeList.jsx";
-import AlbaList from "../manager/AlbaList.jsx";
-import DatePickerModule from "./DatePicker.jsx";
-import StoreCard from "./StoreCard.jsx";
+import TimeList from "../components/pages/part-timer/TimeList.jsx";
+import AlbaList from "../components/pages/manager/AlbaList.jsx";
+import DatePickerModule from "../components/pages/common/DatePicker.jsx";
+import StoreCard from "../components/pages/common/StoreCard.jsx";
 
-import { useRouter } from "next/navigation.js";
+import { useRouter, useSearchParams } from "next/navigation.js";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { setDate } from "date-fns";
 
-const KakaoMap = ({ scheduleId, date, start, end }) => {
+// const KakaoMap = ({ scheduleId, date, start, end }) => {
+const KakaoMap = () => {
   const router = useRouter();
   const [loaded, setLoaded] = useState(false);
   const [selectedStore, setSelectedStore] = useState({});
@@ -26,42 +27,50 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
 
   const [canDetaTime, setcanDetaTime] = useState([]);
 
-  useEffect(() => {
-    console.log("scheduleId:", scheduleId);
-    console.log("date:", date);
-    console.log("start:", start);
-    console.log("end:", end);
+  const [canDetaAlbaList, setcanDetaAlbaList] = useState([]);
 
-    if (date) {
-      const parsedDate = new Date(date);
-      console.log("Parsed Date:", parsedDate);
+  const searchParams = useSearchParams();
+  const getScheduleId = searchParams.get("scheduleId");
+  const getDate = searchParams.get("date");
+  const getStart = searchParams.get("start");
+  const getEnd = searchParams.get("end");
+
+  useEffect(() => {
+    // console.log("scheduleId:", scheduleId);
+    // console.log("date:", date);
+    // console.log("start:", start);
+    // console.log("end:", end);
+
+    if (getDate) {
+      const parsedDate = new Date(getDate);
+      // console.log("Parsed Date:", parsedDate);
       setSelectedDate(parsedDate);
     }
 
-    if (start) {
-      const parsedStart = new Date(start);
+    if (getStart) {
+      const parsedStart = new Date(getStart);
       // 한국 표준시(KST)로 출력
       const startInKST = parsedStart.toLocaleString("en-US", {
         timeZone: "Asia/Seoul",
       });
-      console.log("Parsed Start in KST:", startInKST); // KST로 출력
+      // console.log("Parsed Start in KST:", startInKST); // KST로 출력
       setStartTime(startInKST);
     }
 
-    if (end) {
-      const parsedEnd = new Date(end);
+    if (getEnd) {
+      const parsedEnd = new Date(getEnd);
       // 한국 표준시(KST)로 출력
       const endInKST = parsedEnd.toLocaleString("en-US", {
         timeZone: "Asia/Seoul",
       });
-      console.log("Parsed End in KST:", endInKST); // KST로 출력
+      // console.log("Parsed End in KST:", endInKST); // KST로 출력
       setEndTime(endInKST);
     }
 
-    if (scheduleId) {
-      setScheduleId(scheduleId);
+    if (getScheduleId) {
+      setScheduleId(getScheduleId);
     }
-  }, [date, start, end, scheduleId]);
+  }, [getDate, getStart, getEnd, getScheduleId]);
 
   // const storeData = [
   //   {
@@ -148,7 +157,7 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
         params: { userId },
       })
       .then((res) => {
-        console.log("res: ", res.data);
+        // console.log("res: ", res.data);
         setStoreData(res.data);
       })
       .catch((err) => {
@@ -277,7 +286,8 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
         params: { storeId },
       })
       .then((res) => {
-        console.log("알바 리스트 출력; ", res);
+        console.log("알바 리스트 출력; ", res.data);
+        setcanDetaAlbaList(res.data);
       })
       .catch((err) => {
         console.log(err);
@@ -295,7 +305,7 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
       .then((res) => {
         if (res.status === 400) {
           // 400 에러인 경우, 에러 처리 로직
-          console.log("Bad Request: No data available.");
+          // console.log("Bad Request: No data available.");
           return;
         } else {
           // console.log(res.data);
@@ -364,24 +374,29 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
       <article className="w-3/4 flex flex-col overflow-hidden">
         {/* 상단 리스트 영역 (스크롤 가능) */}
         <section className=" overflow-auto mb-5 ml-5 mt-10">
-          {/* <TimeList
+          <TimeList
             selectedStore={selectedStore}
             selectedDate={selectedDate}
             workStartTime={startTime}
             workEndTime={endTime}
             times={canDetaTime}
-          /> */}
-          <AlbaList
+          />
+          {/* <AlbaList
             selectedStore={selectedStore}
             selectedDate={selectedDate}
             startTime={startTime}
             endTime={endTime}
-          />
+            canDetaAlbaList={canDetaAlbaList}
+          /> */}
         </section>
 
         {/* 지도 영역 */}
         <div className="flex-grow bg-[#eee] p-3">
-          <div id="map" className="w-full h-full rounded-lg"></div>
+          {loaded ? (
+            <div id="map" className="w-full h-full rounded-lg"></div>
+          ) : (
+            <div>Loading map...</div>
+          )}{" "}
         </div>
       </article>
     </div>

@@ -70,6 +70,17 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy Nginx') {
+            steps {
+                script {
+                    sh '''
+                    cd /var/jenkins_home/workspace/jenkinsTest/jenkins
+                    $DOCKER_COMPOSE_PATH up -d nginx
+                    '''
+                }
+            }
+        }
     }
 
     post {

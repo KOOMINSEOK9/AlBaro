@@ -11,10 +11,10 @@ public class UserDto {
         private String role;
         private String phoneNumber;
         private LocalDate scheduleDate;
-        private LocalTime scheduleStartTime;
-        private LocalTime scheduleEndTime;
+        private LocalTime scheduleStartTime ;
+        private LocalTime scheduleEndTime ;
 
-    public static com.albaro.dto.UserDto fromEntity(User user) {
+        public static com.albaro.dto.UserDto fromEntity(User user) {
             return new com.albaro.dto.UserDto(
                     user.getUserId(),
                     user.getUserName(),
@@ -23,7 +23,7 @@ public class UserDto {
             );
         }
 
-    // 기존 생성자 추가
+    // 새로운 생성자 추가
     public UserDto(Integer userId, String userName) {
         this.userId = userId;
         this.userName = userName;
@@ -41,14 +41,14 @@ public class UserDto {
     }
 
     //점장 -> 알바생 로직에 사용
-    public UserDto(Integer userId, String userName, LocalDate scheduleDate, LocalTime scheduleStartTime, LocalTime scheduleEndTime) {
+    public UserDto(Integer userId, String userName, LocalDate scheduleDate,
+                   LocalTime scheduleStartTime, LocalTime scheduleEndTime) {
         this.userId = userId;
         this.userName = userName;
         this.scheduleDate = scheduleDate;
         this.scheduleStartTime = scheduleStartTime;
         this.scheduleEndTime = scheduleEndTime;
     }
-
 
     public Integer getUserId() {
         return userId;
