@@ -176,131 +176,95 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
   }, []);
 
   // 마커 출력
+  // 지도 출력 useEffect
   useEffect(() => {
-    if (loaded && window.kakao && window.kakao.maps) {
-      const container = document.getElementById("map");
-      const options = {
-        center: new window.kakao.maps.LatLng(
-          storeData[0].latitude,
-          storeData[0].longitude
-        ),
-        level: 3,
-      };
+    if (
+      !loaded ||
+      !window.kakao ||
+      !window.kakao.maps ||
+      storeData.length === 0
+    ) {
+      return;
+    }
 
-      setSelectedStore(storeData[0]);
-      const map = new window.kakao.maps.Map(container, options);
-      setMapInstance(map);
+    const container = document.getElementById("map");
 
-      let selectedMarker = null; // 선택된 마커
+    const options = {
+      center: new window.kakao.maps.LatLng(
+        storeData[0].latitude,
+        storeData[0].longitude
+      ),
+      level: 3,
+    };
 
-      const selected = "/Location_red.png";
-      const unselected = "/Location_blue.png";
+    setSelectedStore(storeData[0]);
+    const map = new window.kakao.maps.Map(container, options);
+    setMapInstance(map);
 
-      // 선택된 마커 이미지
-      const redMarkerImage = new kakao.maps.MarkerImage(
-        selected, // 기존 마커 이미지 URL
-        new kakao.maps.Size(24, 24), // 마커 크기
-        { offset: new kakao.maps.Point(12, 35) } // 마커 중심 점 설정
-      );
-      // 기본 마커 이미지
-      const normalMarkerImage = new kakao.maps.MarkerImage(
-        unselected,
-        new kakao.maps.Size(24, 24),
-        { offset: new kakao.maps.Point(12, 35) }
-      );
-      // hover 마커 이미지(확대)
-      const hoverMarkerImage = new kakao.maps.MarkerImage(
-        unselected,
-        new kakao.maps.Size(30, 30),
-        { offset: new kakao.maps.Point(12, 35) }
-      );
+    let selectedMarker = null; // 선택된 마커
 
-      const createdMarkers = storeData.map((store, index) => {
-        const marker = new kakao.maps.Marker({
-          map,
-          position: new kakao.maps.LatLng(store.latitude, store.longitude),
-          image: index === 0 ? redMarkerImage : normalMarkerImage,
-        });
+    const selected = "/Location_red.png";
+    const unselected = "/Location_blue.png";
 
-        if (index === 0) {
-          selectedMarker = marker;
-        }
+    // 선택된 마커 이미지
+    const redMarkerImage = new kakao.maps.MarkerImage(
+      selected,
+      new kakao.maps.Size(24, 24),
+      { offset: new kakao.maps.Point(12, 35) }
+    );
 
-        kakao.maps.event.addListener(marker, "click", function () {
-          if (selectedMarker) {
-            selectedMarker.setImage(normalMarkerImage);
-          }
-          marker.setImage(redMarkerImage);
-          selectedMarker = marker;
+    // 기본 마커 이미지
+    const normalMarkerImage = new kakao.maps.MarkerImage(
+      unselected,
+      new kakao.maps.Size(24, 24),
+      { offset: new kakao.maps.Point(12, 35) }
+    );
 
-          setSelectedStore(store);
-          map.panTo(marker.getPosition());
-        });
+    // hover 마커 이미지(확대)
+    const hoverMarkerImage = new kakao.maps.MarkerImage(
+      unselected,
+      new kakao.maps.Size(30, 30),
+      { offset: new kakao.maps.Point(12, 35) }
+    );
 
-        kakao.maps.event.addListener(marker, "mouseover", function () {
-          // 클릭된 마커가 없고, mouseover된 마커가 클릭된 마커가 아니면
-          // 마커의 이미지를 오버 이미지로 변경합니다
-          if (!selectedMarker || selectedMarker !== marker) {
-            marker.setImage(hoverMarkerImage);
-          }
-        });
-
-        kakao.maps.event.addListener(marker, "mouseout", function () {
-          if (!selectedMarker || selectedMarker !== marker) {
-            marker.setImage(normalMarkerImage);
-          }
-        });
-
-        return { store, marker };
+    const createdMarkers = storeData.map((store, index) => {
+      const marker = new kakao.maps.Marker({
+        map,
+        position: new kakao.maps.LatLng(store.latitude, store.longitude),
+        image: index === 0 ? redMarkerImage : normalMarkerImage,
       });
 
-      setMarkers(createdMarkers);
+      if (index === 0) {
+        selectedMarker = marker;
+      }
 
-      // storeData.forEach((store) => {
-      //   const latitude = store.latitude;
-      //   const longitude = store.longitude;
-      //   let coords = new kakao.maps.LatLng(latitude, longitude);
+      kakao.maps.event.addListener(marker, "click", function () {
+        if (selectedMarker) {
+          selectedMarker.setImage(normalMarkerImage);
+        }
+        marker.setImage(redMarkerImage);
+        selectedMarker = marker;
 
-      //   let marker = new kakao.maps.Marker({
-      //     map: map,
-      //     position: coords,
-      //     image: normalMarkerImage, // 기본 이미지 설정
-      //   });
+        setSelectedStore(store);
+        map.panTo(marker.getPosition());
+      });
 
-      //   // 마커 호버 이벤트(확대)
-      //   kakao.maps.event.addListener(marker, "mouseover", function () {
-      //     // 클릭된 마커가 없고, mouseover된 마커가 클릭된 마커가 아니면
-      //     // 마커의 이미지를 오버 이미지로 변경합니다
-      //     if (!selectedMarker || selectedMarker !== marker) {
-      //       marker.setImage(hoverMarkerImage);
-      //     }
-      //   });
+      kakao.maps.event.addListener(marker, "mouseover", function () {
+        if (!selectedMarker || selectedMarker !== marker) {
+          marker.setImage(hoverMarkerImage);
+        }
+      });
 
-      //   kakao.maps.event.addListener(marker, "mouseout", function () {
-      //     if (!selectedMarker || selectedMarker !== marker) {
-      //       marker.setImage(normalMarkerImage);
-      //     }
-      //   });
+      kakao.maps.event.addListener(marker, "mouseout", function () {
+        if (!selectedMarker || selectedMarker !== marker) {
+          marker.setImage(normalMarkerImage);
+        }
+      });
 
-      //   // 마커 클릭 이벤트
-      //   kakao.maps.event.addListener(marker, "click", function () {
-      //     console.log(marker);
+      return { store, marker };
+    });
 
-      //     // 클릭된 마커가 없다면 클릭한 마커 이미지 변경
-      //     if (!selectedMarker || selectedMarker !== marker) {
-      //       if (selectedMarker) {
-      //         selectedMarker.setImage(normalMarkerImage); // 이전 마커 기본 이미지로 변경
-      //       }
-      //       marker.setImage(redMarkerImage); // 현재 클릭된 마커는 빨간색으로 변경
-      //       selectedMarker = marker; // 선택된 마커로 설정
-
-      //       // setSelectedStore(marker);
-
-      //       map.panTo(marker.getPosition());
-      //     }
-      //   });
-      // });
-    }
+    setMarkers(createdMarkers);
   }, [loaded, storeData]);
 
   const handleStoreClick = (store) => {
