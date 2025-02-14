@@ -8,8 +8,8 @@ const Header = () => {
   const [view, setView] = useState(false);
 
   return (
-    <header className="bg-[#222831] text-white py-4 px-6 flex justify-between items-center relative">
-      <Link href="/" className="text-2xl font-bold">
+    <header className="bg-[#222831] text-white py-3 px-6 flex justify-between items-center relative">
+      <Link href="/main" className="text-2xl font-bold">
         AlBaro
       </Link>
       <div className="relative">

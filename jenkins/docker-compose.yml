@@ -39,16 +39,18 @@ services:
 
 
   nginx:
-    build: ../nginx
+    build: ../nginx  
     ports:
       - "80:80"
       - "443:443"  # HTTPS 포트 추가
     volumes:
-      - ../nginx/conf.d:/etc/nginx/conf.d
-      - ../nginx/certs:/etc/letsencrypt  # 인증서 마운트 추가
+      - /home/ubuntu/S12P11B105/nginx/conf.d:/etc/nginx/conf.d:rw  # Nginx 설정 파일 경로
+      - /home/ubuntu/app/certbot/conf:/etc/letsencrypt  # 인증서 경로
+      
     depends_on:
       - frontend
       - backend
+
 
   certbot:
     image: certbot/certbot
@@ -57,6 +59,12 @@ services:
       - ../nginx/conf.d:/etc/nginx/conf.d
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
+  # face_recognition:
+  #   build: ../face_recognition  
+  #   ports:
+  #     - "5000:5000"  
+  #   depends_on:
+  #     - backend  
 
 volumes:
   db_data:
