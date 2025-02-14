@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import Image from "next/image";
 import AlbaCard from "./AlbaCard.jsx";
+import axios from "axios";
 
 const Alba = [
   {
@@ -66,6 +67,8 @@ const Alba = [
 ];
 
 const AlbaList = ({ selectedStore, selectedDate, startTime, endTime }) => {
+  // const userId = 1;
+
   const filteredAlba = Alba.filter((alba) => {
     const albaDate = new Date(alba.scheduleDate);
     const albaStartTime = new Date(alba.scheduleStartTime);

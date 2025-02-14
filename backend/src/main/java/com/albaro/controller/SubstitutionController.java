@@ -101,18 +101,18 @@ public class SubstitutionController {
 
     //1. 지점 별 근무 가능한 알바생 조회
     @GetMapping("/available-workers")
-    public ResponseEntity<?> findNearbyStoresAndWorkers(@RequestParam int userId,
-                                                        @RequestParam int storeId) {
+    public ResponseEntity<?> findNearbyStoresAndWorkers(@RequestParam int storeId) {
 
-        List<StoreDto> nearbyStores = storeService.findNearbyStoresAndWorkers(userId, storeId);
+        List<UserDto> availableWorkers = storeService.findWorkersInStores(storeId);
 
-        if(nearbyStores.isEmpty()) {
+        if(availableWorkers.isEmpty() || availableWorkers == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body("주변 지점이 없습니다.");
+                    .body("지점에 근무 가능한 알바생이 없습니다.");
         }
-        return ResponseEntity.ok(nearbyStores);
+        return ResponseEntity.ok(availableWorkers);
     }
+
 
     //2. 점장이 알바생에게 대타 요청하기
     @PostMapping("/managerRequest")
