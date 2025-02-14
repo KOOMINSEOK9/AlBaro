@@ -19,4 +19,8 @@ RUN curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-c
 RUN if ! getent group docker; then groupadd docker; fi && \
     usermod -aG docker jenkins
 
+
+# /etc/letsencrypt 디렉토리 생성 -> nginx에 사용할 키값들 볼륨 마운팅
+RUN mkdir -p /etc/letsencrypt
+
 # USER jenkins  # 이 줄은 주석 처리하거나 삭제
