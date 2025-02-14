@@ -1,12 +1,8 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 
 const AlbaCard = ({ albas }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
-
-  const userId = 1;
-  // console.log(albas);
 
   const handleMouseEnter = (index) => {
     setHoveredIndex(index);
@@ -23,25 +19,20 @@ const AlbaCard = ({ albas }) => {
       confirm(`${alba.scheduleDate} ${alba.scheduleStartTime} ~ ${alba.scheduleEndTime}까지
       ${alba.userName}님께 대타 요청을 하시겠습니까?`)
     ) {
-      const queryParams = new URLSearchParams({
-        userId,
-        userName: alba.userName,
-        workDate: alba.scheduleDate,
-        startTime: alba.scheduleStartTime,
-        endTime: alba.scheduleEndTime,
-      }).toString();
+      axios.post(
+        `http://i12b105.p.ssafy.io:8080/api/substitute/request-to-worker`,
+        {
+          params: {
+            userId,
+            userName,
+            workDate,
+            startTime,
+            endTime,
+          },
+        }
+      );
 
-      axios
-        .post(
-          `http://i12b105.p.ssafy.io:8080/api/substitute/managerRequest?${queryParams}`
-        )
-        .then((res) => {
-          alert(`${alba.userName}님께 대타를 요청했습니다.`);
-        })
-        .catch((err) => {
-          console.log(err);
-          alert(`오류가 발생했습니다. 대타 요청에 실패하였습니다.`);
-        });
+      alert(`${alba.userName}님께 대타를 요청했습니다.`);
     }
   };
 
@@ -51,7 +42,7 @@ const AlbaCard = ({ albas }) => {
         {albas.map((alba, index) => (
           <div
             key={index}
-            className="bg-[#eee] p-4 mb-3 rounded-lg cursor-pointer flex min-w-[160px] relative align-middle"
+            className="bg-[#eee] p-4 mb-3 rounded-lg cursor-pointer flex min-w-[200px] relative"
             onMouseEnter={() => handleMouseEnter(index)}
             onMouseLeave={handleMouseLeave}
           >
@@ -63,11 +54,9 @@ const AlbaCard = ({ albas }) => {
                 height={50}
               />
             </div>
-            <div className=" ml-1 mt-1">
-              <h3 className="text-lg font-semibold ml-2 mt-2">
-                {alba.userName}
-              </h3>
-              {/* <p className="text-sm text-gray-600">시급:</p> */}
+            <div className="align-middle ml-1 mt-1">
+              <h3 className="text-lg font-semibold">{alba.userName}</h3>
+              <p className="text-sm text-gray-600">시급:</p>
             </div>
 
             {/* Hover 시 오버레이와 버튼 추가 */}

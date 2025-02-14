@@ -9,8 +9,6 @@ services:
     env_file:
       - /var/jenkins_home/workspace/jenkinsTest/jenkins/.env  # Jenkins 컨테이너 내부 절대 경로
 
-
-  
   db:
     image: mysql:8
     environment:
@@ -36,35 +34,23 @@ services:
       - db
     command: ["./wait-for-it.sh", "db:3306", "--", "java", "-jar", "/app.jar"]
 
-
-
   nginx:
-    build: ../nginx  
+    image: nginx:latest
     ports:
       - "80:80"
-      - "443:443"  # HTTPS 포트 추가
+      - "443:443"
     volumes:
-      - /home/ubuntu/S12P11B105/nginx/conf.d:/etc/nginx/conf.d:rw
-      - /var/jenkins_home/certs:/etc/letsencrypt/live/i12b105.p.ssafy.io  # Jenkins 컨테이너의 인증서 경로를 Nginx에 마운트
-      
+      - /var/jenkins_home/workspace/jenkinsTest/nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Nginx 설정 파일
+      - /var/jenkins_home/workspace/jenkinsTest/nginx/conf.d:/etc/nginx/conf.d:ro  # conf.d 디렉토리
+      -  /etc/letsencrypt:/etc/letsencrypt:ro  # 호스트 머신의 인증서 마운트
     depends_on:
-      - frontend
       - backend
-
 
   certbot:
     image: certbot/certbot
     volumes:
-      - ../nginx/certs:/etc/letsencrypt
-      - ../nginx/conf.d:/etc/nginx/conf.d
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-
-  # face_recognition:
-  #   build: ../face_recognition  
-  #   ports:
-  #     - "5000:5000"  
-  #   depends_on:
-  #     - backend  
+      - /etc/letsencrypt:/etc/letsencrypt  # 호스트 머신의 인증서 마운트
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew && nginx -s reload; sleep 12h & wait $${!}; done;'"
 
 volumes:
   db_data:

@@ -1,5 +1,7 @@
 package com.albaro.repository;
 
+import com.albaro.dto.StoreDto;
+import com.albaro.dto.UserDto;
 import com.albaro.entity.ScheduleReference;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,8 +18,21 @@ public interface ScheduleReferenceRepository extends JpaRepository<ScheduleRefer
             "AND MONTH(s.scheduleDate) = MONTH(CURRENT_DATE)")
     List<ScheduleReference> findByUserIdAndCurrentMonth(@Param("userId") Integer userId);
 
+    //알바생 -> 알바생 찾기
     @Query("SELECT DISTINCT sr.user.userId FROM ScheduleReference sr WHERE sr.store.storeId = :storeId")
     List<Integer> findWorkerIdsByStoreId(@Param("storeId") Integer storeId);
+
+    //점장 -> 공석채우기
+    @Query("SELECT new com.albaro.dto.UserDto(" +
+            "sr.user.userId, " +
+            "sr.user.userName, " +
+            "sr.scheduleDate, " +
+            "sr.scheduleStartTime, " +
+            "sr.scheduleEndTime) " +
+            "FROM ScheduleReference sr " +
+            "WHERE sr.store.storeId = :storeId")
+    List<UserDto> findWorkersByStoreId(@Param("storeId") Integer storeId);
+
 
     // ScheduleReferenceRepository에 새로운 메서드 추가
     @Query("SELECT DISTINCT sr.user.userId FROM ScheduleReference sr WHERE sr.store.storeId = :storeId AND sr.user.userId != :excludeUserId")
