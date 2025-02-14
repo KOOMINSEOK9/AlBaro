@@ -19,15 +19,18 @@ const AlbaCard = ({ albas }) => {
       confirm(`${alba.scheduleDate} ${alba.scheduleStartTime} ~ ${alba.scheduleEndTime}까지
       ${alba.userName}님께 대타 요청을 하시겠습니까?`)
     ) {
-      axios.post(`http://localhost:8080/api/substitute/request-to-worker`, {
-        params: {
-          userId,
-          userName,
-          workDate,
-          startTime,
-          endTime,
-        },
-      });
+      axios.post(
+        `http://i12b105.p.ssafy.io:8080/api/substitute/request-to-worker`,
+        {
+          params: {
+            userId,
+            userName,
+            workDate,
+            startTime,
+            endTime,
+          },
+        }
+      );
 
       alert(`${alba.userName}님께 대타를 요청했습니다.`);
     }
