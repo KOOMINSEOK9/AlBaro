@@ -1,6 +1,8 @@
 package com.albaro.dto;
 
 import com.albaro.entity.Alarm;
+
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class AlarmDto {
@@ -8,9 +10,9 @@ public class AlarmDto {
     private Integer userId;
     private String alarmContent;
     private Alarm.AlarmType alarmType;
-    private LocalTime sentTime;
+    private LocalDateTime sentTime;
 
-    public AlarmDto(Integer alarmId, Integer userId, String alarmContent, Alarm.AlarmType alarmType, LocalTime sentTime) {
+    public AlarmDto(Integer alarmId, Integer userId, String alarmContent, Alarm.AlarmType alarmType, LocalDateTime sentTime) {
         this.alarmId = alarmId;
         this.userId = userId;
         this.alarmContent = alarmContent;
@@ -50,11 +52,11 @@ public class AlarmDto {
         this.alarmType = alarmType;
     }
 
-    public LocalTime getSentTime() {
+    public LocalDateTime getSentTime() {
         return sentTime;
     }
 
-    public void setSentTime(LocalTime sentTime) {
+    public void setSentTime(LocalDateTime sentTime) {
         this.sentTime = sentTime;
     }
 }
