@@ -7,26 +7,15 @@ import KakaoMap from "./KakaoMap.jsx";
 import Header from "../components/common/header.jsx";
 import Footer from "../components/common/footer.jsx";
 
-// useIsMounted 훅 구현
-const useIsMounted = () => {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  return isMounted;
-};
-
 const Map = () => {
   const router = useRouter();
   const [eventData, setEventData] = useState(null);
 
-  // const searchParams = useSearchParams();
-  // const getScheduleId = searchParams.get("scheduleId");
-  // const getDate = searchParams.get("date");
-  // const getStart = searchParams.get("start");
-  // const getEnd = searchParams.get("end");
+  const searchParams = useSearchParams();
+  const getScheduleId = searchParams.get("scheduleId");
+  const getDate = searchParams.get("date");
+  const getStart = searchParams.get("start");
+  const getEnd = searchParams.get("end");
 
   // 클라이언트에서만 Suspense를 적용하기 위해 useIsMounted 사용
   const isMounted = useIsMounted();
@@ -41,10 +30,10 @@ const Map = () => {
         {isMounted ? (
           <Suspense fallback={<div>Loading...</div>}>
             <KakaoMap
-            // scheduleId={getScheduleId}
-            // date={getDate}
-            // start={getStart}
-            // end={getEnd}
+              scheduleId={getScheduleId}
+              date={getDate}
+              start={getStart}
+              end={getEnd}
             />
           </Suspense>
         ) : (
@@ -52,7 +41,7 @@ const Map = () => {
         )}
       </section>
 
-      {/* 푸터 */}
+      {/* 푸터 (필요 시 활성화) */}
       {/* <Footer /> */}
     </div>
   );
