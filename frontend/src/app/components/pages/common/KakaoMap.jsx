@@ -1,7 +1,5 @@
 "use client";
 
-import { Suspense } from "react";
-
 import TimeList from "../part-timer/TimeList.jsx";
 import AlbaList from "../manager/AlbaList.jsx";
 import DatePickerModule from "./DatePicker.jsx";
@@ -383,13 +381,7 @@ const KakaoMap = ({ scheduleId, date, start, end }) => {
 
         {/* 지도 영역 */}
         <div className="flex-grow bg-[#eee] p-3">
-          <Suspense fallback={<div>Loading map...</div>}>
-            {storeData ? (
-              <div id="map" className="w-full h-full rounded-lg"></div>
-            ) : (
-              <div>Loading store data...</div>
-            )}
-          </Suspense>{" "}
+          <div id="map" className="w-full h-full rounded-lg"></div>
         </div>
       </article>
     </div>
