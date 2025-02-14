@@ -42,7 +42,7 @@ services:
     volumes:
       - /var/jenkins_home/workspace/jenkinsTest/nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Nginx 설정 파일
       - /var/jenkins_home/workspace/jenkinsTest/nginx/conf.d:/etc/nginx/conf.d:ro  # conf.d 디렉토리
-      - /etc/letsencrypt:/etc/letsencrypt:ro  # 호스트 머신의 인증서 마운트
+      -  /etc/letsencrypt:/etc/letsencrypt:ro  # 호스트 머신의 인증서 마운트
     depends_on:
       - backend
 
