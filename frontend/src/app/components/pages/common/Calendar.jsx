@@ -16,6 +16,8 @@ const FullCalendar = dynamic(() => import("@fullcalendar/react"), {
 });
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import AlbaListModal from "../part-timer/AlbaListModal";
+import DatePicker from "react-datepicker";
 
 // import "./Calendar.css";
 
@@ -23,11 +25,15 @@ const MyCalendar = () => {
   const router = useRouter(); // Next.js Router 사용
   const [events, setEvents] = useState([]);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [eventInfo, setEventInfo] = useState(null);
+
   const storeId = 1;
+  const role = "staff";
 
   useEffect(() => {
     axios
-      .get(`http://i12b105.p.ssafy.io:8080/api/work-information/${storeId}`)
+      .get(`http://localhost:8080/api/work-information/${storeId}`)
       .then((response) => {
         // console.log(response);
 
@@ -503,6 +509,7 @@ const MyCalendar = () => {
   //   setEvents(formattedEvents);
   // }, []);
 
+  // 점장 -> 알바 대타구하기(지도 페이지)
   const gotoDeta = (info) => {
     // console.log(info);
     // start와 end가 Date 객체인지 확인 후 처리
@@ -519,6 +526,20 @@ const MyCalendar = () => {
     router.push(
       `/map?scheduleId=${info.event.extendedProps.scheduleId}&date=${info.event.extendedProps.workDate}&start=${info.event.start}&end=${info.event.end}`
     );
+  };
+
+  // 알바생 -> 알바생 대타구하기(모달)
+  const searchDetaModal = (info) => {
+    const startTime = new Date(info.event.start).getTime();
+    const endTime = new Date(info.event.end).getTime();
+
+    if (
+      confirm(
+        `알바생 ${info.event.workDate} ${startTime} ~ ${endTime}의 대타를 구하시겠습니까?`
+      )
+    ) {
+      setIsModalOpen(true);
+    }
   };
 
   const handleDateSelect = (selectInfo) => {
@@ -558,7 +579,13 @@ const MyCalendar = () => {
     button.addEventListener("click", (event) => {
       // event.stopPropagation();
       // console.log("대타 구하기 버튼 클릭!");
-      gotoDeta(selectInfo);
+
+      if (role === "manager") {
+        gotoDeta(selectInfo);
+      } else {
+        setIsModalOpen(true);
+        setEventInfo(selectInfo);
+      }
     });
 
     // 오버레이에 버튼 추가 후 이벤트 요소에 추가
@@ -570,6 +597,11 @@ const MyCalendar = () => {
         overlay.remove();
       }, 100); // 약간의 딜레이 추가
     };
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEventInfo(null);
   };
 
   return (
@@ -644,6 +676,45 @@ const MyCalendar = () => {
           },
         }}
       />
+      {/* 모달 */}
+      {isModalOpen && eventInfo && (
+        <div className="z-50 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-md shadow-md w-80">
+            <h2 className="text-lg font-semibold">
+              {eventInfo.event.title} 대타 찾기
+            </h2>
+
+            <DatePicker
+              selected={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+              className="border-b-2 pl-1   ml-2"
+              dateFormat="yyyy-MM-dd"
+            />
+
+            <p className="mt-2">
+              {new Date(eventInfo.event.start).toLocaleString()} ~{" "}
+              {new Date(eventInfo.event.end).toLocaleString()}
+            </p>
+            <div className="mt-4 flex justify-end">
+              <button
+                className="px-4 py-2 bg-gray-300 rounded mr-2"
+                onClick={closeModal}
+              >
+                닫기
+              </button>
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded"
+                onClick={() => {
+                  alert("대타 구하기 요청 완료!");
+                  closeModal();
+                }}
+              >
+                대타 구하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

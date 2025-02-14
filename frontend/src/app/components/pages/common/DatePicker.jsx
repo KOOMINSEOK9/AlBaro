@@ -12,7 +12,7 @@ const DatePickerModule = ({
   setEndTime,
   scheduleIdNum,
 }) => {
-  console.log(startTime, endTime);
+  // console.log(startTime, endTime);
 
   useEffect(() => {
     if (!startTime) {
