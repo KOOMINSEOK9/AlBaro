@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -164,14 +165,30 @@ public class SubstitutionController {
     // 1. 내/외부 지점 나누어 근무 가능한 알바생 리스트 출력
     @GetMapping("/my-schedule")
     public ResponseEntity<?> findWorkersInNearbyStores(@RequestParam int userId) {
-        Map<String, List<StoreDto>> stores = storeService.findWorkersInNearbyStores(userId);
+//        Map<String, List<StoreDto>> stores = storeService.findWorkersInNearbyStores(userId);
+//
+//        if(stores.get("userStore").isEmpty() && stores.get("nearbyStores").isEmpty()) {
+//            return ResponseEntity
+//                    .status(HttpStatus.NOT_FOUND)
+//                    .body("지점이 없습니다.");
 
-        if(stores.get("userStore").isEmpty() && stores.get("nearbyStores").isEmpty()) {
+        //사용자의 지점(내부 지점) 알바생 리스트 출력
+        List<UserDto> workersInUserStore = storeService.findWorkersInUserStore(userId);
+
+        //사용자 지점이 아닌 외부 지점 알바생 리스트 출력
+        List<UserDto> workersInExternalStore = storeService.findWorkersInExternalStore(userId);
+
+        if(workersInUserStore.isEmpty() && workersInExternalStore.isEmpty()) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body("지점이 없습니다.");
         }
-        return ResponseEntity.ok(stores);
+        //Map으로 묶이기
+        Map<String,List<UserDto>> response = new HashMap<>();
+        response.put("internalWorkers", workersInUserStore);
+        response.put("externalWorkers", workersInExternalStore);
+
+        return ResponseEntity.ok(response);
     }
 
     //2. (알바생 -> 알바생) 대타 요청 보내기

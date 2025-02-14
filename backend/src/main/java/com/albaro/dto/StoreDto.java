@@ -15,6 +15,8 @@ public class StoreDto {
     private String detailedAddress;
     private BigDecimal latitude;
     private BigDecimal longitude;
+    private List<Integer> availableWorkerIds; // 점장 -> 알바생 로직
+    private List<UserDto> availableWorkers; //알바생 -> 알바생 로직
 
     public StoreDto(){
 
@@ -32,8 +34,6 @@ public class StoreDto {
     }
 
 
-    private List<Integer> availableWorkerIds;  // 추가된 필드
-
     // 기존 생성자는 유지하고 새로운 생성자 추가
     public StoreDto(Integer storeId, String storeName, String franchiseName,
                     String zipCode, String roadAddress, String detailedAddress,
@@ -48,6 +48,7 @@ public class StoreDto {
         this.longitude = longitude;
         this.availableWorkerIds = availableWorkerIds;
     }
+
 
     // Entity -> DTO 변환
     public static StoreDto fromEntity(Store store, List<Integer> workerIds) {
@@ -68,6 +69,15 @@ public class StoreDto {
     public static StoreDto fromEntity(Store store) {
         return fromEntity(store, null);
     }
+
+    //알바생 -> 알바생 로직에 필요
+    public static StoreDto fromEntity(Integer storeId, List<UserDto> workers) {
+        StoreDto dto = new StoreDto();
+        dto.setStoreId(storeId);
+        dto.setAvailableWorkers(workers);
+        return dto;
+    }
+
 
     //Getter, Setter
     public Integer getStoreId() {
@@ -140,5 +150,13 @@ public class StoreDto {
 
     public void setAvailableWorkerIds(List<Integer> availableWorkerIds) {
         this.availableWorkerIds = availableWorkerIds;
+    }
+
+    public List<UserDto> getAvailableWorkers() {
+        return availableWorkers;
+    }
+
+    public void setAvailableWorkers(List<UserDto> availableWorkers) {
+        this.availableWorkers = availableWorkers;
     }
 }

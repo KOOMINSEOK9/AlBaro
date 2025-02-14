@@ -99,11 +99,32 @@ public class StoreService {
 
     // --------------------------(알바생 -> 알바생 대타 요청 로직)------------------------------
 
-    //1. 주변 지점 리스트 내의 근무 가능한 알바생 표시
-    public Map<String, List<StoreDto>> findWorkersInNearbyStores(int userId) {
+    //1. 사용자의 지점에서 근무 가능한 알바생 리스트 출력
+    public List<UserDto> findWorkersInUserStore(int userId){
 
         // 사용자의 storeId 조회
         Integer userStoreId = userRepository.findStoreIdByUserId(userId);
+        if (userStoreId == null) {
+            throw new RuntimeException("사용자의 지점이 조회되지 않습니다.");
+        }
+
+        //storeId로 사용자 지점의 근무 가능한 시간이 있는 알바생 조회
+        List<UserDto> workersInUserStore = scheduleReferenceRepository.findWorkersByStoreId(userStoreId);
+        if(workersInUserStore.isEmpty() || workersInUserStore == null){
+            throw new RuntimeException("근무 가능한 알바생이 없습니다.");
+        }
+
+        return workersInUserStore;
+    }
+
+    //2.사용자 외부 지점에서 근무 가능한 알바생 리스트 출력
+    public List<UserDto> findWorkersInExternalStore(int userId){
+
+        // 사용자의 storeId 조회
+        Integer userStoreId = userRepository.findStoreIdByUserId(userId);
+        if (userStoreId == null) {
+            throw new RuntimeException("User's store not found");
+        }
 
         // 찾은 storeId로 지점 조회
         Store userStoreEntity = storeRepository.findById(userStoreId)
@@ -111,36 +132,17 @@ public class StoreService {
 
         // 반경 5KM 내 지점 조회(위도/경도 기반 필터링)
         double searchRadius = 5.0;
-        List<Store> nearbyStoreEntities = storeRepository.findNearbyStores(
+        List<Integer> nearbyStoreIds = storeRepository.findNearbyStoreIds(
                 userStoreEntity.getLatitude(),
                 userStoreEntity.getLongitude(),
                 searchRadius);
 
-        // 사용자 소속 지점의 근무 가능한 알바생 조회
-        List<Integer> userStoreWorkers =
-                scheduleReferenceRepository.findWorkerIdsByStoreIdExcludeUser(
-                        userStoreEntity.getStoreId(),
-                        userId
-                );
-        StoreDto userStoreDto = StoreDto.fromEntity(userStoreEntity, userStoreWorkers);
+        //만약 그 리스트 안에 storeId가 있다면 그 사람의 id와 Name 리스트로 출력
+        List<UserDto> externalWorkerList = scheduleReferenceRepository.findWorkersInExternalStore(nearbyStoreIds, userId);
 
-        // 외부 지점들의 근무 가능한 알바생 조회
-        List<StoreDto> otherStoresList = nearbyStoreEntities.stream()
-                .filter(store -> !store.getStoreId().equals(userStoreId)) // 사용자 지점 제외
-                .map(store -> {
-                    List<Integer> availableWorkers =
-                            scheduleReferenceRepository.findWorkerIdsByStoreId(store.getStoreId());
-                    return StoreDto.fromEntity(store, availableWorkers);
-                })
-                .collect(Collectors.toList());
-
-        // 결과를 Map으로 구분하여 반환
-        Map<String, List<StoreDto>> result = new HashMap<>();
-        result.put("userStore", Collections.singletonList(userStoreDto));
-        result.put("nearbyStores", otherStoresList);
-
-        return result;
+        return externalWorkerList;
     }
+
 
 
 
