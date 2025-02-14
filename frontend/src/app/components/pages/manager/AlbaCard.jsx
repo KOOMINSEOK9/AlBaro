@@ -21,7 +21,6 @@ const AlbaCard = ({ albas }) => {
     ) {
       axios.post(
         `http://i12b105.p.ssafy.io:8080/api/substitute/request-to-worker`,
-
         {
           params: {
             userId,
