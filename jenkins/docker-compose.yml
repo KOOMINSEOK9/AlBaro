@@ -44,8 +44,8 @@ services:
       - "80:80"
       - "443:443"  # HTTPS 포트 추가
     volumes:
-      - /home/ubuntu/S12P11B105/nginx/conf.d:/etc/nginx/conf.d:rw
-      - /var/jenkins_home/certs:/var/jenkins_home/certs 
+      - /home/ubuntu/S12P11B105/nginx/conf.d:/etc/nginx/conf.d:rw  # Nginx 설정 파일 경로
+      - /home/ubuntu/app/certbot/conf:/etc/letsencrypt  # 인증서 경로
       
     depends_on:
       - frontend
