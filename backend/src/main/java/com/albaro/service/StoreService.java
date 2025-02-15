@@ -109,7 +109,7 @@ public class StoreService {
         }
 
         //storeId로 사용자 지점의 근무 가능한 시간이 있는 알바생 조회
-        List<UserDto> workersInUserStore = scheduleReferenceRepository.findWorkersByStoreId(userStoreId);
+        List<UserDto> workersInUserStore = scheduleReferenceRepository.findWorkerInInternalStore(userStoreId,userId);
         if(workersInUserStore.isEmpty() || workersInUserStore == null){
             throw new RuntimeException("근무 가능한 알바생이 없습니다.");
         }
