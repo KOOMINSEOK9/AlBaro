@@ -1,4 +1,3 @@
-// ChatRoom.jsx
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -6,54 +5,7 @@ import { connectWebSocket, sendMessage, disconnectWebSocket } from '@/utils/sock
 import useChatStore from '@/store/chatStore';
 import { Users } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
-
-// ChatMessage 컴포넌트
-const ChatMessage = ({ message, isOwnMessage }) => {
-    return (
-        <div className={`flex mb-4 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
-            {!isOwnMessage && (
-                <div className="flex-shrink-0 mr-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                        <span className="text-sm font-medium text-blue-600">
-                            {message.senderName?.[0]}
-                        </span>
-                    </div>
-                </div>
-            )}
-
-            <div className={`flex flex-col max-w-[65%] ${isOwnMessage ? 'items-end' : 'items-start'}`}>
-                {!isOwnMessage && (
-                    <span className="text-sm text-gray-700 mb-1 ml-1">
-                        {message.senderName}
-                    </span>
-                )}
-
-                <div className="flex items-end gap-1">
-                    {isOwnMessage && (
-                        <span className="text-xs text-gray-400 self-end">
-                            {message.timestamp}
-                        </span>
-                    )}
-
-                    <div
-                        className={`px-4 py-2 rounded-2xl break-words ${isOwnMessage
-                            ? 'bg-blue-500 text-white rounded-br-md'
-                            : 'bg-gray-100 text-gray-900 rounded-bl-md'
-                            }`}
-                    >
-                        <p className="text-sm">{message.content}</p>
-                    </div>
-
-                    {!isOwnMessage && (
-                        <span className="text-xs text-gray-400 self-end">
-                            {message.timestamp}
-                        </span>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-};
+import ChatMessage from './ChatMessage';
 
 const ChatRoom = () => {
     const messagesEndRef = useRef(null);
@@ -65,16 +17,16 @@ const ChatRoom = () => {
     const dummyMessages = [
         {
             id: 'dummy-1',
-            content: "네, 확인해봤는데 조금 부족할 것 같아요. 지금 추가 주문 넣을까요?",
-            senderId: "currentUserId",
+            content: "안녕하세요! 오늘도 좋은 하루 보내세요.",
+            senderId: "user1",
             senderName: "김싸피",
-            timestamp: "오후 03:30",
+            timestamp: "오후 03:29",
         },
         {
             id: 'dummy-2',
-            content: "오늘 아이스컵 재고 체크했나요? 부족하면 미리 주문 넣어야 해요.",
-            senderId: "user1",
-            senderName: "이싸피 (점장)",
+            content: "네, 감사합니다. 좋은 하루 되세요!",
+            senderId: "currentUserId",
+            senderName: "이싸피",
             timestamp: "오후 03:29",
         },
     ];
@@ -118,65 +70,59 @@ const ChatRoom = () => {
     };
 
     return (
-        <div className="flex flex-col h-full w-full bg-white">
+        <div className="flex flex-col h-full bg-white">
             {/* 헤더 */}
-            <div className="flex items-center justify-between px-6 py-3 border-b">
-                <div className="flex items-center">
-                    <div className="p-2 bg-blue-100 rounded-full mr-3">
-                        <Users size={20} className="text-blue-600" />
+            <div className="flex items-center justify-between px-8 py-4 border-b bg-white">
+                <div className="flex items-center gap-4">
+                    <div className="p-2.5 bg-blue-50 rounded-xl">
+                        <Users size={22} className="text-blue-600" />
                     </div>
                     <div>
-                        <h2 className="text-lg font-bold">MEGASSAFY 덕명점</h2>
-                        <div className="flex items-center space-x-2">
-                            <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-gray-400'}`} />
-                            <span className="text-sm text-gray-500">연결됨</span>
+                        <h2 className="text-lg font-semibold text-gray-900">MEGASSAFY 덕명점</h2>
+                        <div className="flex items-center gap-2 mt-0.5">
+                            <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-green-500' : 'bg-gray-400'}`} />
+                            <span className="text-sm text-gray-500">7명 접속 중</span>
                         </div>
                     </div>
                 </div>
-
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Users size={16} />
-                    <span>7명</span>
-                </div>
             </div>
 
-            {/* 메시지 영역 */}
-            <div className="flex-1 overflow-y-auto px-6 py-4 bg-gray-50">
-                <div className="flex flex-col-reverse min-h-full">
-                    <div className="space-y-4">
-                        <div ref={messagesEndRef} />
-                        {(messages.length > 0 ? messages : dummyMessages).reverse().map((message) => (
+            <div className="flex-1 overflow-y-auto px-6 py-4 bg-[#F8FAFC] w-full">
+                <div className="flex flex-col justify-end min-h-full w-full">
+                    <div className="space-y-4 w-full">
+                        {(messages.length > 0 ? messages : dummyMessages).map((message) => (
                             <ChatMessage
                                 key={message.id}
                                 message={message}
                                 isOwnMessage={message.senderId === 'currentUserId'}
                             />
                         ))}
+                        <div ref={messagesEndRef} />
                     </div>
                 </div>
             </div>
 
             {/* 입력 영역 */}
-            <div className="border-t px-6 py-3 bg-white">
-                <form onSubmit={handleSubmit} className="flex gap-2">
-                    <div className="flex-1 flex items-center bg-gray-50 rounded-full border">
+            <div className="flex-shrink-0 border-t bg-white px-6 py-3 w-full sticky bottom-0">
+                <form onSubmit={handleSubmit} className="flex items-center gap-3 w-full">
+                    <div className="flex-1 flex items-center bg-gray-50 rounded-xl border border-gray-200 w-full">
                         <input
                             type="text"
                             value={inputMessage}
                             onChange={(e) => setInputMessage(e.target.value)}
                             placeholder="메시지를 입력하세요..."
-                            className="flex-1 px-4 py-2 bg-transparent focus:outline-none text-sm"
+                            className="flex-1 px-4 py-3 bg-transparent focus:outline-none text-sm w-full"
                         />
-                        <div className="relative pr-2" ref={emojiPickerRef}>
+                        <div className="relative flex-shrink-0" ref={emojiPickerRef}>
                             <button
                                 type="button"
-                                className="p-2 text-gray-500 hover:text-gray-700"
+                                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
                                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                             >
                                 <span className="text-xl">😊</span>
                             </button>
                             {showEmojiPicker && (
-                                <div className="absolute bottom-12 right-0 z-10">
+                                <div className="absolute bottom-12 right-0 z-10 shadow-lg">
                                     <EmojiPicker
                                         onEmojiClick={onEmojiClick}
                                         width={280}
@@ -188,7 +134,7 @@ const ChatRoom = () => {
                     </div>
                     <button
                         type="submit"
-                        className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+                        className="flex-shrink-0 px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors"
                     >
                         전송
                     </button>

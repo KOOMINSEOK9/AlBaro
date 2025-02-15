@@ -3,14 +3,15 @@ import React from 'react';
 import { Bell, UserCheck, Clock, AlertCircle, Check, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import useNotificationStore from '@/store/notificationStore';
+import usePartTimerNotificationStore from '@/store/partTimerNotificationStore';
 import styles from '@/styles/scrollbar.module.css';
 
 export default function Notifications() {
-    const { notifications, removeNotification } = useNotificationStore();
+    const { notifications, removeNotification } = usePartTimerNotificationStore();
     const [removingId, setRemovingId] = React.useState(null);
     const [currentTime, setCurrentTime] = React.useState(new Date());
 
+    // 1분마다 시간 업데이트
     React.useEffect(() => {
         const interval = setInterval(() => {
             setCurrentTime(new Date());
@@ -19,19 +20,13 @@ export default function Notifications() {
         return () => clearInterval(interval);
     }, []);
 
-    const handleNotificationAction = async (id) => {
-        setRemovingId(id);
-        setTimeout(() => {
-            removeNotification(id);
-        }, 300);
-    };
-
     const formatRelativeTime = (date) => {
         const timeAgo = formatDistanceToNow(new Date(date), {
             addSuffix: true,
             locale: ko
         });
 
+        // 24시간이 지났다면 날짜로 표시
         const hoursDiff = Math.abs(new Date() - new Date(date)) / 36e5;
         if (hoursDiff >= 24) {
             return new Date(date).toLocaleDateString('ko-KR', {
@@ -43,6 +38,13 @@ export default function Notifications() {
         }
 
         return timeAgo;
+    };
+
+    const handleNotificationAction = async (id) => {
+        setRemovingId(id);
+        setTimeout(() => {
+            removeNotification(id);
+        }, 300);
     };
 
     const getNotificationIcon = (type) => {

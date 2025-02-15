@@ -1,42 +1,46 @@
 // ChatMessage.jsx
+'use client';
+
+import React from 'react';
+
 const ChatMessage = ({ message, isOwnMessage }) => {
     return (
-        <div className={`flex mb-4 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
+        <div className={`flex gap-3 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
             {!isOwnMessage && (
-                <div className="flex-shrink-0 mr-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                        <span className="text-sm font-medium text-blue-600">
+                <div className="flex-shrink-0">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center shadow-sm">
+                        <span className="text-sm font-medium text-blue-700">
                             {message.senderName?.[0]}
                         </span>
                     </div>
                 </div>
             )}
 
-            <div className={`flex flex-col max-w-[65%] ${isOwnMessage ? 'items-end' : 'items-start'}`}>
+            <div className={`flex flex-col max-w-[70%] ${isOwnMessage ? 'items-end' : 'items-start'}`}>
                 {!isOwnMessage && (
-                    <span className="text-sm text-gray-700 mb-1 ml-1">
+                    <span className="text-sm font-medium text-gray-700 mb-1.5 ml-0.5">
                         {message.senderName}
                     </span>
                 )}
 
-                <div className="flex items-end space-x-1">
+                <div className="flex items-end gap-2">
                     {isOwnMessage && (
-                        <span className="text-xs text-gray-400 self-end mb-1">
+                        <span className="text-xs text-gray-500">
                             {message.timestamp}
                         </span>
                     )}
 
                     <div
-                        className={`px-4 py-2 rounded-2xl break-words ${isOwnMessage
-                                ? 'bg-blue-500 text-white rounded-br-md'
-                                : 'bg-gray-100 text-gray-900 rounded-bl-md'
+                        className={`px-4 py-2.5 ${isOwnMessage
+                                ? 'bg-blue-600 text-white rounded-2xl rounded-br-md shadow-sm'
+                                : 'bg-white text-gray-800 rounded-2xl rounded-bl-md shadow-sm'
                             }`}
                     >
-                        <p className="text-sm">{message.content}</p>
+                        <p className="text-sm leading-relaxed">{message.content}</p>
                     </div>
 
                     {!isOwnMessage && (
-                        <span className="text-xs text-gray-400 self-end mb-1">
+                        <span className="text-xs text-gray-500">
                             {message.timestamp}
                         </span>
                     )}
