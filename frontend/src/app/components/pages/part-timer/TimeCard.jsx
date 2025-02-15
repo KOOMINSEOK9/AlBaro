@@ -23,7 +23,7 @@ const TimeCard = ({ times, selectedStore }) => {
       )
     ) {
       axios
-        .post(`http://localhost:8080/api/substitute/request`, null, {
+        .post(`http://i12b105.p.ssafy.io:8080/api/substitute/request`, null, {
           params: {
             senderId: userId,
             storeId: selectedStore.storeId,
