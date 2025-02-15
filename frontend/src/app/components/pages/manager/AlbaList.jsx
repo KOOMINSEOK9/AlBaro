@@ -76,6 +76,8 @@ const AlbaList = ({
   // const userId = 1;
 
   const filteredAlba = canDetaAlbaList.filter((alba) => {
+    console.log(alba);
+
     const albaDate = new Date(alba.scheduleDate);
     const albaStartTime = new Date(
       `${alba.scheduleDate}T${alba.scheduleStartTime}`
@@ -107,7 +109,12 @@ const AlbaList = ({
         </h2>
       </div>
       {filteredAlba.length > 0 ? (
-        <AlbaCard albas={filteredAlba} />
+        <AlbaCard
+          albas={filteredAlba}
+          selectedDate={selectedDate}
+          startTime={startTime}
+          endTime={endTime}
+        />
       ) : (
         <p>해당 시간대에 대타 가능한 알바생이 없어요:(</p>
       )}

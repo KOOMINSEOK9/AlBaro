@@ -381,13 +381,13 @@ const KakaoMap = () => {
             workEndTime={endTime}
             times={canDetaTime}
           />
-          {/* <AlbaList
+          <AlbaList
             selectedStore={selectedStore}
             selectedDate={selectedDate}
             startTime={startTime}
             endTime={endTime}
             canDetaAlbaList={canDetaAlbaList}
-          /> */}
+          />
         </section>
 
         {/* 지도 영역 */}

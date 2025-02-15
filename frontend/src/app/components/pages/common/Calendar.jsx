@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import timeGridPlugin from "@fullcalendar/timegrid";
+import "react-datepicker/dist/react-datepicker.css";
 
 import axios from "axios";
 
@@ -18,6 +19,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import AlbaListModal from "../part-timer/AlbaListModal";
 import DatePicker from "react-datepicker";
+import AlbaCard from "../part-timer/AlbaCard";
 
 // import "./Calendar.css";
 
@@ -28,8 +30,18 @@ const MyCalendar = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [eventInfo, setEventInfo] = useState(null);
 
+  const [canDetaAlbatoAlba, setcanDetaAlbatoAlba] = useState({
+    internalWorkers: [],
+    externalWorkers: [],
+  });
+
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
+  const [workDate, setWorkDate] = useState(null);
+
+  const userId = 1;
   const storeId = 1;
-  const role = "manager";
+  const role = "staff";
 
   useEffect(() => {
     axios
@@ -528,20 +540,6 @@ const MyCalendar = () => {
     );
   };
 
-  // 알바생 -> 알바생 대타구하기(모달)
-  const searchDetaModal = (info) => {
-    const startTime = new Date(info.event.start).getTime();
-    const endTime = new Date(info.event.end).getTime();
-
-    if (
-      confirm(
-        `알바생 ${info.event.workDate} ${startTime} ~ ${endTime}의 대타를 구하시겠습니까?`
-      )
-    ) {
-      setIsModalOpen(true);
-    }
-  };
-
   const handleDateSelect = (selectInfo) => {
     const selectedDate = selectInfo.startStr;
     const filteredEvents = events.filter(
@@ -577,12 +575,25 @@ const MyCalendar = () => {
 
     // 클릭 이벤트 추가
     button.addEventListener("click", (event) => {
-      // event.stopPropagation();
-      // console.log("대타 구하기 버튼 클릭!");
-
       if (role === "manager") {
         gotoDeta(selectInfo);
       } else {
+        axios
+          .get(`http://i12b105.p.ssafy.io:8080/api/substitute/my-schedule`, {
+            params: { userId },
+          })
+          .then((res) => {
+            console.log("알바생->알바생 axios 응답: ", res.data);
+
+            setcanDetaAlbatoAlba(res.data);
+
+            // console.log(res.data.internalWorkers);
+          })
+          .catch((err) => {
+            console.log("알바->알바 axios err: ", err);
+          });
+
+        // 알바생 -> 알바생 대타 구하기 모달 열기
         setIsModalOpen(true);
         setEventInfo(selectInfo);
       }
@@ -657,7 +668,7 @@ const MyCalendar = () => {
             dayMaxEvents: 4,
             titleFormat: function (date) {
               const year = date.date.year;
-              const month = date.date.month;
+              const month = date.date.month + 1;
               return year + "년 " + month + "월 근무표";
             },
           },
@@ -678,40 +689,84 @@ const MyCalendar = () => {
       />
       {/* 모달 */}
       {isModalOpen && eventInfo && (
-        <div className="z-50 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-md shadow-md w-80">
-            <h2 className="text-lg font-semibold">
-              {eventInfo.event.title} 대타 찾기
-            </h2>
+        <div className="z-50 fixed inset-0 flex items-center justify-center bg-black bg-opacity-70">
+          <div className="bg-white p-6 rounded-md shadow-md max-w-4xl w-auto">
+            <div className="flex justify-end">
+              <button onClick={closeModal}>X</button>
+            </div>
 
-            <DatePicker
-              selected={eventInfo}
-              onChange={(date) => setSelectedDate(date)}
-              className="border-b-2 pl-1   ml-2"
-              dateFormat="yyyy-MM-dd"
-            />
-
-            <p className="mt-2">
+            <div className="mx-4 ">
+              <div className="flex my-3 justify-around  ">
+                <DatePicker
+                  selected={eventInfo.event.extendedProps.workDate}
+                  // onChange={date}
+                  className="border-b-2"
+                  dateFormat="yyyy-MM-dd"
+                  disabled={true}
+                />
+                <div>
+                  <DatePicker
+                    selected={eventInfo.event.start}
+                    showTimeSelect
+                    showTimeSelectOnly
+                    timeCaption="Start Time"
+                    dateFormat="aa hh:mm"
+                    className="border-b-2 pl-1 mx-3 w-28"
+                    disabled={true}
+                  />
+                  <span>-</span>
+                  <DatePicker
+                    selected={eventInfo.event.end}
+                    showTimeSelect
+                    showTimeSelectOnly
+                    timeCaption="Start Time"
+                    dateFormat="aa hh:mm"
+                    className="border-b-2 pl-1  mx-3 w-28"
+                    disabled={true}
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="my-3">
+                  <h3 className="text-lg font-semibold">
+                    우리 지점 대타 가능 알바생
+                  </h3>
+                  <div className="my-3">
+                    {canDetaAlbatoAlba.internalWorkers.length > 0 ? (
+                      <AlbaCard
+                        albas={canDetaAlbatoAlba.internalWorkers}
+                        selectedDate={eventInfo.event.extendedProps.workDate}
+                        startTime={eventInfo.event.start}
+                        endTime={eventInfo.event.end}
+                      />
+                    ) : (
+                      <p>해당 시간대에 대타 가능한 알바생이 없어요:(</p>
+                    )}
+                  </div>
+                </div>
+                <div className="my-3">
+                  <h3 className="text-lg font-semibold">
+                    타지점 대타 가능 알바생
+                  </h3>
+                  <div className="my-3">
+                    {canDetaAlbatoAlba.externalWorkers.length > 0 ? (
+                      <AlbaCard
+                        albas={canDetaAlbatoAlba.externalWorkers}
+                        selectedDate={eventInfo.event.extendedProps.workDate}
+                        startTime={eventInfo.event.start}
+                        endTime={eventInfo.event.end}
+                      />
+                    ) : (
+                      <p>해당 시간대에 대타 가능한 알바생이 없어요:(</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* <p className="mt-2">
               {new Date(eventInfo.event.start).toLocaleString()} ~{" "}
               {new Date(eventInfo.event.end).toLocaleString()}
-            </p>
-            <div className="mt-4 flex justify-end">
-              <button
-                className="px-4 py-2 bg-gray-300 rounded mr-2"
-                onClick={closeModal}
-              >
-                닫기
-              </button>
-              <button
-                className="px-4 py-2 bg-blue-500 text-white rounded"
-                onClick={() => {
-                  alert("대타 구하기 요청 완료!");
-                  closeModal();
-                }}
-              >
-                대타 구하기
-              </button>
-            </div>
+            </p> */}
           </div>
         </div>
       )}
