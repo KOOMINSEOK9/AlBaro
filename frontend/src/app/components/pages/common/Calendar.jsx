@@ -642,6 +642,34 @@ const MyCalendar = () => {
     }
   };
 
+  const captureImage = () => {
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+
+    // 캔버스 크기 설정
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    // 비디오에서 이미지 캡처
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // 캔버스의 이미지를 base64로 변환
+    const imageData = canvas.toDataURL('image/png');
+
+    // 서버로 이미지 데이터 전송
+    axios.post('https://i12b105.p.ssafy.io/api/face-recognition/recognize', {
+      image: imageData,
+    })
+    .then(response => {
+      console.log('Response from server:', response.data);
+      // 추가적인 처리 (예: 성공 메시지 표시 등)
+    })
+    .catch(error => {
+      console.error('Error sending image to server:', error);
+    });
+  };
+
   return (
     <div className="App h-full">
       <div className="flex justify-between items-center mb-5">
@@ -829,7 +857,7 @@ const MyCalendar = () => {
             </div>
             {/* 중앙 정렬을 위한 Flexbox 사용 */}
             <div className="flex justify-center mt-4">
-              <button id="capture" className="bg-blue-500 text-white rounded-md px-4 py-2">Capture</button>
+              <button onClick={captureImage} className="bg-blue-500 text-white rounded-md px-4 py-2">Capture</button>
             </div>
             <canvas id="canvas" width="640" height="480" style={{ display: 'none' }}></canvas>
           </div>
