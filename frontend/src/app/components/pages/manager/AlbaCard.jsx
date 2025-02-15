@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 
-const AlbaCard = ({ albas }) => {
+const AlbaCard = ({ selectedDate, startTime, endTime, albas }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const userId = 1;
@@ -23,17 +23,33 @@ const AlbaCard = ({ albas }) => {
       confirm(`${alba.scheduleDate} ${alba.scheduleStartTime} ~ ${alba.scheduleEndTime}까지
       ${alba.userName}님께 대타 요청을 하시겠습니까?`)
     ) {
+      const formattedDate = new Date(
+        new Date(selectedDate).getTime() + 9 * 60 * 60 * 1000
+      )
+        .toISOString()
+        .split("T")[0];
+      const formattedStartTime = new Date(
+        new Date(startTime).getTime() + 9 * 60 * 60 * 1000
+      )
+        .toISOString()
+        .slice(11, 19);
+      const formattedEndTime = new Date(
+        new Date(endTime).getTime() + 9 * 60 * 60 * 1000
+      )
+        .toISOString()
+        .slice(11, 19);
+
       const queryParams = new URLSearchParams({
         userId,
         userName: alba.userName,
-        workDate: alba.scheduleDate,
-        startTime: alba.scheduleStartTime,
-        endTime: alba.scheduleEndTime,
+        workDate: formattedDate,
+        startTime: formattedStartTime,
+        endTime: formattedEndTime,
       }).toString();
 
       axios
         .post(
-          `http://i12b105.p.ssafy.io:8080/api/substitute/managerRequest?${queryParams}`
+          `http://localhost:8080/api/substitute/managerRequest?${queryParams}`
         )
         .then((res) => {
           alert(`${alba.userName}님께 대타를 요청했습니다.`);
