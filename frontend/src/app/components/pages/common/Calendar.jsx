@@ -804,7 +804,13 @@ const MyCalendar = () => {
           <div className="bg-white p-6 rounded-md shadow-md max-w-3xl w-3/5 relative">
             <button onClick={closeFaceRecognition} className="absolute top-2 right-2">X</button>
             <h1 className="text-center text-xl font-bold mb-4">Face Recognition</h1>
-            <video id="video" width="100%" height="auto" autoPlay className="mb-4"></video>
+            <div className="relative">
+              <video id="video" width="100%" height="auto" autoPlay className="mb-4"></video>
+              {/* 가이드라인 추가 */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="border-2 border-dashed border-teal-500 w-32 h-48 rounded-md"></div>
+              </div>
+            </div>
             <button id="capture" className="bg-blue-500 text-white rounded-md px-4 py-2">Capture</button>
             <canvas id="canvas" width="640" height="480" style={{ display: 'none' }}></canvas>
           </div>
