@@ -806,10 +806,21 @@ const MyCalendar = () => {
             <h1 className="text-center text-xl font-bold mb-4">Face Recognition</h1>
             <div className="relative">
               <video id="video" width="100%" height="auto" autoPlay className="mb-4"></video>
-              {/* 가이드라인 추가 */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="border-2 border-dashed border-teal-500 w-32 h-48 rounded-md"></div>
-              </div>
+              {/* 얼굴 인식을 위한 SVG 실루엣 추가 */}
+              <svg
+                className="absolute inset-0 flex items-center justify-center"
+                viewBox="0 0 100 100"
+                width="100%"
+                height="100%"
+              >
+                <path
+                  d="M50,10 C65,10 80,30 80,50 C80,70 65,90 50,90 C35,90 20,70 20,50 C20,30 35,10 50,10 Z"
+                  fill="none"
+                  stroke="#00BFFF"
+                  strokeWidth="2"
+                  strokeDasharray="5,5"
+                />
+              </svg>
             </div>
             <button id="capture" className="bg-blue-500 text-white rounded-md px-4 py-2">Capture</button>
             <canvas id="canvas" width="640" height="480" style={{ display: 'none' }}></canvas>
