@@ -15,5 +15,6 @@ services:
       - JAVA_OPTS=-Djava.awt.headless=true
     privileged: true
 
+
 volumes:
   jenkins_home:

@@ -33,18 +33,18 @@ services:
     depends_on:
       - db
     command: ["./wait-for-it.sh", "db:3306", "--", "java", "-jar", "/app.jar"]
+    
 
-  nginx:
-    image: nginx:latest
+  nginx:nginx:
+    build:
+      context: ../nginx
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - /var/jenkins_home/workspace/jenkinsTest/nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Nginx 설정 파일
-      - /var/jenkins_home/workspace/jenkinsTest/nginx/conf.d:/etc/nginx/conf.d:ro  # conf.d 디렉토리
-      -  /etc/letsencrypt:/etc/letsencrypt:ro  # 호스트 머신의 인증서 마운트
-    depends_on:
-      - backend
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      
 
   certbot:
     image: certbot/certbot
