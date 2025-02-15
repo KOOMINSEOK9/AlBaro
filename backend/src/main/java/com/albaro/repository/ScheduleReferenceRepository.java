@@ -24,14 +24,14 @@ public interface ScheduleReferenceRepository extends JpaRepository<ScheduleRefer
             "WHERE sr.store.storeId = :storeId")
     List<UserDto> findWorkersByStoreId(@Param("storeId") Integer storeId);
 
+    //알바생-> 알바생 로직(내부)
     @Query("SELECT DISTINCT new com.albaro.dto.UserDto(sr.user.userId, sr.user.userName, sr.scheduleDate, sr.scheduleStartTime, sr.scheduleEndTime) " +
-            "FROM ScheduleReference sr WHERE sr.store.storeId = :storeId")
-    List<UserDto> findWorkerIdsByStoreId(@Param("storeId") Integer storeId);
+            "FROM ScheduleReference sr " +
+            "WHERE sr.store.storeId = :storeId " +
+            "AND sr.user.userId != :userId")
+    List<UserDto> findWorkerInInternalStore(@Param("storeId") Integer storeId, @Param("userId") Integer userId);
 
-//    // ScheduleReferenceRepository에 새로운 메서드 추가
-//    @Query("SELECT DISTINCT new com.albaro.dto.UserDto(sr.user.userId, sr.user.userName) FROM ScheduleReference sr WHERE sr.store.storeId = :storeId AND sr.user.userId != :excludeUserId")
-//    List<UserDto> findWorkersByStoreIdExcludeUser(@Param("storeId") Integer storeId, @Param("excludeUserId") Integer excludeUserId);
-
+    //알바생-> 알바생 로직(외부)
     @Query("SELECT DISTINCT new com.albaro.dto.UserDto(sr.user.userId, sr.user.userName, sr.scheduleDate, sr.scheduleStartTime, sr.scheduleEndTime) FROM ScheduleReference sr WHERE sr.store.storeId IN :storeIdList AND sr.user.userId != :excludeUserId")
     List<UserDto> findWorkersInExternalStore(@Param("storeIdList") List<Integer> storeIdList, @Param("excludeUserId") Integer excludeUserId);
 
