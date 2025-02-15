@@ -35,7 +35,7 @@ services:
     command: ["./wait-for-it.sh", "db:3306", "--", "java", "-jar", "/app.jar"]
     
 
-  nginx:nginx:
+  nginx:
     build:
       context: ../nginx
     ports:
