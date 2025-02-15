@@ -802,7 +802,6 @@ const MyCalendar = () => {
       {isFaceRecognitionOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
           <div className="bg-white p-6 rounded-md shadow-md max-w-3xl w-3/5 relative">
-            {/* 스타일이 개선된 X 버튼 */}
             <button 
               onClick={closeFaceRecognition} 
               className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 transition duration-200"
@@ -828,7 +827,10 @@ const MyCalendar = () => {
                 />
               </svg>
             </div>
-            <button id="capture" className="bg-blue-500 text-white rounded-md px-4 py-2">Capture</button>
+            {/* 중앙 정렬을 위한 Flexbox 사용 */}
+            <div className="flex justify-center mt-4">
+              <button id="capture" className="bg-blue-500 text-white rounded-md px-4 py-2">Capture</button>
+            </div>
             <canvas id="canvas" width="640" height="480" style={{ display: 'none' }}></canvas>
           </div>
         </div>
