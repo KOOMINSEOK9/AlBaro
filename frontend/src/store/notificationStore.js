@@ -8,8 +8,8 @@ const useNotificationStore = create((set, get) => ({
             id: 1,
             type: 'request',
             title: '대타 요청',
-            content: '이싸피님이 2025년 2월 10일 오후 3시 근무 대타를 요청했습니다.',
-            createdAt: '2025-02-10T01:30:00Z',
+            content: '이싸피님이 2025년 2월 16일 오후 3시 근무 대타를 요청했습니다.',
+            createdAt: '2025-02-15T01:30:00Z',
         },
         {
             id: 2,

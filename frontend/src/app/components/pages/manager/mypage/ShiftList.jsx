@@ -2,7 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { ClipboardX, ClipboardCheck, ClipboardList, CalendarRange } from 'lucide-react';
 import { useShiftStore } from '@/store/shiftStore';
-import Image from 'next/image';
+import styles from '@/styles/scrollbar.module.css';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 export default function ShiftList() {
     const { shifts, isLoading, fetchShifts } = useShiftStore();
@@ -18,32 +20,43 @@ export default function ShiftList() {
         { id: 'otherStore', label: '타지점 대타', icon: ClipboardList, color: 'green' }
     ];
 
+    // 시간 포맷팅 함수 추가
+    const formatTime = (time) => {
+        if (!time) return '';
+        const [hour, minute] = time.split(':').map(Number);
+        const period = hour < 12 ? '오전' : '오후';
+        const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+        return `${period} ${displayHour}:${minute.toString().padStart(2, '0')}`;
+    };
+
     if (isLoading) {
         return <div>Loading...</div>;
     }
 
     const ShiftCard = ({ shift }) => (
-        <div className="group flex items-center gap-3 p-3 bg-gray-50 hover:bg-white rounded-lg 
-           transition-all duration-200 hover:shadow-md">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className={`w-10 h-10 rounded-full relative overflow-hidden shrink-0
-                   ${shift.type === 'vacancy' ? 'ring-2 ring-red-100' :
-                        shift.type === 'ourStore' ? 'ring-2 ring-blue-100' :
-                            'ring-2 ring-green-100'}`}>
-                    <Image
-                        src={shift.profileImage}
-                        alt={shift.name}
-                        fill
-                        className="object-cover"
-                    />
+        <div className="group flex items-center gap-3 p-3 bg-gray-50 hover:bg-white rounded-lg transition-all duration-200 hover:shadow-md">
+            <div className="flex items-center gap-3">
+                <div className="relative">
+                    <div className={`absolute inset-0 ${shift.type === 'vacancy' ? 'bg-red-400' :
+                        shift.type === 'ourStore' ? 'bg-blue-400' :
+                            'bg-green-400'
+                        } rounded-full opacity-20 animate-[ping_1.5s_ease-in-out_infinite]`} />
+                    <div className={`relative w-2 h-2 rounded-full ${shift.type === 'vacancy' ? 'bg-red-500' :
+                        shift.type === 'ourStore' ? 'bg-blue-500' :
+                            'bg-green-500'
+                        }`} />
                 </div>
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                        <p className="font-medium text-sm truncate">{shift.name}</p>
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5 truncate">
-                        <CalendarRange className="w-3.5 h-3.5 shrink-0" />
-                        <span>{shift.date}</span>
+                    <div className="flex flex-col">
+                        <p className="font-medium text-sm text-gray-900 group-hover:text-gray-700 transition-colors truncate">
+                            {shift.name}
+                        </p>
+                        <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+                            <CalendarRange className="w-3.5 h-3.5 shrink-0" />
+                            <span>
+                                {format(new Date(shift.date), 'M월 d일(eee)', { locale: ko })} {formatTime(shift.time.start)} ~ {formatTime(shift.time.end)}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -65,11 +78,17 @@ export default function ShiftList() {
                                 {shifts.filter(s => s.type === tab.id).length}명
                             </span>
                         </div>
-                        <div className="h-[calc(100%-2rem)] overflow-y-auto space-y-2 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                        <div className={`h-[calc(100%-2rem)] overflow-y-auto space-y-2 pr-2 ${styles.customScrollbar}`}>
                             {shifts
                                 .filter(s => s.type === tab.id)
-                                .map(shift => (
-                                    <ShiftCard key={shift.id} shift={shift} />
+                                .map((shift, index) => (
+                                    <div
+                                        key={shift.id}
+                                        className="opacity-0 translate-y-2 animate-[fadeIn_0.5s_ease-out_forwards]"
+                                        style={{ animationDelay: `${index * 100}ms` }}
+                                    >
+                                        <ShiftCard shift={shift} />
+                                    </div>
                                 ))}
                         </div>
                     </div>
@@ -100,12 +119,16 @@ export default function ShiftList() {
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 h-[calc(100%-56px)] overflow-y-auto p-3">
+                <div className={`flex-1 h-[calc(100%-56px)] overflow-y-auto p-3 ${styles.customScrollbar}`}>
                     <div className="space-y-2">
                         {shifts
                             .filter(s => s.type === activeTab)
-                            .map(shift => (
-                                <div key={shift.id} className="transition-all duration-300">
+                            .map((shift, index) => (
+                                <div
+                                    key={shift.id}
+                                    className="opacity-0 translate-y-2 animate-[fadeIn_0.5s_ease-out_forwards]"
+                                    style={{ animationDelay: `${index * 100}ms` }}
+                                >
                                     <ShiftCard shift={shift} />
                                 </div>
                             ))}
