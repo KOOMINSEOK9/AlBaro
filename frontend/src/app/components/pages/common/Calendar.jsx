@@ -43,6 +43,8 @@ const MyCalendar = () => {
   const storeId = 1;
   const role = "staff";
 
+  const [isFaceRecognitionOpen, setIsFaceRecognitionOpen] = useState(false); // State to control modal visibility
+
   useEffect(() => {
     axios
       .get(`https://i12b105.p.ssafy.io/api/work-information/${storeId}`)
@@ -615,6 +617,31 @@ const MyCalendar = () => {
     setEventInfo(null);
   };
 
+  const openFaceRecognition = () => {
+    setIsFaceRecognitionOpen(true);
+    // Start video stream
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+        const video = document.getElementById('video');
+        video.srcObject = stream;
+        video.play();
+      })
+      .catch((err) => {
+        console.error("Error accessing webcam: ", err);
+      });
+  };
+
+  const closeFaceRecognition = () => {
+    setIsFaceRecognitionOpen(false);
+    const video = document.getElementById('video');
+    if (video.srcObject) {
+      const stream = video.srcObject;
+      const tracks = stream.getTracks();
+      tracks.forEach(track => track.stop());
+      video.srcObject = null;
+    }
+  };
+
   return (
     <div className="App h-full">
       <div className="flex justify-between items-center mb-5">
@@ -633,7 +660,7 @@ const MyCalendar = () => {
             />
             대타 찾기
           </Link>
-          <button className="bg-gray-400 text-black rounded-md px-4 py-2 flex items-center">
+          <button onClick={openFaceRecognition} className="bg-gray-400 text-black rounded-md px-4 py-2 flex items-center">
             <Image
               src="/icons/Face_ID.png"
               alt="출퇴근하기 아이콘"
@@ -767,6 +794,19 @@ const MyCalendar = () => {
               {new Date(eventInfo.event.start).toLocaleString()} ~{" "}
               {new Date(eventInfo.event.end).toLocaleString()}
             </p> */}
+          </div>
+        </div>
+      )}
+
+      {/* Modal for Face Recognition */}
+      {isFaceRecognitionOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+          <div className="bg-white p-6 rounded-md shadow-md max-w-3xl w-3/5 relative">
+            <button onClick={closeFaceRecognition} className="absolute top-2 right-2">X</button>
+            <h1 className="text-center text-xl font-bold mb-4">Face Recognition</h1>
+            <video id="video" width="100%" height="auto" autoPlay className="mb-4"></video>
+            <button id="capture" className="bg-blue-500 text-white rounded-md px-4 py-2">Capture</button>
+            <canvas id="canvas" width="640" height="480" style={{ display: 'none' }}></canvas>
           </div>
         </div>
       )}
