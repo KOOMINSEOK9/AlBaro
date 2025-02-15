@@ -1,6 +1,9 @@
 package com.albaro.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,8 +15,10 @@ public class Manual {
     @Column(name = "manualId", columnDefinition = "INT UNSIGNED")
     private Integer manualId;
 
-    @Column(name = "storeId", nullable = false, columnDefinition = "INT UNSIGNED")
-    private Integer storeId;
+    @ManyToOne(fetch = FetchType.LAZY)  //  Store 엔티티와 관계 설정
+    @JoinColumn(name = "storeId", nullable = false, foreignKey = @ForeignKey(name = "FK_manual_store"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Store store;
 
     @Column(name = "category", nullable = false, length = 30)
     private String category;
@@ -26,9 +31,9 @@ public class Manual {
 
     public Manual() {}
 
-    public Manual(Integer manualId, Integer storeId, String category, String manualName, LocalDateTime createdTime) {
+    public Manual(Integer manualId, Store store, String category, String manualName, LocalDateTime createdTime) {
         this.manualId = manualId;
-        this.storeId = storeId;
+        this.store = store;
         this.category = category;
         this.manualName = manualName;
         this.createdTime = createdTime;
@@ -42,13 +47,8 @@ public class Manual {
         this.manualId = manualId;
     }
 
-    public Integer getStoreId() {
-        return storeId;
-    }
-
-    public void setStoreId(Integer storeId) {
-        this.storeId = storeId;
-    }
+    public Store getStore() { return store; }  //  Store 엔티티 반환
+    public void setStore(Store store) { this.store = store; }
 
     public String getCategory() {
         return category;

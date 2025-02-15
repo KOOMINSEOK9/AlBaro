@@ -1,8 +1,6 @@
 // User.java
 package com.albaro.entity;
-
 import jakarta.persistence.*;
-import lombok.Builder;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 

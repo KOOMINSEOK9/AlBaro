@@ -23,7 +23,6 @@ public class WorkInformationService {
     @Autowired
     private UserRepository userRepository;  // 사용자 정보를 조회할 수 있는 Repository 추가
 
-    // 특정 storeId의 모든 근무 정보를 가져오는 서비스 메서드
     public List<WorkInformationResponse> getWorkInformationByStoreId(Integer storeId) {
         List<WorkInformation> workInformations = workInformationRepository.findByStore_StoreId(storeId);
 

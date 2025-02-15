@@ -17,6 +17,25 @@ pipeline {
             }
         }
 
+
+        stage('Build') {
+            steps {
+                script {
+                    // backend 디렉토리로 이동하여 gradlew 실행
+                    dir('backend') {
+                        // gradlew 파일에 실행 권한 부여
+                        sh 'chmod +x gradlew'
+                        
+                        // Gradle 빌드 수행
+                        sh './gradlew build -x test --no-daemon'
+
+                         // JAR 파일 존재 여부 확인
+                        sh 'ls -l build/libs || echo "JAR 파일이 존재하지 않습니다!"'
+                    }
+                }
+            }
+        }        
+
         stage('.env 파일 생성') {
             steps {
                 withCredentials([string(credentialsId: 'NEXT_PUBLIC_KAKAO_KEY', variable: 'NEXT_PUBLIC_KAKAO_KEY')]) {
@@ -47,6 +66,17 @@ pipeline {
                     sh '''
                     cd /var/jenkins_home/workspace/jenkinsTest/jenkins
                     $DOCKER_COMPOSE_PATH up --build -d
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy Nginx') {
+            steps {
+                script {
+                    sh '''
+                    cd /var/jenkins_home/workspace/jenkinsTest/jenkins
+                    $DOCKER_COMPOSE_PATH up -d nginx
                     '''
                 }
             }
