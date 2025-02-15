@@ -45,7 +45,7 @@ const MyCalendar = () => {
 
   useEffect(() => {
     axios
-      .get(`http://i12b105.p.ssafy.io:8080/api/work-information/${storeId}`)
+      .get(`https://i12b105.p.ssafy.io/api/work-information/${storeId}`)
       .then((response) => {
         // console.log(response);
 
@@ -579,7 +579,7 @@ const MyCalendar = () => {
         gotoDeta(selectInfo);
       } else {
         axios
-          .get(`http://i12b105.p.ssafy.io:8080/api/substitute/my-schedule`, {
+          .get(`https://i12b105.p.ssafy.io/api/substitute/my-schedule`, {
             params: { userId },
           })
           .then((res) => {
