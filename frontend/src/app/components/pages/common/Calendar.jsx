@@ -33,7 +33,7 @@ const MyCalendar = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8080/api/work-information/${storeId}`)
+      .get(`http://i12b105.p.ssafy.io:8080/api/work-information/${storeId}`)
       .then((response) => {
         // console.log(response);
 

@@ -1,9 +1,9 @@
 "use client";
 
-import TimeList from "../part-timer/TimeList.jsx";
-import AlbaList from "../manager/AlbaList.jsx";
-import DatePickerModule from "./DatePicker.jsx";
-import StoreCard from "./StoreCard.jsx";
+import TimeList from "../components/pages/part-timer/TimeList.jsx";
+import AlbaList from "../components/pages/manager/AlbaList.jsx";
+import DatePickerModule from "../components/pages/common/DatePicker.jsx";
+import StoreCard from "../components/pages/common/StoreCard.jsx";
 
 import { useRouter, useSearchParams } from "next/navigation.js";
 import { useEffect, useState } from "react";
@@ -153,7 +153,7 @@ const KakaoMap = () => {
   // 반경 내 지점 리스트 받아오기
   useEffect(() => {
     axios
-      .get(`http://localhost:8080/api/substitute/nearby-stores`, {
+      .get(`http://i12b105.p.ssafy.io:8080/api/substitute/nearby-stores`, {
         params: { userId },
       })
       .then((res) => {
@@ -282,7 +282,7 @@ const KakaoMap = () => {
 
     // 선택한 지점의 대타 가능 알바생 조회
     axios
-      .get(`http://localhost:8080/api/substitute/available-workers`, {
+      .get(`http://i12b105.p.ssafy.io:8080/api/substitute/available-workers`, {
         params: { storeId },
       })
       .then((res) => {
@@ -295,7 +295,7 @@ const KakaoMap = () => {
 
     // 선택한 지점의 공석 확인(시간)
     axios
-      .get(`http://localhost:8080/api/substitute/available-stores`, {
+      .get(`http://i12b105.p.ssafy.io:8080/api/substitute/available-stores`, {
         params: { storeId },
         validateStatus: function (status) {
           // 2xx와 4xx 상태 코드에 대해서 모두 then 블록에서 처리하도록 설정
