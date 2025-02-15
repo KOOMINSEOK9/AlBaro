@@ -802,7 +802,13 @@ const MyCalendar = () => {
       {isFaceRecognitionOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
           <div className="bg-white p-6 rounded-md shadow-md max-w-3xl w-3/5 relative">
-            <button onClick={closeFaceRecognition} className="absolute top-2 right-2">X</button>
+            {/* 스타일이 개선된 X 버튼 */}
+            <button 
+              onClick={closeFaceRecognition} 
+              className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 transition duration-200"
+            >
+              &times; {/* X 모양 */}
+            </button>
             <h1 className="text-center text-xl font-bold mb-4">Face Recognition</h1>
             <div className="relative">
               <video id="video" width="100%" height="auto" autoPlay className="mb-4"></video>
