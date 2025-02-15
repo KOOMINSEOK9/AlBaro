@@ -53,11 +53,11 @@ services:
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew && nginx -s reload; sleep 12h & wait $${!}; done;'"
 
 
-face_recognition:
-    build:
-      context: ../face_recognition 
-    ports:
-      - "5000:5000"  # 호스트와 컨테이너 간의 포트 매핑
+  face_recognition:
+      build:
+        context: ../face_recognition 
+      ports:
+        - "5000:5000"  # 호스트와 컨테이너 간의 포트 매핑
 
 
 volumes:
