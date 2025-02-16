@@ -48,8 +48,8 @@ const MyCalendar = () => {
 
   useEffect(() => {
     axios
-      // .get(`https://i12b105.p.ssafy.io/api/work-information/${storeId}`)
-      .get(`http://localhost:8080/api/work-information/${storeId}`)
+      .get(`https://i12b105.p.ssafy.io/api/work-information/${storeId}`)
+      // .get(`http://localhost:8080/api/work-information/${storeId}`)
       .then((response) => {
         // console.log(response);
 
@@ -232,12 +232,12 @@ const MyCalendar = () => {
         } else {
           if (confirm(`해당 근무를 공석으로 변경하시겠습니까?`)) {
             axios
-              // .patch(
-              //   `https://i12b105.p.ssafy.io/api/work-information/${selectInfo.event.extendedProps.scheduleId}/vacant`
-              // )
               .patch(
-                `http://localhost:8080/api/work-information/${selectInfo.event.extendedProps.scheduleId}/vacant`
+                `https://i12b105.p.ssafy.io/api/work-information/${selectInfo.event.extendedProps.scheduleId}/vacant`
               )
+              // .patch(
+              //   `http://localhost:8080/api/work-information/${selectInfo.event.extendedProps.scheduleId}/vacant`
+              // )
               .then((res) => {
                 alert("해당 근무를 공석 처리했습니다.");
                 location.reload(true);
@@ -250,8 +250,8 @@ const MyCalendar = () => {
         }
       } else {
         axios
-          // .get(`https://i12b105.p.ssafy.io/api/substitute/my-schedule`, {
-          .get(`http://localhost:8080/api/substitute/my-schedule`, {
+          .get(`https://i12b105.p.ssafy.io/api/substitute/my-schedule`, {
+            // .get(`http://localhost:8080/api/substitute/my-schedule`, {
             params: { userId },
           })
           .then((res) => {
@@ -330,8 +330,8 @@ const MyCalendar = () => {
 
     // 서버로 이미지 데이터 전송
     axios
-      // .post("https://i12b105.p.ssafy.io/api/face-recognition/recognize", {
-      .post("http://localhost:8080/api/face-recognition/recognize", {
+      .post("https://i12b105.p.ssafy.io/api/face-recognition/recognize", {
+        // .post("http://localhost:8080/api/face-recognition/recognize", {
         image: imageData,
       })
       .then((response) => {
