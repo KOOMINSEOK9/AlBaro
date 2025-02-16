@@ -63,6 +63,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // CustomUserDetails를 통해 storeId,accountId 가져오기
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Integer storeId = Integer.parseInt(userDetails.getStoreId());
+        Integer userId = Integer.parseInt(userDetails.getUserId());
         Integer accountId = Integer.parseInt(userDetails.getAccountId());
 
 
@@ -72,8 +73,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = auth.getAuthority();
 
         //토큰 생성 ( 생명 주기를 달리 하는 2가지 토큰 생성)
-        String access = jwtUtil.createJwt("access", accountId, username, role, storeId, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", accountId, username, role, storeId, 86400000L);
+        String access = jwtUtil.createJwt("access", accountId, username, role, storeId, userId,600000L);
+        String refresh = jwtUtil.createJwt("refresh", accountId, username, role, storeId, userId, 86400000L);
 
         System.out.println("Access Token Info:");
         System.out.println("AccountId: " + jwtUtil.getAccountId(access));

@@ -62,8 +62,20 @@ public class JWTUtil {
                 .get("storeId", Integer.class);
     }
 
+    // 추가한 부분: 연주
+    public Integer getUserId(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("userId", Integer.class);  // userId 가져오기
+    }
+    // 여기까지
+    
     //토큰 생성할 메서드
-    public String createJwt(String category, Integer accountId, String username, String role, Integer storeId, Long expiredMs) {
+    // 연주: userId 추가(nearby-stores에서 조회할 때 accountId로 조회하는게 아니라 userId로 조회함)
+    public String createJwt(String category, Integer accountId, String username, String role, Integer storeId,Integer userId, Long expiredMs) {
 
         return Jwts.builder()
                 .claim("category", category) //access, refresh 인지 구분하는 카테고리 매개변수 추가
@@ -71,6 +83,7 @@ public class JWTUtil {
                 .claim("username", username)
                 .claim("role", role)
                 .claim("storeId",storeId)
+                .claim("userId", userId)
                 .issuedAt(new Date(System.currentTimeMillis())) //현재 발행 시간
                 .expiration(new Date(System.currentTimeMillis() + expiredMs)) // 언제 소멸 될 것인지 정하는데, 현재 발행시간에 만료기간 더하면 됨
                 .signWith(secretKey) //암호화진행
