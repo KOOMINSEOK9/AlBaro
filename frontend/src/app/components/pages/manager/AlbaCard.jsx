@@ -62,7 +62,8 @@ const AlbaCard = ({ selectedDate, startTime, endTime, albas }) => {
 
       axios
         .post(
-          `https://i12b105.p.ssafy.io/api/substitute/managerRequest?${queryParams}`
+          // `https://i12b105.p.ssafy.io/api/substitute/managerRequest?${queryParams}`
+          `http://localhost:8080/api/substitute/managerRequest?${queryParams}`
         )
         .then((res) => {
           alert(`${alba.userName}님께 대타를 요청했습니다.`);

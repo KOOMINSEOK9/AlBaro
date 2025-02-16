@@ -42,13 +42,14 @@ const MyCalendar = () => {
   const loginUserId = 374851;
   const userId = 1;
   const storeId = 1;
-  const role = "manager";
+  const role = "staff";
 
   const [isFaceRecognitionOpen, setIsFaceRecognitionOpen] = useState(false); // State to control modal visibility
 
   useEffect(() => {
     axios
-      .get(`https://i12b105.p.ssafy.io/api/work-information/${storeId}`)
+      // .get(`https://i12b105.p.ssafy.io/api/work-information/${storeId}`)
+      .get(`http://localhost:8080/api/work-information/${storeId}`)
       .then((response) => {
         // console.log(response);
 
@@ -626,8 +627,11 @@ const MyCalendar = () => {
         } else {
           if (confirm(`해당 근무를 공석으로 변경하시겠습니까?`)) {
             axios
+              // .patch(
+              //   `https://i12b105.p.ssafy.io/api/work-information/${selectInfo.event.extendedProps.scheduleId}/vacant`
+              // )
               .patch(
-                `https://i12b105.p.ssafy.io/api/work-information/${selectInfo.event.extendedProps.scheduleId}/vacant`
+                `http://localhost:8080/api/work-information/${selectInfo.event.extendedProps.scheduleId}/vacant`
               )
               .then((res) => {
                 alert("해당 근무를 공석 처리했습니다.");
@@ -641,7 +645,8 @@ const MyCalendar = () => {
         }
       } else {
         axios
-          .get(`https://i12b105.p.ssafy.io/api/substitute/my-schedule`, {
+          // .get(`https://i12b105.p.ssafy.io/api/substitute/my-schedule`, {
+          .get(`http://localhost:8080/api/substitute/my-schedule`, {
             params: { userId },
           })
           .then((res) => {
@@ -720,7 +725,8 @@ const MyCalendar = () => {
 
     // 서버로 이미지 데이터 전송
     axios
-      .post("https://i12b105.p.ssafy.io/api/face-recognition/recognize", {
+      // .post("https://i12b105.p.ssafy.io/api/face-recognition/recognize", {
+      .post("http://localhost:8080/api/face-recognition/recognize", {
         image: imageData,
       })
       .then((response) => {
@@ -735,8 +741,8 @@ const MyCalendar = () => {
   return (
     <div className="App h-full">
       <div className="flex justify-between items-center mb-5">
-        <h1 className="text-3xl font-bold">MEGASSAFY 덕명점</h1>
-        <div className="flex gap-3 text-lg">
+        <h1 className="text-2xl font-bold">MEGASSAFY 덕명점</h1>
+        <div className="flex gap-3 text-base">
           <Link
             href="/map"
             className="bg-gray-400 text-black rounded-md px-4 py-2 flex items-center"
@@ -766,6 +772,8 @@ const MyCalendar = () => {
         </div>
       </div>
       <FullCalendar
+        contentHeight="450px"
+        fixedWeekCount={false}
         headerToolbar={{
           top: "title",
           // left: "",
@@ -785,7 +793,7 @@ const MyCalendar = () => {
         )}
         views={{
           dayGridMonth: {
-            dayMaxEvents: 4,
+            dayMaxEvents: true,
             titleFormat: function (date) {
               const year = date.date.year;
               const month = date.date.month + 1;
