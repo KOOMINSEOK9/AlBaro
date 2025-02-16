@@ -74,7 +74,7 @@ public class SecurityConfig {
 
 
 
-                        return null;
+                        return configuration;
                     }
                 }));
 
@@ -94,9 +94,9 @@ public class SecurityConfig {
         //경로별 인가 작업(권한에 대한 내용)
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/join").permitAll() //모든 권한 허용
+                        .requestMatchers("/**", "/main", "/map").permitAll() //모든 권한 허용
                         .requestMatchers("/admin").hasRole("ADMIN") //관리자만
-                        .requestMatchers("/manager").hasRole("manager")
+                        .requestMatchers("/manager").hasRole("MANAGER")
                         .requestMatchers("/reissue").permitAll() //이때는 로그인 불가능이라서 허용 시켜줘야 함
                         .anyRequest().authenticated());
         //이외의 요청에는 로그인한 사용자만 하도록

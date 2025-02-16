@@ -50,13 +50,20 @@ public class JWTUtil {
         return Integer.parseInt(accountIdString);
     }
 
+    public Integer getStoreId(String token) {
+        String storeIdString = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("storeId", String.class);
+
+        return Integer.parseInt(storeIdString);
+    }
+
     //토큰 생성할 메서드
-    public String createJwt(String category, Integer accountId, String role, Long expiredMs) {
+    public String createJwt(String category, Integer accountId, String role, Integer storeId, Long expiredMs) {
 
         return Jwts.builder()
                 .claim("category", category) //access, refresh 인지 구분하는 카테고리 매개변수 추가
                 .claim("accountId", accountId) //claim 을 통해 특정 속성에 대한 값을 넣어줌
                 .claim("role", role)
+                .claim("storeId",storeId)
                 .issuedAt(new Date(System.currentTimeMillis())) //현재 발행 시간
                 .expiration(new Date(System.currentTimeMillis() + expiredMs)) // 언제 소멸 될 것인지 정하는데, 현재 발행시간에 만료기간 더하면 됨
                 .signWith(secretKey) //암호화진행

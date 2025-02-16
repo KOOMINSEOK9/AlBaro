@@ -1,6 +1,6 @@
-
 package com.albaro.jwt;
 
+import com.albaro.dto.CustomUserDetails;
 import com.albaro.entity.RefreshEntity;
 import com.albaro.repository.RefreshRepository;
 import jakarta.servlet.FilterChain;
@@ -29,6 +29,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
+
+        setFilterProcessesUrl("/");
     }
 
     @Override
@@ -53,14 +55,19 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 //        String stringAccountId = authentication.getName();
         Integer accountId = Integer.parseInt(authentication.getName());
 
+        // CustomUserDetails를 통해 storeId 가져오기
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Integer storeId = Integer.parseInt(userDetails.getStoreId());
+
+
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
         //토큰 생성 ( 생명 주기를 달리 하는 2가지 토큰 생성)
-        String access = jwtUtil.createJwt("access", accountId, role, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", accountId, role, 86400000L);
+        String access = jwtUtil.createJwt("access", accountId, role, storeId, 600000L);
+        String refresh = jwtUtil.createJwt("refresh", accountId, role, storeId, 86400000L);
 
         //리프레시 토큰을 저장소에 저장 -> 메서드는 따로 밑에 있음
         addRefreshEntity(accountId, refresh, 86400000L);

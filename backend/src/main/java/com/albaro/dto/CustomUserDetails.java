@@ -47,6 +47,12 @@ public class CustomUserDetails implements UserDetails {
         //accountId 반환
     }
 
+    public String getStoreId() {
+        return String.valueOf(userEntity.getStore().getStoreId());
+    }
+
+
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
