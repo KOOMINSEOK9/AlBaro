@@ -2,6 +2,10 @@ package com.albaro.jwt;
 
 import com.albaro.dto.CustomUserDetails;
 import com.albaro.entity.User;
+// 추가한 부분(연주)
+import com.albaro.entity.Store;
+// 여기까지
+import com.albaro.repository.StoreRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +26,9 @@ public class JWTFilter extends OncePerRequestFilter {
     public JWTFilter(JWTUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
     }
+
+    // 추가한 부분(연주)
+    private StoreRepository storeRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -55,10 +62,22 @@ public class JWTFilter extends OncePerRequestFilter {
 
         int accountId = jwtUtil.getAccountId(accessToken);
         String role = jwtUtil.getRole(accessToken);
+        // 추가한 부분(연주)
+        String username = jwtUtil.getUsername(accessToken);  // username 추가
+        int storeId = jwtUtil.getStoreId(accessToken);  // storeId 추가
+        int userId = jwtUtil.getUserId(accessToken);  // userId 추가
+        // 여기까지
 
         User userEntity = new User();
         userEntity.setAccountId(accountId);
         userEntity.setRole(role);
+        // 추가한 부분(연주)
+        userEntity.setUserName(username);
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new IllegalArgumentException("Store not found"));
+        userEntity.setStore(store);
+        userEntity.setUserId(userId);  // userId 설정
+        // 여기까지
         CustomUserDetails customUserDetails = new CustomUserDetails(userEntity);
 
         Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
