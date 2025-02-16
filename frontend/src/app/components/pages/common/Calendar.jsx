@@ -325,7 +325,6 @@ const MyCalendar = () => {
     const imageData = canvas.toDataURL("image/png");
 
     // 서버로 이미지 데이터 전송
-<<<<<<< HEAD
     axios.post('https://i12b105.p.ssafy.io/api/python/face-recognition/recognize', {
       image: imageData,
     })
@@ -336,19 +335,6 @@ const MyCalendar = () => {
     .catch(error => {
       console.error('Error sending image to server:', error);
     });
-=======
-    axios
-      .post("https://i12b105.p.ssafy.io/api/face-recognition/recognize", {
-        image: imageData,
-      })
-      .then((response) => {
-        console.log("Response from server:", response.data);
-        // 추가적인 처리 (예: 성공 메시지 표시 등)
-      })
-      .catch((error) => {
-        console.error("Error sending image to server:", error);
-      });
->>>>>>> 53ee7b85fea69bb27b17e863f341d6ce80ec7e0a
   };
 
   return (
