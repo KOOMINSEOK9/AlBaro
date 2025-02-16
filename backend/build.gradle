@@ -34,13 +34,13 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	//security 의존성
-//	implementation 'org.springframework.boot:spring-boot-starter-security' // Security 관련 주석 처리
-//	testImplementation 'org.springframework.security:spring-security-test' // Security 관련 주석 처리
+	implementation 'org.springframework.boot:spring-boot-starter-security' // Security 관련 주석 처리
+	testImplementation 'org.springframework.security:spring-security-test' // Security 관련 주석 처리
 
-	//jjwt
-//	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
-//	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
-//	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+//	jjwt
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
 	// WebSocket 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
