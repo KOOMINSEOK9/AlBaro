@@ -6,30 +6,30 @@ import axios from "axios";
 
 // axios 인스턴스 생성
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
   timeout: 5000,
+  withCredentials: true,
   headers: {
-    "Content-Type": "application/json",
-  },
+    "Content-Type": "application/x-www-form-urlencoded",
+  }
 });
 
 // 토큰 관리를 위한 유틸리티 함수들
 const tokenUtils = {
-  setTokens: (accessToken, refreshToken) => {
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken);
+  setTokens: (accessToken) => {
+    if (accessToken) {
+      localStorage.setItem("accessToken", accessToken);
+    }
   },
 
   clearTokens: () => {
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
   },
 
   getAccessToken: () => localStorage.getItem("accessToken"),
-  getRefreshToken: () => localStorage.getItem("refreshToken"),
 };
 
-// axios 인터셉터 설정
+// API 요청 인터셉터
 api.interceptors.request.use(
   (config) => {
     const token = tokenUtils.getAccessToken();
@@ -43,7 +43,7 @@ api.interceptors.request.use(
   }
 );
 
-// 토큰 갱신을 위한 인터셉터
+// 응답 인터셉터 (토큰 갱신 로직)
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -53,19 +53,19 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = tokenUtils.getRefreshToken();
-        const response = await axios.post("/api/auth/refresh", {
-          refreshToken,
+        const response = await api.post("/api/auth/reissue", {}, {
+          withCredentials: true
         });
 
-        const { accessToken } = response.data;
-        tokenUtils.setTokens(accessToken, refreshToken);
-
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-        return api(originalRequest);
+        const newAccessToken = response.headers.authorization?.replace('Bearer ', '');
+        if (newAccessToken) {
+          tokenUtils.setTokens(newAccessToken);
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          return api(originalRequest);
+        }
       } catch (refreshError) {
         tokenUtils.clearTokens();
-        window.location.href = "/login";
+        window.location.href = "/";
         return Promise.reject(refreshError);
       }
     }
@@ -86,7 +86,6 @@ export default function Login() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // 이미 로그인되어 있는지 확인
   useEffect(() => {
     const accessToken = tokenUtils.getAccessToken();
     if (accessToken) {
@@ -100,15 +99,33 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const response = await api.post("/api/auth/login", credentials);
-      const { accessToken, refreshToken } = response.data;
+      // URLSearchParams 사용하여 form data 전송
+      const formData = new URLSearchParams();
+      formData.append('accountId', credentials.username);
+      formData.append('password', credentials.password);
 
-      tokenUtils.setTokens(accessToken, refreshToken);
-      router.push("/main");
+      const response = await api.post("/api/auth/login", formData.toString());
+
+      // 응답 확인을 위한 콘솔 로그
+      console.log('Login response:', response);
+      console.log('Response headers:', response.headers);
+
+      // 'access' 헤더에서 토큰 가져오기
+      const accessToken = response.headers['access'];
+      if (accessToken) {
+        tokenUtils.setTokens(accessToken);
+        router.push("/main");
+      } else {
+        throw new Error("Authorization token not found in response");
+      }
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message ||
-        "사원번호 또는 비밀번호가 올바르지 않습니다.";
+      console.error('Login error:', err);
+      let errorMessage;
+      if (err.response?.status === 401) {
+        errorMessage = "사원번호 또는 비밀번호가 올바르지 않습니다.";
+      } else {
+        errorMessage = "로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+      }
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -157,11 +174,10 @@ export default function Login() {
                   disabled={isLoading}
                 />
                 <span
-                  className={`absolute left-0 transition-all duration-300 ${
-                    focused.username || credentials.username
-                      ? "-top-5 text-[0.60rem] text-gray-600"
-                      : "top-[45%] -translate-y-1/2 left-8 text-sm text-gray-400"
-                  }`}
+                  className={`absolute left-0 transition-all duration-300 ${focused.username || credentials.username
+                    ? "-top-5 text-[0.60rem] text-gray-600"
+                    : "top-[45%] -translate-y-1/2 left-8 text-sm text-gray-400"
+                    }`}
                 >
                   사원번호
                 </span>
@@ -201,11 +217,10 @@ export default function Login() {
                   disabled={isLoading}
                 />
                 <span
-                  className={`absolute left-0 transition-all duration-300 ${
-                    focused.password || credentials.password
-                      ? "-top-5 text-[0.60rem] text-gray-600"
-                      : "top-[45%] -translate-y-1/2 left-8 text-sm text-gray-400"
-                  }`}
+                  className={`absolute left-0 transition-all duration-300 ${focused.password || credentials.password
+                    ? "-top-5 text-[0.60rem] text-gray-600"
+                    : "top-[45%] -translate-y-1/2 left-8 text-sm text-gray-400"
+                    }`}
                 >
                   비밀번호
                 </span>
@@ -218,9 +233,8 @@ export default function Login() {
 
               <button
                 type="submit"
-                className={`w-full py-3 mt-2 text-white bg-black hover:bg-gray-800 transition-colors rounded-md ${
-                  isLoading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                className={`w-full py-3 mt-2 text-white bg-black hover:bg-gray-800 transition-colors rounded-md ${isLoading ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                 disabled={isLoading}
               >
                 {isLoading ? "로그인 중..." : "로그인"}
