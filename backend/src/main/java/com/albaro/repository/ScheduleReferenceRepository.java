@@ -19,7 +19,16 @@ public interface ScheduleReferenceRepository extends JpaRepository<ScheduleRefer
     List<ScheduleReference> findByUserIdAndCurrentMonth(@Param("userId") Integer userId);
 
     //점장 -> 공석채우기
+<<<<<<< Updated upstream
     @Query("SELECT DISTINCT new com.albaro.dto.UserDto(sr.user.userId, sr.user.userName, sr.scheduleDate, sr.scheduleStartTime, sr.scheduleEndTime) " +
+=======
+    @Query("SELECT new com.albaro.dto.UserDto(" +
+            "sr.user.userId, " +
+            "sr.user.userName, " +
+            "sr.scheduleDate, " +
+            "sr.scheduleStartTime, " +
+            "sr.scheduleEndTime) " +
+>>>>>>> Stashed changes
             "FROM ScheduleReference sr " +
             "WHERE sr.store.storeId = :storeId")
     List<UserDto> findWorkersByStoreId(@Param("storeId") Integer storeId);

@@ -526,6 +526,7 @@ const MyCalendar = () => {
   // }, []);
 
   // 점장 -> 알바 대타구하기(지도 페이지)
+  // 점장 -> 알바 대타구하기(지도 페이지)
   const gotoDeta = (info) => {
     // console.log(info);
 
@@ -551,6 +552,20 @@ const MyCalendar = () => {
     router.push(
       `/map?scheduleId=${info.event.extendedProps.scheduleId}&date=${info.event.extendedProps.workDate}&start=${info.event.start}&end=${info.event.end}`
     );
+  };
+
+  // 알바생 -> 알바생 대타구하기(모달)
+  const searchDetaModal = (info) => {
+    const startTime = new Date(info.event.start).getTime();
+    const endTime = new Date(info.event.end).getTime();
+
+    if (
+      confirm(
+        `알바생 ${info.event.workDate} ${startTime} ~ ${endTime}의 대타를 구하시겠습니까?`
+      )
+    ) {
+      setIsModalOpen(true);
+    }
   };
 
   const handleDateSelect = (selectInfo) => {
@@ -665,9 +680,10 @@ const MyCalendar = () => {
   const openFaceRecognition = () => {
     setIsFaceRecognitionOpen(true);
     // Start video stream
-    navigator.mediaDevices.getUserMedia({ video: true })
+    navigator.mediaDevices
+      .getUserMedia({ video: true })
       .then((stream) => {
-        const video = document.getElementById('video');
+        const video = document.getElementById("video");
         video.srcObject = stream;
         video.play();
       })
@@ -678,19 +694,19 @@ const MyCalendar = () => {
 
   const closeFaceRecognition = () => {
     setIsFaceRecognitionOpen(false);
-    const video = document.getElementById('video');
+    const video = document.getElementById("video");
     if (video.srcObject) {
       const stream = video.srcObject;
       const tracks = stream.getTracks();
-      tracks.forEach(track => track.stop());
+      tracks.forEach((track) => track.stop());
       video.srcObject = null;
     }
   };
 
   const captureImage = () => {
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const context = canvas.getContext('2d');
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const context = canvas.getContext("2d");
 
     // 캔버스 크기 설정
     canvas.width = video.videoWidth;
@@ -700,19 +716,20 @@ const MyCalendar = () => {
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     // 캔버스의 이미지를 base64로 변환
-    const imageData = canvas.toDataURL('image/png');
+    const imageData = canvas.toDataURL("image/png");
 
     // 서버로 이미지 데이터 전송
-    axios.post('https://i12b105.p.ssafy.io/api/face-recognition/recognize', {
-      image: imageData,
-    })
-    .then(response => {
-      console.log('Response from server:', response.data);
-      // 추가적인 처리 (예: 성공 메시지 표시 등)
-    })
-    .catch(error => {
-      console.error('Error sending image to server:', error);
-    });
+    axios
+      .post("https://i12b105.p.ssafy.io/api/face-recognition/recognize", {
+        image: imageData,
+      })
+      .then((response) => {
+        console.log("Response from server:", response.data);
+        // 추가적인 처리 (예: 성공 메시지 표시 등)
+      })
+      .catch((error) => {
+        console.error("Error sending image to server:", error);
+      });
   };
 
   return (
@@ -733,7 +750,10 @@ const MyCalendar = () => {
             />
             대타 찾기
           </Link>
-          <button onClick={openFaceRecognition} className="bg-gray-400 text-black rounded-md px-4 py-2 flex items-center">
+          <button
+            onClick={openFaceRecognition}
+            className="bg-gray-400 text-black rounded-md px-4 py-2 flex items-center"
+          >
             <Image
               src="/icons/Face_ID.png"
               alt="출퇴근하기 아이콘"
@@ -875,15 +895,23 @@ const MyCalendar = () => {
       {isFaceRecognitionOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
           <div className="bg-white p-6 rounded-md shadow-md max-w-3xl w-3/5 relative">
-            <button 
-              onClick={closeFaceRecognition} 
+            <button
+              onClick={closeFaceRecognition}
               className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 transition duration-200"
             >
               &times; {/* X 모양 */}
             </button>
-            <h1 className="text-center text-xl font-bold mb-4">Face Recognition</h1>
+            <h1 className="text-center text-xl font-bold mb-4">
+              Face Recognition
+            </h1>
             <div className="relative">
-              <video id="video" width="100%" height="auto" autoPlay className="mb-4"></video>
+              <video
+                id="video"
+                width="100%"
+                height="auto"
+                autoPlay
+                className="mb-4"
+              ></video>
               {/* 얼굴 인식을 위한 SVG 실루엣 추가 */}
               <svg
                 className="absolute inset-0 flex items-center justify-center"
@@ -902,9 +930,19 @@ const MyCalendar = () => {
             </div>
             {/* 중앙 정렬을 위한 Flexbox 사용 */}
             <div className="flex justify-center mt-4">
-              <button onClick={captureImage} className="bg-blue-500 text-white rounded-md px-4 py-2">Capture</button>
+              <button
+                onClick={captureImage}
+                className="bg-blue-500 text-white rounded-md px-4 py-2"
+              >
+                Capture
+              </button>
             </div>
-            <canvas id="canvas" width="640" height="480" style={{ display: 'none' }}></canvas>
+            <canvas
+              id="canvas"
+              width="640"
+              height="480"
+              style={{ display: "none" }}
+            ></canvas>
           </div>
         </div>
       )}

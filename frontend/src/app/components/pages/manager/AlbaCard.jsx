@@ -92,6 +92,7 @@ const AlbaCard = ({ selectedDate, startTime, endTime, albas }) => {
                 height={50}
               />
             </div>
+
             <div className=" ml-1 mt-1">
               <h3 className="text-lg font-semibold ml-2 mt-2">
                 {alba.userName}

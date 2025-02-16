@@ -65,6 +65,68 @@ import axios from "axios";
 //     scheduleEndTime: "2025-02-05T22:00:00",
 //   },
 // ];
+// const Alba = [
+//   {
+//     userName: "김싸피",
+//     scheduleDate: "2025-02-01",
+//     scheduleStartTime: "2025-02-01T08:00:00",
+//     scheduleEndTime: "2025-02-01T12:00:00",
+//   },
+//   {
+//     userName: "이싸피",
+//     scheduleDate: "2025-02-01",
+//     scheduleStartTime: "2025-02-01T14:00:00",
+//     scheduleEndTime: "2025-02-01T18:00:00",
+//   },
+//   {
+//     userName: "최최피",
+//     scheduleDate: "2025-02-02",
+//     scheduleStartTime: "2025-02-02T09:00:00",
+//     scheduleEndTime: "2025-02-02T13:00:00",
+//   },
+//   {
+//     userName: "박싸피",
+//     scheduleDate: "2025-02-02",
+//     scheduleStartTime: "2025-02-02T15:00:00",
+//     scheduleEndTime: "2025-02-02T19:00:00",
+//   },
+//   {
+//     userName: "유유피",
+//     scheduleDate: "2025-02-03",
+//     scheduleStartTime: "2025-02-03T08:30:00",
+//     scheduleEndTime: "2025-02-03T12:30:00",
+//   },
+//   {
+//     userName: "민싸피",
+//     scheduleDate: "2025-02-03",
+//     scheduleStartTime: "2025-02-03T13:30:00",
+//     scheduleEndTime: "2025-02-03T17:30:00",
+//   },
+//   {
+//     userName: "강싸피",
+//     scheduleDate: "2025-02-04",
+//     scheduleStartTime: "2025-02-04T07:00:00",
+//     scheduleEndTime: "2025-02-04T11:00:00",
+//   },
+//   {
+//     userName: "김싸피",
+//     scheduleDate: "2025-02-04",
+//     scheduleStartTime: "2025-02-04T16:00:00",
+//     scheduleEndTime: "2025-02-04T20:00:00",
+//   },
+//   {
+//     userName: "김싸피",
+//     scheduleDate: "2025-02-05",
+//     scheduleStartTime: "2025-02-05T10:00:00",
+//     scheduleEndTime: "2025-02-05T14:00:00",
+//   },
+//   {
+//     userName: "김싸피",
+//     scheduleDate: "2025-02-05",
+//     scheduleStartTime: "2025-02-05T18:00:00",
+//     scheduleEndTime: "2025-02-05T22:00:00",
+//   },
+// ];
 
 const AlbaList = ({
   selectedStore,
@@ -76,9 +138,8 @@ const AlbaList = ({
   // const userId = 1;
 
   const filteredAlba = canDetaAlbaList.filter((alba) => {
-    // console.log(alba);
-
     const albaDate = new Date(alba.scheduleDate);
+
     const albaStartTime = new Date(
       `${alba.scheduleDate}T${alba.scheduleStartTime}`
     );
