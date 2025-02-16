@@ -57,11 +57,12 @@ public class JWTUtil {
     }
 
     //토큰 생성할 메서드
-    public String createJwt(String category, Integer accountId, String role, Integer storeId, Long expiredMs) {
+    public String createJwt(String category, Integer accountId, String username, String role, Integer storeId, Long expiredMs) {
 
         return Jwts.builder()
                 .claim("category", category) //access, refresh 인지 구분하는 카테고리 매개변수 추가
                 .claim("accountId", accountId) //claim 을 통해 특정 속성에 대한 값을 넣어줌
+                .claim("username", username)
                 .claim("role", role)
                 .claim("storeId",storeId)
                 .issuedAt(new Date(System.currentTimeMillis())) //현재 발행 시간
