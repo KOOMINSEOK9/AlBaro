@@ -510,7 +510,7 @@ const MyCalendar = () => {
         </div>
       )}
 
-      {/* Modal for Face Recognition */}
+      {/* 얼굴 인식 모달 */}
       {isFaceRecognitionOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
           <div className="bg-white p-6 rounded-md shadow-md max-w-3xl w-3/5 relative">
