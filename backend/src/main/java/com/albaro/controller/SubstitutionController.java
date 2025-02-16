@@ -202,6 +202,8 @@ public class SubstitutionController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime) {
 
+
+
         substitutionService.requestSubstitution(userId, userName,
                 workDate, startTime, endTime);
         return ResponseEntity.ok().build();

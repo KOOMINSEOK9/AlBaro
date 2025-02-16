@@ -12,7 +12,7 @@ public class RefreshEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int accountId; // 식별자로 아이디(사번) 사용
+    private Integer accountId; // 식별자로 아이디(사번) 사용
     private String refresh;
     private String expiration;
 
@@ -24,11 +24,11 @@ public class RefreshEntity {
         this.id = id;
     }
 
-    public int getAccountId() {
+    public Integer getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(int accountId) {
+    public void setAccountId(Integer accountId) {
         this.accountId = accountId;
     }
 
