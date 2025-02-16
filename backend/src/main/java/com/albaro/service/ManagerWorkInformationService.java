@@ -1,14 +1,16 @@
 package com.albaro.service;
 
-import com.albaro.entity.User;
 import com.albaro.dto.ManagerWorkInformationResponse;
 import com.albaro.dto.UserDto;
-import com.albaro.repository.WorkInformationRepository;
-import com.albaro.repository.UserRepository;
-import org.springframework.stereotype.Service;
+import com.albaro.entity.User;
 import com.albaro.entity.WorkInformation;
+import com.albaro.repository.UserRepository;
+import com.albaro.repository.WorkInformationRepository;
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,8 +74,14 @@ public class ManagerWorkInformationService {
     public List<UserDto> getStaffListByStoreId(Integer storeId) {
         return userRepository.findAll().stream()
                 .filter(user -> user.getStore() != null && user.getStore().getStoreId().equals(storeId))
-                .filter(user -> "STAFF".equalsIgnoreCase(user.getRole())) // STAFF 역할 필터링
+                .filter(user -> "STAFF".equalsIgnoreCase(user.getRole()))
                 .map(UserDto::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    // 5. 특정 userId로 userName과 storeName 조회
+    public Optional<ManagerWorkInformationResponse> getUserWithStoreNameById(Integer userId) {
+        return userRepository.findById(userId)
+                .map(user -> new ManagerWorkInformationResponse(user.getUserId(), user.getUserName(), user.getStore().getStoreName()));
     }
 }
