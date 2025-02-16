@@ -9,10 +9,10 @@ class WebSocketService {
     }
 
     connect(onMessageReceived) {
-        const socket = new SockJS('wss://i12b105.p.ssafy.io:8080/wss');
+        const socket = new SockJS('http://i12b105.p.ssafy.io:8080/wss');
 
         this.client = new Client({
-            webSocketFactory: () => socket,
+            webSocketFactory: () => new WebSocket('wss://i12b105.p.ssafy.io:8080/wss'),
             debug: (str) => {
                 console.log(str);
             },
