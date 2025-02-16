@@ -9,7 +9,7 @@ class WebSocketService {
     }
 
     connect(onMessageReceived) {
-        const socket = new SockJS('http://localhost:8080/ws');
+        const socket = new SockJS('https://i12b105.p.ssafy.io:8080/ws');
 
         this.client = new Client({
             webSocketFactory: () => socket,
