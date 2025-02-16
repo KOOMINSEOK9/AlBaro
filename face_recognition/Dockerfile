@@ -7,6 +7,7 @@ WORKDIR /app
 # 요구 사항 파일 복사
 COPY requirements.txt .
 
+RUN pip install --upgrade pip
 # 의존성 설치
 RUN pip install --no-cache-dir -r requirements.txt
 
