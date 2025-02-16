@@ -5,3 +5,5 @@ torchvision==0.17.0
 facenet-pytorch
 pillow
 flask-cors
+
+

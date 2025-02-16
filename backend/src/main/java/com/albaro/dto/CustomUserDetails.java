@@ -22,6 +22,7 @@ public class CustomUserDetails implements UserDetails {
 
         Collection<GrantedAuthority> collection = new ArrayList<>();
 
+        System.out.println("여기 오나요?");
         collection.add(new GrantedAuthority() {
 
             @Override
@@ -43,8 +44,15 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
+        return userEntity.getUserName();
+    }
+
+    public String getStoreId() {
+        return String.valueOf(userEntity.getStore().getStoreId());
+    }
+
+    public String getAccountId(){
         return String.valueOf(userEntity.getAccountId());
-        //accountId 반환
     }
 
     @Override

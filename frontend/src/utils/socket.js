@@ -9,10 +9,10 @@ class WebSocketService {
     }
 
     connect(onMessageReceived) {
-        const socket = new SockJS('http://localhost:8080/ws');
+        const socket = new SockJS('https://i12b105.p.ssafy.io:8080/wss');
 
         this.client = new Client({
-            webSocketFactory: () => socket,
+            webSocketFactory: () => new WebSocket('wss://i12b105.p.ssafy.io:8080/wss'),
             debug: (str) => {
                 console.log(str);
             },
@@ -26,6 +26,7 @@ class WebSocketService {
 
             this.client.subscribe('/topic/store/chat', (message) => {
                 const receivedMessage = JSON.parse(message.body);
+                console.log('Received message:', receivedMessage);
                 onMessageReceived(receivedMessage);
             });
         };
@@ -39,10 +40,17 @@ class WebSocketService {
 
     sendMessage(message) {
         if (this.client && this.client.connected) {
+            const messageToSend = {
+                ...message,
+                timestamp: new Date().toISOString()
+            };
+            console.log('Sending message:', messageToSend);
             this.client.publish({
                 destination: '/app/chat',
-                body: JSON.stringify(message)
+                body: JSON.stringify(messageToSend)
             });
+        } else {
+            console.log('WebSocket is not connected');
         }
     }
 

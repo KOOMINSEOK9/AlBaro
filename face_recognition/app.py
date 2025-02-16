@@ -11,14 +11,15 @@ app = Flask(__name__)
 CORS(app)  # CORS 활성화
 
 # 모델 로드
-mtcnn = MTCNN(keep_all=True, device='cuda')  # MTCNN 모델 초기화
+# mtcnn = MTCNN(keep_all=True, device='cuda')  # MTCNN 모델 초기화
+mtcnn = MTCNN(keep_all=True, device='cpu')  # MTCNN 모델 초기화 - CPU 버전으로 설치치
 resnet = InceptionResnetV1(pretrained='vggface2').eval().to('cuda')  # InceptionResnetV1 모델 초기화
 
 @app.route('/')
 def home():
     return jsonify({"message": "Face Recognition API Server is running!"})
 
-@app.route('/api/face-recognition/recognize', methods=['POST'])  # 엔드포인트 수정
+@app.route('/api/python/face-recognition/recognize', methods=['POST'])  # 엔드포인트 수정
 def recognize():
     try:
         data = request.json
@@ -54,4 +55,4 @@ def recognize():
 #     print(response.text)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)  # Flask 서버 실행
+    app.run(host='0.0.0.0', port=5000)  # Flask 서버 실행, 5000번 포트로 실행

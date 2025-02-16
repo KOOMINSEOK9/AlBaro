@@ -13,7 +13,6 @@ import java.util.Optional;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-
     private final UserRepository userRepository;
 
     public CustomUserDetailsService(UserRepository userRepository){
@@ -24,6 +23,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     //username의 역할을 accountId가 대신해줌
     @Override
     public UserDetails loadUserByUsername(String accountId) throws UsernameNotFoundException {
+
+        System.out.println("CustomUserDetailService: "+ accountId);
         Optional<User> userData = userRepository.findByAccountId(Integer.parseInt(accountId));
 
         if(userData.isPresent()) {

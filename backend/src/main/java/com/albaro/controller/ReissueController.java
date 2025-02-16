@@ -77,16 +77,17 @@ public class ReissueController {
         }
 
         Integer accountId = jwtUtil.getAccountId(refresh);
-//    String username = jwtUtil.getUsername(refresh);
+        String username = jwtUtil.getUsername(refresh);
         String role = jwtUtil.getRole(refresh);
+        Integer storeId = jwtUtil.getStoreId(refresh);
 
         //make new JWT
-        String newAccess = jwtUtil.createJwt("access",accountId , role, 600000L);
-        String newRefresh = jwtUtil.createJwt("refresh", accountId, role, 86400000L);
+        String newAccess = jwtUtil.createJwt("access",accountId , username, role, storeId, 600000L);
+        String newRefresh = jwtUtil.createJwt("refresh", accountId, username, role, storeId,86400000L);
 
         //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
         refreshRepository.deleteByRefresh(refresh);
-        addRefreshEntity(accountId, newRefresh, 86400000L);
+        addRefreshEntity(accountId, newRefresh, storeId, 86400000L);
 
         //response
         response.setHeader("access", newAccess);
@@ -94,7 +95,7 @@ public class ReissueController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    private void addRefreshEntity(Integer accountId, String refresh, Long expiredMs) {
+    private void addRefreshEntity(Integer accountId, String refresh, Integer storeId, Long expiredMs) {
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);
 
