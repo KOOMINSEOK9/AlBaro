@@ -38,7 +38,8 @@ public class SecurityConfig {
         this.refreshRepository = refreshRepository;
     }
 
-    //AuthenticationManager Bean 등록@Bean
+    //AuthenticationManager Bean 등록
+    @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
 
         return configuration.getAuthenticationManager();
@@ -61,18 +62,13 @@ public class SecurityConfig {
 
                         CorsConfiguration configuration = new CorsConfiguration();
 
-                        //허용할 프론트엔드 서버 번호
-                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
-                        // 모든 방식 허용(GET,POST 등등)
+                        configuration.setAllowedOrigins(Collections.singletonList("https://i12b105.p.ssafy.io"));
+//                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
                         configuration.setAllowedMethods(Collections.singletonList("*"));
                         configuration.setAllowCredentials(true);
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
                         configuration.setMaxAge(3600L);
-
-                        //Authorization에 넣을 거기 때문에 header 허용..?
-                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
-
-
+                        configuration.setExposedHeaders(Collections.singletonList("access"));
 
                         return configuration;
                     }
@@ -94,10 +90,9 @@ public class SecurityConfig {
         //경로별 인가 작업(권한에 대한 내용)
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/**", "/main", "/map").permitAll() //모든 권한 허용
-                        .requestMatchers("/admin").hasRole("ADMIN") //관리자만
+                        .requestMatchers("/**", "/main", "/map").permitAll()
+                        .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/manager").hasRole("MANAGER")
-                        .requestMatchers("/reissue").permitAll() //이때는 로그인 불가능이라서 허용 시켜줘야 함
                         .anyRequest().authenticated());
         //이외의 요청에는 로그인한 사용자만 하도록
 

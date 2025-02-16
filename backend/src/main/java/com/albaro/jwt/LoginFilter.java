@@ -1,3 +1,4 @@
+
 package com.albaro.jwt;
 
 import com.albaro.dto.CustomUserDetails;
@@ -29,8 +30,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
-
-        setFilterProcessesUrl("/");
+        setFilterProcessesUrl("/api/auth/login");  // 로그인 경로 변경
     }
 
     @Override
@@ -40,15 +40,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String accountId = request.getParameter("accountId");
         String password = obtainPassword(request);
 
-        //스프링 시큐리티에서 accountId과 password를 검증하기 위해서는 token 바구니에 담아야 함
+        System.out.println("Received login attempt - AccountId: " + accountId);
+
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(accountId, password, null);
 
         //token에 담은 검증을 위한 AuthenticationManager로 전달
         return authenticationManager.authenticate(authToken);
     }
 
-    //로그인 성공시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication){
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
+
 
         //유저 정보
         //함수는 getName이지만, accountId를 가져올 수 있도록 해 놓음!
@@ -105,10 +107,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24*60*60); //쿠키의 생명주기
-        //cookie.setSecure(true); //https로 쓸 때 사용  cookie.setPath("/"); //쿠키가 적용될 범위 설정
-        cookie.setHttpOnly(true); //httponly 설정 필수!!
-
+        cookie.setMaxAge(24*60*60);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);  // HTTPS 설정 추가
+        cookie.setPath("/");    // 경로 설정 추가
+//        cookie.setDomain("i12b105.p.ssafy.io"); // 도메인 설정
+        cookie.setDomain("localhost");
         return cookie;
     }
 }
