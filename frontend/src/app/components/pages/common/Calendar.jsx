@@ -39,9 +39,10 @@ const MyCalendar = () => {
   const [endTime, setEndTime] = useState(null);
   const [workDate, setWorkDate] = useState(null);
 
+  const loginUserId = 374851;
   const userId = 1;
   const storeId = 1;
-  const role = "staff";
+  const role = "manager";
 
   const [isFaceRecognitionOpen, setIsFaceRecognitionOpen] = useState(false); // State to control modal visibility
 
@@ -109,6 +110,7 @@ const MyCalendar = () => {
             backgroundColor: event.color,
             borderColor: event.borderColor,
             extendedProps: {
+              accountId: event.accountId,
               scheduleId: event.scheduleId,
               userId: event.userId,
               isVacant: event.vacant,
@@ -128,418 +130,48 @@ const MyCalendar = () => {
       });
   }, []);
 
-  // useEffect(() => {
-  //   const formattedEvents = [
-  //     {
-  //       userId: 2,
-  //       title: "김싸피",
-  //       workDate: "2025-02-01",
-  //       startTime: "08:00:00",
-  //       endTime: "14:00:00",
-  //       isVacant: false,
-  //       checkInTime: "08:00:00",
-  //       checkOutTime: "14:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 3,
-  //       title: "이싸피",
-  //       workDate: "2025-02-01",
-  //       startTime: "08:00:00",
-  //       endTime: "14:00:00",
-  //       isVacant: false,
-  //       checkInTime: "08:00:00",
-  //       checkOutTime: "14:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 4,
-  //       title: "최싸피",
-  //       workDate: "2025-02-01",
-  //       startTime: "12:00:00",
-  //       endTime: "17:00:00",
-  //       isVacant: true,
-  //       checkInTime: "12:00:00",
-  //       checkOutTime: "17:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 5,
-  //       title: "박싸피",
-  //       workDate: "2025-02-01",
-  //       startTime: "12:00:00",
-  //       endTime: "17:00:00",
-  //       isVacant: false,
-  //       checkInTime: "12:00:00",
-  //       checkOutTime: "17:00:00",
-  //       isSubtituation: true,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 6,
-  //       title: "유싸피",
-  //       workDate: "2025-02-01",
-  //       startTime: "12:00:00",
-  //       endTime: "17:00:00",
-  //       isVacant: false,
-  //       checkInTime: "12:00:00",
-  //       checkOutTime: "17:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 7,
-  //       title: "민싸피",
-  //       workDate: "2025-02-01",
-  //       startTime: "17:00:00",
-  //       endTime: "22:00:00",
-  //       isVacant: false,
-  //       checkInTime: "18:00:00",
-  //       checkOutTime: "22:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 8,
-  //       title: "한싸피",
-  //       workDate: "2025-02-01",
-  //       startTime: "17:00:00",
-  //       endTime: "22:00:00",
-  //       isVacant: false,
-  //       checkInTime: "17:00:00",
-  //       checkOutTime: "22:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 2,
-  //       title: "김싸피",
-  //       workDate: "2025-02-02",
-  //       startTime: "08:00:00",
-  //       endTime: "14:00:00",
-  //       isVacant: false,
-  //       checkInTime: "08:00:00",
-  //       checkOutTime: "14:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 3,
-  //       title: "이싸피",
-  //       workDate: "2025-02-02",
-  //       startTime: "08:00:00",
-  //       endTime: "14:00:00",
-  //       isVacant: false,
-  //       checkInTime: "08:00:00",
-  //       checkOutTime: "14:00:00",
-  //       isSubtituation: true,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 4,
-  //       title: "최싸피",
-  //       workDate: "2025-02-02",
-  //       startTime: "12:00:00",
-  //       endTime: "17:00:00",
-  //       isVacant: false,
-  //       checkInTime: "12:00:00",
-  //       checkOutTime: "17:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 5,
-  //       title: "박싸피",
-  //       workDate: "2025-02-02",
-  //       startTime: "12:00:00",
-  //       endTime: "17:00:00",
-  //       isVacant: false,
-  //       checkInTime: "12:00:00",
-  //       checkOutTime: "17:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 6,
-  //       title: "유싸피",
-  //       workDate: "2025-02-02",
-  //       startTime: "12:00:00",
-  //       endTime: "17:00:00",
-  //       isVacant: false,
-  //       checkInTime: "12:00:00",
-  //       checkOutTime: "17:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 7,
-  //       title: "민싸피",
-  //       workDate: "2025-02-02",
-  //       startTime: "17:00:00",
-  //       endTime: "22:00:00",
-  //       isVacant: false,
-  //       checkInTime: "17:00:00",
-  //       checkOutTime: "22:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 8,
-  //       title: "한싸피",
-  //       workDate: "2025-02-02",
-  //       startTime: "17:00:00",
-  //       endTime: "22:00:00",
-  //       isVacant: false,
-  //       checkInTime: "17:00:00",
-  //       checkOutTime: "22:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
 
-  //     {
-  //       userId: 2,
-  //       title: "김싸피",
-  //       workDate: "2025-02-07",
-  //       startTime: "08:00:00",
-  //       endTime: "14:00:00",
-  //       isVacant: false,
-  //       checkInTime: "08:00:00",
-  //       checkOutTime: "14:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 3,
-  //       title: "이싸피",
-  //       workDate: "2025-02-07",
-  //       startTime: "08:00:00",
-  //       endTime: "14:00:00",
-  //       isVacant: false,
-  //       checkInTime: "08:00:00",
-  //       checkOutTime: "14:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 4,
-  //       title: "최싸피",
-  //       workDate: "2025-02-07",
-  //       startTime: "12:00:00",
-  //       endTime: "17:00:00",
-  //       isVacant: true,
-  //       checkInTime: "12:00:00",
-  //       checkOutTime: "17:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 5,
-  //       title: "박싸피",
-  //       workDate: "2025-02-07",
-  //       startTime: "12:00:00",
-  //       endTime: "17:00:00",
-  //       isVacant: false,
-  //       checkInTime: "12:00:00",
-  //       checkOutTime: "17:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 6,
-  //       title: "유싸피",
-  //       workDate: "2025-02-07",
-  //       startTime: "12:00:00",
-  //       endTime: "17:00:00",
-  //       isVacant: false,
-  //       checkInTime: "12:00:00",
-  //       checkOutTime: "17:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 7,
-  //       title: "민싸피",
-  //       workDate: "2025-02-07",
-  //       startTime: "17:00:00",
-  //       endTime: "22:00:00",
-  //       isVacant: false,
-  //       checkInTime: "18:00:00",
-  //       checkOutTime: "22:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 8,
-  //       title: "한싸피",
-  //       workDate: "2025-02-07",
-  //       startTime: "17:00:00",
-  //       endTime: "22:00:00",
-  //       isVacant: false,
-  //       checkInTime: "17:00:00",
-  //       checkOutTime: "22:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-
-  //     {
-  //       userId: 2,
-  //       title: "김싸피",
-  //       workDate: "2025-02-10",
-  //       startTime: "08:00:00",
-  //       endTime: "14:00:00",
-  //       isVacant: false,
-  //       checkInTime: "08:00:00",
-  //       checkOutTime: "14:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 3,
-  //       title: "이싸피",
-  //       workDate: "2025-02-10",
-  //       startTime: "08:00:00",
-  //       endTime: "14:00:00",
-  //       isVacant: false,
-  //       checkInTime: "08:00:00",
-  //       checkOutTime: "14:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 4,
-  //       title: "최싸피",
-  //       workDate: "2025-02-10",
-  //       startTime: "12:00:00",
-  //       endTime: "17:00:00",
-  //       isVacant: true,
-  //       checkInTime: "12:00:00",
-  //       checkOutTime: "17:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 5,
-  //       title: "박싸피",
-  //       workDate: "2025-02-10",
-  //       startTime: "12:00:00",
-  //       endTime: "17:00:00",
-  //       isVacant: false,
-  //       checkInTime: "12:00:00",
-  //       checkOutTime: "17:00:00",
-  //       isSubtituation: true,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 6,
-  //       title: "유싸피",
-  //       workDate: "2025-02-10",
-  //       startTime: "12:00:00",
-  //       endTime: "17:00:00",
-  //       isVacant: false,
-  //       checkInTime: "12:00:00",
-  //       checkOutTime: "17:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 7,
-  //       title: "민싸피",
-  //       workDate: "2025-02-10",
-  //       startTime: "17:00:00",
-  //       endTime: "22:00:00",
-  //       isVacant: false,
-  //       checkInTime: "18:00:00",
-  //       checkOutTime: "22:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //     {
-  //       userId: 8,
-  //       title: "한싸피",
-  //       workDate: "2025-02-10",
-  //       startTime: "17:00:00",
-  //       endTime: "22:00:00",
-  //       isVacant: false,
-  //       checkInTime: "17:00:00",
-  //       checkOutTime: "22:00:00",
-  //       isSubtituation: false,
-  //       color: "",
-  //     },
-  //   ].map((event) => {
-  //     // 공석이면 흰 배경
-  //     if (event.isVacant || event.isSubtituation) {
-  //       event.color = "#FFFFFF";
-  //       event.borderColor = "#888";
-  //     }
-  //     // 아직 근무 전
-  //     else if (new Date(`${event.workDate}T${event.startTime}`) > new Date()) {
-  //       event.color = "#E8E8E8";
-  //       event.borderColor = "#E8E8E8";
-  //     }
-  //     // 지각 혹은 조퇴면 빨간색
-  //     else if (
-  //       event.checkInTime > event.startTime ||
-  //       event.checkOutTime < event.endTime
-  //     ) {
-  //       event.color = "#FFD9D9";
-  //       event.borderColor = "#FFD9D9";
-  //     }
-  //     // 현재 근무 중이면 파란색
-  //     else if (
-  //       new Date(`${event.workDate}T${event.startTime}`) < new Date() &&
-  //       new Date(`${event.workDate}T${event.endTime}`) > new Date()
-  //       // event.endTime <
-  //     ) {
-  //       event.color = "#C5EFFF";
-  //       event.borderColor = "#C5EFFF";
-  //     }
-
-  //     // 디폴트 초록색(정상 출근)
-  //     else {
-  //       event.color = "#DEFFD9";
-  //       event.borderColor = "#DEFFD9";
-  //     }
-
-  //     return {
-  //       title: event.title,
-  //       start: `${event.workDate}T${event.startTime}`,
-  //       end: `${event.workDate}T${event.endTime}`,
-  //       backgroundColor: event.color, // Apply color here
-  //       borderColor: event.borderColor,
-  //       extendedProps: {
-  //         userId: event.userId,
-  //         isVacant: event.isVacant,
-  //         checkInTime: event.checkInTime,
-  //         checkOutTime: event.checkOutTime,
-  //         isSubtituation: event.isSubtutation,
-  //         workDate: event.workDate,
-  //       },
-  //     };
-  //   });
-
-  //   setEvents(formattedEvents);
-  // }, []);
-
+  // 점장 -> 알바 대타구하기(지도 페이지)
   // 점장 -> 알바 대타구하기(지도 페이지)
   const gotoDeta = (info) => {
     // console.log(info);
-    // start와 end가 Date 객체인지 확인 후 처리
-    const startTime = new Date(info.event.start).getTime();
 
-    const endTime = new Date(info.event.end).getTime();
+    const workDate = new Date(
+      new Date(info.event.extendedProps.workDate).getTime() + 9 * 60 * 60 * 1000
+    )
+      .toISOString()
+      .split("T")[0];
 
-    // console.log(info.event.extendedProps.workDate);
+    const startTime = new Date(
+      new Date(info.event.start).getTime() + 9 * 60 * 60 * 1000
+    )
+      .toISOString()
+      .slice(11, 16);
+    const endTime = new Date(
+      new Date(info.event.end).getTime() + 9 * 60 * 60 * 1000
+    )
+      .toISOString()
+      .slice(11, 16);
 
-    alert(
-      `${info.event.workDate} ${startTime} ~ ${endTime}의 대타를 구하시겠습니까?`
-    );
+    alert(`${workDate} ${startTime} ~ ${endTime} 근무 대타를 구하시겠습니까?`);
 
     router.push(
       `/map?scheduleId=${info.event.extendedProps.scheduleId}&date=${info.event.extendedProps.workDate}&start=${info.event.start}&end=${info.event.end}`
     );
+  };
+
+  // 알바생 -> 알바생 대타구하기(모달)
+  const searchDetaModal = (info) => {
+    const startTime = new Date(info.event.start).getTime();
+    const endTime = new Date(info.event.end).getTime();
+
+    if (
+      confirm(
+        `알바생 ${info.event.workDate} ${startTime} ~ ${endTime}의 대타를 구하시겠습니까?`
+      )
+    ) {
+      setIsModalOpen(true);
+    }
   };
 
   const handleDateSelect = (selectInfo) => {
@@ -553,6 +185,16 @@ const MyCalendar = () => {
   };
 
   const handleEventHover = (selectInfo) => {
+    // console.log("selectInfo", selectInfo);
+
+    if (
+      role === "staff" &&
+      selectInfo.event.extendedProps.accountId !== loginUserId &&
+      selectInfo.event.extendedProps.isVacant === false
+    ) {
+      return;
+    }
+
     const eventEl = selectInfo.el; // 현재 이벤트 엘리먼트
 
     // 이벤트 엘리먼트가 relative 속성을 가지도록 설정
@@ -573,12 +215,36 @@ const MyCalendar = () => {
     const button = document.createElement("button");
     button.className =
       "z-10 bg-white text-black m-2 px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white pointer-events-auto";
-    button.innerText = "대타 구하기";
+    if (
+      role === "manager" &&
+      selectInfo.event.extendedProps.isVacant === false
+    ) {
+      button.innerText = "공석 만들기";
+    } else {
+      button.innerText = "대타 구하기";
+    }
 
     // 클릭 이벤트 추가
     button.addEventListener("click", (event) => {
       if (role === "manager") {
-        gotoDeta(selectInfo);
+        if (selectInfo.event.extendedProps.isVacant) {
+          gotoDeta(selectInfo);
+        } else {
+          if (confirm(`해당 근무를 공석으로 변경하시겠습니까?`)) {
+            axios
+              .patch(
+                `https://i12b105.p.ssafy.io/api/work-information/${selectInfo.event.extendedProps.scheduleId}/vacant`
+              )
+              .then((res) => {
+                alert("해당 근무를 공석 처리했습니다.");
+                location.reload(true);
+              })
+              .catch((err) => {
+                alert("오류가 발생했습니다. 다시 시도해주세요.");
+                console.log(err);
+              });
+          }
+        }
       } else {
         axios
           .get(`https://i12b105.p.ssafy.io/api/substitute/my-schedule`, {
@@ -620,9 +286,10 @@ const MyCalendar = () => {
   const openFaceRecognition = () => {
     setIsFaceRecognitionOpen(true);
     // Start video stream
-    navigator.mediaDevices.getUserMedia({ video: true })
+    navigator.mediaDevices
+      .getUserMedia({ video: true })
       .then((stream) => {
-        const video = document.getElementById('video');
+        const video = document.getElementById("video");
         video.srcObject = stream;
         video.play();
       })
@@ -633,19 +300,19 @@ const MyCalendar = () => {
 
   const closeFaceRecognition = () => {
     setIsFaceRecognitionOpen(false);
-    const video = document.getElementById('video');
+    const video = document.getElementById("video");
     if (video.srcObject) {
       const stream = video.srcObject;
       const tracks = stream.getTracks();
-      tracks.forEach(track => track.stop());
+      tracks.forEach((track) => track.stop());
       video.srcObject = null;
     }
   };
 
   const captureImage = () => {
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const context = canvas.getContext('2d');
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const context = canvas.getContext("2d");
 
     // 캔버스 크기 설정
     canvas.width = video.videoWidth;
@@ -655,10 +322,11 @@ const MyCalendar = () => {
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     // 캔버스의 이미지를 base64로 변환
-    const imageData = canvas.toDataURL('image/png');
+    const imageData = canvas.toDataURL("image/png");
 
     // 서버로 이미지 데이터 전송
-    axios.post('https://i12b105.p.ssafy.io/api/face-recognition/recognize', {
+<<<<<<< HEAD
+    axios.post('https://i12b105.p.ssafy.io/api/python/face-recognition/recognize', {
       image: imageData,
     })
     .then(response => {
@@ -668,6 +336,19 @@ const MyCalendar = () => {
     .catch(error => {
       console.error('Error sending image to server:', error);
     });
+=======
+    axios
+      .post("https://i12b105.p.ssafy.io/api/face-recognition/recognize", {
+        image: imageData,
+      })
+      .then((response) => {
+        console.log("Response from server:", response.data);
+        // 추가적인 처리 (예: 성공 메시지 표시 등)
+      })
+      .catch((error) => {
+        console.error("Error sending image to server:", error);
+      });
+>>>>>>> 53ee7b85fea69bb27b17e863f341d6ce80ec7e0a
   };
 
   return (
@@ -688,7 +369,10 @@ const MyCalendar = () => {
             />
             대타 찾기
           </Link>
-          <button onClick={openFaceRecognition} className="bg-gray-400 text-black rounded-md px-4 py-2 flex items-center">
+          <button
+            onClick={openFaceRecognition}
+            className="bg-gray-400 text-black rounded-md px-4 py-2 flex items-center"
+          >
             <Image
               src="/icons/Face_ID.png"
               alt="출퇴근하기 아이콘"
@@ -826,19 +510,28 @@ const MyCalendar = () => {
         </div>
       )}
 
-      {/* Modal for Face Recognition */}
+      {/* 얼굴 인식 모달 */}
       {isFaceRecognitionOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
           <div className="bg-white p-6 rounded-md shadow-md max-w-3xl w-3/5 relative">
-            <button 
-              onClick={closeFaceRecognition} 
+            <button
+              onClick={closeFaceRecognition}
               className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 transition duration-200"
+              aria-label="Close face recognition modal"
             >
               &times; {/* X 모양 */}
             </button>
-            <h1 className="text-center text-xl font-bold mb-4">Face Recognition</h1>
+            <h1 className="text-center text-xl font-bold mb-4">
+              Face Recognition
+            </h1>
             <div className="relative">
-              <video id="video" width="100%" height="auto" autoPlay className="mb-4"></video>
+              <video
+                id="video"
+                width="100%"
+                height="auto"
+                autoPlay
+                className="mb-4"
+              ></video>
               {/* 얼굴 인식을 위한 SVG 실루엣 추가 */}
               <svg
                 className="absolute inset-0 flex items-center justify-center"

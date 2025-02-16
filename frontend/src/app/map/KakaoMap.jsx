@@ -35,35 +35,32 @@ const KakaoMap = () => {
   const getStart = searchParams.get("start");
   const getEnd = searchParams.get("end");
 
-  useEffect(() => {
-    // console.log("scheduleId:", scheduleId);
-    // console.log("date:", date);
-    // console.log("start:", start);
-    // console.log("end:", end);
+  const role = "staff";
 
+  useEffect(() => {
     if (getDate) {
-      const parsedDate = new Date(getDate);
+      const parsedDate = new Date(
+        new Date(getDate).getTime() - 9 * 60 * 60 * 1000
+      );
       // console.log("Parsed Date:", parsedDate);
       setSelectedDate(parsedDate);
     }
 
     if (getStart) {
-      const parsedStart = new Date(getStart);
       // 한국 표준시(KST)로 출력
-      const startInKST = parsedStart.toLocaleString("en-US", {
-        timeZone: "Asia/Seoul",
-      });
-      // console.log("Parsed Start in KST:", startInKST); // KST로 출력
+      const startInKST = new Date(
+        new Date(getStart).getTime() - 9 * 60 * 60 * 1000
+      );
+
+      console.log("Parsed Start in KST:", startInKST); // KST로 출력
       setStartTime(startInKST);
     }
 
     if (getEnd) {
-      const parsedEnd = new Date(getEnd);
-      // 한국 표준시(KST)로 출력
-      const endInKST = parsedEnd.toLocaleString("en-US", {
-        timeZone: "Asia/Seoul",
-      });
-      // console.log("Parsed End in KST:", endInKST); // KST로 출력
+      const endInKST = new Date(
+        new Date(getEnd).getTime() - 9 * 60 * 60 * 1000
+      );
+      console.log("Parsed End in KST:", endInKST); // KST로 출력
       setEndTime(endInKST);
     }
 
@@ -147,7 +144,6 @@ const KakaoMap = () => {
   //   },
   // ];
 
-  // console.log(router);
   const userId = 1;
 
   // 반경 내 지점 리스트 받아오기
@@ -276,6 +272,19 @@ const KakaoMap = () => {
     setMarkers(createdMarkers);
   }, [loaded, storeData]);
 
+  useEffect(() => {
+    if (selectedStore) {
+      handleStoreClick(selectedStore);
+    }
+  }, [selectedStore]); // selectedStore가 변경될 때 실행
+
+  // 초기 selectedStore 설정 (storeData의 첫 번째 지점을 기본값으로 설정)
+  useEffect(() => {
+    if (storeData.length > 0) {
+      setSelectedStore(storeData[0]); // 첫 번째 지점을 기본 선택
+    }
+  }, [storeData]); // storeData가 로드될 때 실행
+
   const handleStoreClick = (store) => {
     setSelectedStore(store);
     const storeId = store.storeId;
@@ -374,20 +383,23 @@ const KakaoMap = () => {
       <article className="w-3/4 flex flex-col overflow-hidden">
         {/* 상단 리스트 영역 (스크롤 가능) */}
         <section className=" overflow-auto mb-5 ml-5 mt-10">
-          <TimeList
-            selectedStore={selectedStore}
-            selectedDate={selectedDate}
-            workStartTime={startTime}
-            workEndTime={endTime}
-            times={canDetaTime}
-          />
-          <AlbaList
-            selectedStore={selectedStore}
-            selectedDate={selectedDate}
-            startTime={startTime}
-            endTime={endTime}
-            canDetaAlbaList={canDetaAlbaList}
-          />
+          {role === "staff" ? (
+            <TimeList
+              selectedStore={selectedStore}
+              selectedDate={selectedDate}
+              workStartTime={startTime}
+              workEndTime={endTime}
+              times={canDetaTime}
+            />
+          ) : role === "manager" ? (
+            <AlbaList
+              selectedStore={selectedStore}
+              selectedDate={selectedDate}
+              startTime={startTime}
+              endTime={endTime}
+              canDetaAlbaList={canDetaAlbaList}
+            />
+          ) : null}
         </section>
 
         {/* 지도 영역 */}

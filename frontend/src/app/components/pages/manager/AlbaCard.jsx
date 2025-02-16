@@ -18,10 +18,23 @@ const AlbaCard = ({ selectedDate, startTime, endTime, albas }) => {
 
   const handleButtonClick = (alba) => {
     // 대타 구하기 버튼 클릭 시 처리할 로직
-    console.log(alba);
+
+    const startTimeConfirm = new Date(
+      new Date(startTime).getTime() + 9 * 60 * 60 * 1000
+    )
+      .toISOString()
+      .slice(11, 16);
+
+    const endTimeConfirm = new Date(
+      new Date(endTime).getTime() + 9 * 60 * 60 * 1000
+    )
+      .toISOString()
+      .slice(11, 16);
+
     if (
-      confirm(`${alba.scheduleDate} ${alba.scheduleStartTime} ~ ${alba.scheduleEndTime}까지
-      ${alba.userName}님께 대타 요청을 하시겠습니까?`)
+      confirm(
+        `${alba.userName}님께 대타 요청을 하시겠습니까? \n근무 정보: ${alba.scheduleDate} ${startTimeConfirm} ~ ${endTimeConfirm} `
+      )
     ) {
       const formattedDate = new Date(
         new Date(selectedDate).getTime() + 9 * 60 * 60 * 1000
@@ -79,6 +92,7 @@ const AlbaCard = ({ selectedDate, startTime, endTime, albas }) => {
                 height={50}
               />
             </div>
+
             <div className=" ml-1 mt-1">
               <h3 className="text-lg font-semibold ml-2 mt-2">
                 {alba.userName}

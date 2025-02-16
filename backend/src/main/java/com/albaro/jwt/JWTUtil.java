@@ -44,14 +44,14 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public int getAccountId(String token){
+    public Integer getAccountId(String token){
         String accountIdString = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("accountId", String.class);
 
         return Integer.parseInt(accountIdString);
     }
 
     //토큰 생성할 메서드
-    public String createJwt(String category, int accountId, String role, Long expiredMs) {
+    public String createJwt(String category, Integer accountId, String role, Long expiredMs) {
 
         return Jwts.builder()
                 .claim("category", category) //access, refresh 인지 구분하는 카테고리 매개변수 추가

@@ -30,8 +30,8 @@ const AlbaCard = ({ selectedDate, startTime, endTime, albas }) => {
 
       return (
         albaDate === selectedDateTime && // 날짜 비교
-        (!startTimeTime || albaStartTime >= startTimeTime) &&
-        (!endTimeTime || albaEndTime <= endTimeTime)
+        (!startTimeTime || albaStartTime <= startTimeTime) &&
+        (!endTimeTime || albaEndTime >= endTimeTime)
       );
     });
 
@@ -48,11 +48,22 @@ const AlbaCard = ({ selectedDate, startTime, endTime, albas }) => {
   };
 
   const handleButtonClick = (alba) => {
-    // 대타 구하기 버튼 클릭 시 처리할 로직
-    // console.log(alba);
+    const startTimeConfirm = new Date(
+      new Date(startTime).getTime() + 9 * 60 * 60 * 1000
+    )
+      .toISOString()
+      .slice(11, 16);
+
+    const endTimeConfirm = new Date(
+      new Date(endTime).getTime() + 9 * 60 * 60 * 1000
+    )
+      .toISOString()
+      .slice(11, 16);
+
     if (
-      confirm(`${alba.scheduleDate} ${alba.scheduleStartTime} ~ ${alba.scheduleEndTime}까지
-      ${alba.userName}님께 대타 요청을 하시겠습니까?`)
+      confirm(
+        `${alba.userName}님께 대타 요청을 하시겠습니까? \n근무 정보: ${alba.scheduleDate} ${startTimeConfirm} ~ ${endTimeConfirm} `
+      )
     ) {
       const formattedDate = new Date(
         new Date(selectedDate).getTime() + 9 * 60 * 60 * 1000
@@ -80,7 +91,7 @@ const AlbaCard = ({ selectedDate, startTime, endTime, albas }) => {
 
       axios
         .post(
-          `http://i12b105.p.ssafy.io:8080/api/substitute/workerRequest?${queryParams}`
+          `https://i12b105.p.ssafy.io/api/substitute/workerRequest?${queryParams}`
         )
         .then((res) => {
           alert(`${alba.userName}님께 대타를 요청했습니다.`);

@@ -1,7 +1,16 @@
---extra-index-url https://download.pytorch.org/whl/cu121
+# --extra-index-url https://download.pytorch.org/whl/cu121
+# flask
+# torch==2.2.0
+# torchvision==0.17.0
+# facenet-pytorch
+# pillow
+# flask-cors
+
+
+--extra-index-url https://download.pytorch.org/whl/torch_stable.html
 flask
-torch==2.2.0
-torchvision==0.17.0
+torch==2.2.0+cpu
+torchvision==0.17.0+cpu   # SSAFY 에서 제공받은 t2.xlarge EC2 에는 GPU가 없어서 일단 CPU 버전으로 설치
 facenet-pytorch
 pillow
 flask-cors

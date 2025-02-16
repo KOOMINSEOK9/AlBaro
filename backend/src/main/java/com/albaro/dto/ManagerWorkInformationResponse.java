@@ -18,11 +18,15 @@ public class ManagerWorkInformationResponse {
     private String storeName;    // 점포 이름
     private String realTimeWorkerName; // 실제 대타 근무자 이름
 
+    // userId 조회를 위한 필드 추가
+    private Integer userId; // 사용자 ID
+
     public ManagerWorkInformationResponse(WorkInformation workInformation, UserRepository userRepository) {
         this.workDate = workInformation.getWorkDate();
         this.startTime = workInformation.getStartTime();
         this.endTime = workInformation.getEndTime();
         this.isVacant = workInformation.getVacant();
+        this.userId = workInformation.getUser().getUserId();
         this.userName = workInformation.getUser().getUserName();
         this.storeName = workInformation.getStore().getStoreName();
 
@@ -32,7 +36,13 @@ public class ManagerWorkInformationResponse {
         } else {
             this.realTimeWorkerName = "N/A";
         }
+    }
 
+    // userId로 직접 조회하는 생성자 추가 (userId → userName, storeName 반환)
+    public ManagerWorkInformationResponse(Integer userId, String userName, String storeName) {
+        this.userId = userId;
+        this.userName = userName;
+        this.storeName = storeName;
     }
 
     // Getter 메서드 추가
@@ -50,6 +60,10 @@ public class ManagerWorkInformationResponse {
 
     public boolean isVacant() {
         return isVacant;
+    }
+
+    public Integer getUserId() {
+        return userId;
     }
 
     public String getUserName() {
