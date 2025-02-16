@@ -39,9 +39,10 @@ const MyCalendar = () => {
   const [endTime, setEndTime] = useState(null);
   const [workDate, setWorkDate] = useState(null);
 
+  const loginUserId = 374851;
   const userId = 1;
   const storeId = 1;
-  const role = "staff";
+  const role = "manager";
 
   const [isFaceRecognitionOpen, setIsFaceRecognitionOpen] = useState(false); // State to control modal visibility
 
@@ -109,6 +110,7 @@ const MyCalendar = () => {
             backgroundColor: event.color,
             borderColor: event.borderColor,
             extendedProps: {
+              accountId: event.accountId,
               scheduleId: event.scheduleId,
               userId: event.userId,
               isVacant: event.vacant,
@@ -526,16 +528,25 @@ const MyCalendar = () => {
   // 점장 -> 알바 대타구하기(지도 페이지)
   const gotoDeta = (info) => {
     // console.log(info);
-    // start와 end가 Date 객체인지 확인 후 처리
-    const startTime = new Date(info.event.start).getTime();
 
-    const endTime = new Date(info.event.end).getTime();
+    const workDate = new Date(
+      new Date(info.event.extendedProps.workDate).getTime() + 9 * 60 * 60 * 1000
+    )
+      .toISOString()
+      .split("T")[0];
 
-    // console.log(info.event.extendedProps.workDate);
+    const startTime = new Date(
+      new Date(info.event.start).getTime() + 9 * 60 * 60 * 1000
+    )
+      .toISOString()
+      .slice(11, 16);
+    const endTime = new Date(
+      new Date(info.event.end).getTime() + 9 * 60 * 60 * 1000
+    )
+      .toISOString()
+      .slice(11, 16);
 
-    alert(
-      `${info.event.workDate} ${startTime} ~ ${endTime}의 대타를 구하시겠습니까?`
-    );
+    alert(`${workDate} ${startTime} ~ ${endTime} 근무 대타를 구하시겠습니까?`);
 
     router.push(
       `/map?scheduleId=${info.event.extendedProps.scheduleId}&date=${info.event.extendedProps.workDate}&start=${info.event.start}&end=${info.event.end}`
@@ -553,6 +564,16 @@ const MyCalendar = () => {
   };
 
   const handleEventHover = (selectInfo) => {
+    // console.log("selectInfo", selectInfo);
+
+    if (
+      role === "staff" &&
+      selectInfo.event.extendedProps.accountId !== loginUserId &&
+      selectInfo.event.extendedProps.isVacant === false
+    ) {
+      return;
+    }
+
     const eventEl = selectInfo.el; // 현재 이벤트 엘리먼트
 
     // 이벤트 엘리먼트가 relative 속성을 가지도록 설정
@@ -573,12 +594,36 @@ const MyCalendar = () => {
     const button = document.createElement("button");
     button.className =
       "z-10 bg-white text-black m-2 px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white pointer-events-auto";
-    button.innerText = "대타 구하기";
+    if (
+      role === "manager" &&
+      selectInfo.event.extendedProps.isVacant === false
+    ) {
+      button.innerText = "공석 만들기";
+    } else {
+      button.innerText = "대타 구하기";
+    }
 
     // 클릭 이벤트 추가
     button.addEventListener("click", (event) => {
       if (role === "manager") {
-        gotoDeta(selectInfo);
+        if (selectInfo.event.extendedProps.isVacant) {
+          gotoDeta(selectInfo);
+        } else {
+          if (confirm(`해당 근무를 공석으로 변경하시겠습니까?`)) {
+            axios
+              .patch(
+                `https://i12b105.p.ssafy.io/api/work-information/${selectInfo.event.extendedProps.scheduleId}/vacant`
+              )
+              .then((res) => {
+                alert("해당 근무를 공석 처리했습니다.");
+                location.reload(true);
+              })
+              .catch((err) => {
+                alert("오류가 발생했습니다. 다시 시도해주세요.");
+                console.log(err);
+              });
+          }
+        }
       } else {
         axios
           .get(`https://i12b105.p.ssafy.io/api/substitute/my-schedule`, {

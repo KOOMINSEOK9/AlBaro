@@ -76,7 +76,7 @@ const AlbaList = ({
   // const userId = 1;
 
   const filteredAlba = canDetaAlbaList.filter((alba) => {
-    console.log(alba);
+    // console.log(alba);
 
     const albaDate = new Date(alba.scheduleDate);
     const albaStartTime = new Date(
@@ -88,8 +88,8 @@ const AlbaList = ({
 
     return (
       albaDate.toDateString() === selectedDate.toDateString() &&
-      (!startTime || albaStartTime >= startTime) &&
-      (!endTime || albaEndTime <= endTime)
+      (!startTime || albaStartTime <= startTime) &&
+      (!endTime || albaEndTime >= endTime)
     );
   });
 

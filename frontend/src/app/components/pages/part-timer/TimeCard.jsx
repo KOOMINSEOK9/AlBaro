@@ -16,14 +16,14 @@ const TimeCard = ({ times, selectedStore }) => {
 
   const handleButtonClick = (time) => {
     // 버튼 클릭 시 처리할 로직
-    // console.log(time);
+
     if (
       confirm(
         `${time.startTime} ~ ${time.endTime} 시간대에 대타를 요청하시겠습니까?`
       )
     ) {
       axios
-        .post(`http://i12b105.p.ssafy.io:8080/api/substitute/request`, null, {
+        .post(`https://i12b105.p.ssafy.io/api/substitute/request`, null, {
           params: {
             senderId: userId,
             storeId: selectedStore.storeId,
