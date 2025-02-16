@@ -22,6 +22,7 @@ public class CustomUserDetails implements UserDetails {
 
         Collection<GrantedAuthority> collection = new ArrayList<>();
 
+        System.out.println("여기 오나요?");
         collection.add(new GrantedAuthority() {
 
             @Override

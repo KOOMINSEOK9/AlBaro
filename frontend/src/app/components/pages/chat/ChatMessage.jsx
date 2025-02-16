@@ -1,4 +1,3 @@
-// ChatMessage.jsx
 'use client';
 
 import React from 'react';
@@ -32,8 +31,8 @@ const ChatMessage = ({ message, isOwnMessage }) => {
 
                     <div
                         className={`px-4 py-2.5 ${isOwnMessage
-                                ? 'bg-blue-600 text-white rounded-2xl rounded-br-md shadow-sm'
-                                : 'bg-white text-gray-800 rounded-2xl rounded-bl-md shadow-sm'
+                            ? 'bg-blue-600 text-white rounded-2xl rounded-br-md shadow-sm'
+                            : 'bg-white text-gray-800 rounded-2xl rounded-bl-md shadow-sm'
                             }`}
                     >
                         <p className="text-sm leading-relaxed">{message.content}</p>
