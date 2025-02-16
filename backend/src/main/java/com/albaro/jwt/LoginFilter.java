@@ -35,11 +35,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
+        System.out.println("ddddddddd");
+
+
         //클라이언트 요청에서 accountId, password 추출
-        String accountId = request.getParameter("accountId");
-        String password = obtainPassword(request);
+        String accountId = request.getParameter("accountId"); //사원번호
+        String password = obtainPassword(request); //비밀번호
 
         System.out.println("Received login attempt - AccountId: " + accountId);
+        System.out.println("Received login attempt - password: " + password);
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(accountId, password, null);
 
@@ -51,14 +55,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
 
 
-        //유저 정보
-        //함수는 getName이지만, accountId를 가져올 수 있도록 해 놓음!
-//        String stringAccountId = authentication.getName();
-        Integer accountId = Integer.parseInt(authentication.getName());
+        System.out.println("dhfjdhfkjdhfkjdhfkjdkfhjdhfkdwjhfkjdhfkjdhfkjdhfkjdhfkjdhfkdjhfkjdhfkdhfkj");
 
-        // CustomUserDetails를 통해 storeId 가져오기
+        //유저 정보
+        String username = authentication.getName();
+
+        // CustomUserDetails를 통해 storeId,accountId 가져오기
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Integer storeId = Integer.parseInt(userDetails.getStoreId());
+        Integer accountId = Integer.parseInt(userDetails.getAccountId());
 
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
@@ -67,8 +72,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = auth.getAuthority();
 
         //토큰 생성 ( 생명 주기를 달리 하는 2가지 토큰 생성)
-        String access = jwtUtil.createJwt("access", accountId, role, storeId, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", accountId, role, storeId, 86400000L);
+        String access = jwtUtil.createJwt("access", accountId, username, role, storeId, 600000L);
+        String refresh = jwtUtil.createJwt("refresh", accountId, username, role, storeId, 86400000L);
 
         //리프레시 토큰을 저장소에 저장 -> 메서드는 따로 밑에 있음
         addRefreshEntity(accountId, refresh, 86400000L);
