@@ -121,7 +121,7 @@ public class SubstitutionService {
                 .orElseThrow(() -> new RuntimeException("알바생 정보를 찾을 수 없습니다."));
 
         // 알림 내용 생성
-        String content = String.format("%s 매장의 점장님이 %s %s~%s 시간대에 대타 근무를 요청했습니다.",
+        String content = String.format("%s의 점장님이 %s %s~%s에 대타 근무를 요청했습니다.",
                 manager.getStore().getStoreName(),
                 workDate,
                 startTime,
@@ -213,7 +213,7 @@ public class SubstitutionService {
                 .orElseThrow(() -> new RuntimeException("알바생 정보를 찾을 수 없습니다."));
 
         // 알림 내용 생성
-        String content = String.format("%s 매장의 %s님이 %s %s~%s 시간대에 대타 근무를 요청했습니다.",
+        String content = String.format("%s의 %s님이 %s %s~%s에 대타 근무를 요청했습니다.",
                 requestWorker.getStore().getStoreName(),
                 requestWorker.getUserName(),
                 workDate,

@@ -22,6 +22,13 @@ public class NotificationController {
         return service.getAllNotifications();
     }
 
+    // 지점별 공지 가져오기
+    @GetMapping("store/{storeId}")
+    public ResponseEntity<List<Notification>> getNotificationsByStoreId(@PathVariable Integer storeId){
+        List<Notification> notifications = service.getNotificationsByStoreId(storeId);
+        return ResponseEntity.ok(notifications);
+    }
+
     // 게시글 정보 가져오기
     @GetMapping("/{notificationId}")
     public ResponseEntity<Notification> getNotificationById(@PathVariable Integer notificationId) {

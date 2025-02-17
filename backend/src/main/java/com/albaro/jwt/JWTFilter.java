@@ -33,7 +33,7 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        System.out.println("혹시....여기.............?");
+//        System.out.println("혹시....여기.............?")
 
         String accessToken = request.getHeader("access");  // access 헤더에서 토큰 추출
 
