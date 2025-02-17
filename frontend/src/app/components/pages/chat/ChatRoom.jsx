@@ -92,7 +92,7 @@ const ChatRoom = () => {
 
     return (
         <div className="flex flex-col h-full bg-white">
-            <div className="flex items-center justify-between px-8 py-4 border-b bg-white">
+            <div className="flex items-center justify-between px-8 py-4 border-b bg-white h-20">
                 <div className="flex items-center gap-4">
                     <div className="p-2.5 bg-blue-50 rounded-xl">
                         <Users size={22} className="text-blue-600" />
