@@ -3,7 +3,6 @@ package com.albaro.dto;
 import com.albaro.entity.Alarm;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 public class AlarmDto {
     private Integer alarmId;
