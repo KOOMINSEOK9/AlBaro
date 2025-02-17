@@ -112,7 +112,7 @@ const MyCalendar = () => {
               new Date(`${event.workDate}T${event.endTime}`) > new Date() &&
               event.checkInTime &&
               new Date(`${event.workDate}T${event.checkInTime}`) <
-                new Date(`${event.workDate}T${event.startTime}`)
+              new Date(`${event.workDate}T${event.startTime}`)
             ) {
               event.color = "#C5EFFF";
               event.borderColor = "#C5EFFF";

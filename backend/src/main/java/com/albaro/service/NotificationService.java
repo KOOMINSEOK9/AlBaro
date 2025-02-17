@@ -31,6 +31,12 @@ public class NotificationService {
                 .orElseThrow(() -> new EntityNotFoundException("Notification not found with id: " + id));
     }
 
+
+    // Store에 있는 공지사항 가져오기
+    public List<Notification> getNotificationsByStoreId(Integer storeId) {
+        return notificationRepository.findByStore_StoreId(storeId);
+    }
+
     // 🔹 사용자 기반으로 storeId 조회 후 공지사항 작성
     @Transactional
     public Notification createNotificationForUser(Integer userId, Notification notification) {
