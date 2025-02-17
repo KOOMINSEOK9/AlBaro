@@ -10,7 +10,8 @@ services:
       - /var/jenkins_home/workspace/jenkinsTest/jenkins/.env  # Jenkins 컨테이너 내부 절대 경로
 
   db:
-    image: mysql:8
+    build:
+      context: ../db
     environment:
       MYSQL_ROOT_PASSWORD: ssafyalbaro105
       MYSQL_DATABASE: albaro
