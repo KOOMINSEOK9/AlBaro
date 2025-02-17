@@ -96,8 +96,8 @@ const KakaoMap = () => {
       // console.log("nearby-stores: ", loginUserId);
 
       axios
-        // .get(`https://i12b105.p.ssafy.io/api/substitute/nearby-stores`, {
-        .get(`http://localhost:8080/api/substitute/nearby-stores`, {
+        .get(`https://i12b105.p.ssafy.io/api/substitute/nearby-stores`, {
+          // .get(`http://localhost:8080/api/substitute/nearby-stores`, {
           params: { userId: loginUserId },
         })
         .then((res) => {
@@ -240,8 +240,8 @@ const KakaoMap = () => {
 
     // 선택한 지점의 대타 가능 알바생 조회
     axios
-      // .get(`https://i12b105.p.ssafy.io/api/substitute/available-workers`, {
-      .get(`http://localhost:8080/api/substitute/available-workers`, {
+      .get(`https://i12b105.p.ssafy.io/api/substitute/available-workers`, {
+        // .get(`http://localhost:8080/api/substitute/available-workers`, {
         params: { storeId },
       })
       .then((res) => {
@@ -254,8 +254,8 @@ const KakaoMap = () => {
 
     // 선택한 지점의 공석 확인(시간)
     axios
-      // .get(`https://i12b105.p.ssafy.io/api/substitute/available-stores`, {
-      .get(`http://localhost:8080/api/substitute/available-stores`, {
+      .get(`https://i12b105.p.ssafy.io/api/substitute/available-stores`, {
+        // .get(`http://localhost:8080/api/substitute/available-stores`, {
         params: { storeId },
         validateStatus: function (status) {
           // 2xx와 4xx 상태 코드에 대해서 모두 then 블록에서 처리하도록 설정
