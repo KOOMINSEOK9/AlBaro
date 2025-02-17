@@ -4,8 +4,8 @@ import SidebarMenu from "../components/pages/common/SidebarMenu.jsx";
 
 const Sidebar = () => {
   return (
-    <div className="flex h-full w-full">
-      <section className="h-full bg-[#222831]">
+    <div className="h-full w-full bg-gradient-to-r from-gray-100 to-white pl-4">
+      <section className="h-full">
         <SidebarMenu />
       </section>
     </div>

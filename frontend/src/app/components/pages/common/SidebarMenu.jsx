@@ -16,7 +16,7 @@ const SidebarMenu = () => {
   };
 
   return (
-    <div className="flex h-full min-h-screen bg-white">
+    <div className="flex h-full bg-white">
       {/* 사이드바 메뉴 */}
       <div className="w-16 bg-white border-r flex flex-col items-center py-4 space-y-6">
         <div
@@ -49,7 +49,7 @@ const SidebarMenu = () => {
       </div>
 
       {/* 컨텐츠 영역 */}
-      <div className="flex-1 flex">
+      <div className="flex-1">
         {activeComponent}
       </div>
     </div>

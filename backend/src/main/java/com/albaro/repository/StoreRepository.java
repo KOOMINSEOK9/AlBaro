@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StoreRepository extends JpaRepository<Store, Integer> {
@@ -37,8 +38,8 @@ public interface StoreRepository extends JpaRepository<Store, Integer> {
 
 
 
-    //가게 아이디로 가게 이름 찾기
-    String findNameByStoreId(int storeId);
+    //가게 아이디로 정보 가져오기
+    Optional<Store> findByStoreId(Integer storeId);
 
     // StoreRepository에 추가
     @Query("SELECT DISTINCT s FROM Store s " +

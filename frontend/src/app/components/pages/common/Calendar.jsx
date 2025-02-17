@@ -274,10 +274,13 @@ const MyCalendar = () => {
         }
       } else {
         axios
-          .get(`${process.env.NEXT_PUBLIC_API_URL}/api/substitute/my-schedule`, {
-            // .get(`http://localhost:8080/api/substitute/my-schedule`, {
-            params: { userId: loginUserUserId },
-          })
+          .get(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/substitute/my-schedule`,
+            {
+              // .get(`http://localhost:8080/api/substitute/my-schedule`, {
+              params: { userId: loginUserUserId },
+            }
+          )
           .then((res) => {
             console.log("알바생->알바생 axios 응답: ", res.data);
 
@@ -354,10 +357,13 @@ const MyCalendar = () => {
 
     // 서버로 이미지 데이터 전송
     axios
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/api/face-recognition/recognize`, {
-        // .post("http://localhost:8080/api/face-recognition/recognize", {
-        image: imageData,
-      })
+      .post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/face-recognition/recognize`,
+        {
+          // .post("http://localhost:8080/api/face-recognition/recognize", {
+          image: imageData,
+        }
+      )
       .then((response) => {
         console.log("Response from server:", response.data);
         // 추가적인 처리 (예: 성공 메시지 표시 등)
