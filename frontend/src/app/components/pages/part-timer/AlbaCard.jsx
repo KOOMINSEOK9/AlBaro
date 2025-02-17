@@ -1,12 +1,26 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const AlbaCard = ({ selectedDate, startTime, endTime, albas }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [filteredAlba, setFilteredAlba] = useState([]); // filteredAlba 상태 추가
 
-  const userId = 2;
+  const [accessToken, setAccessToken] = useState(null);
+  const [loginUserId, setLoginUserId] = useState(null);
+
+  useEffect(() => {
+    // 클라이언트 사이드에서만 실행되도록
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("accessToken");
+      setAccessToken(token);
+
+      const decoded = jwtDecode(token);
+
+      setLoginUserId(decoded.userId);
+    }
+  }, []);
 
   useEffect(() => {
     // console.log("albacard: ", selectedDate, " ", startTime);
@@ -82,7 +96,7 @@ const AlbaCard = ({ selectedDate, startTime, endTime, albas }) => {
         .slice(11, 19);
 
       const queryParams = new URLSearchParams({
-        userId,
+        userId: loginUserId,
         userName: alba.userName,
         workDate: formattedDate,
         startTime: formattedStartTime,
@@ -92,6 +106,7 @@ const AlbaCard = ({ selectedDate, startTime, endTime, albas }) => {
       axios
         .post(
           `https://i12b105.p.ssafy.io/api/substitute/workerRequest?${queryParams}`
+          // `http://localhost:8080/api/substitute/workerRequest?${queryParams}`
         )
         .then((res) => {
           alert(`${alba.userName}님께 대타를 요청했습니다.`);

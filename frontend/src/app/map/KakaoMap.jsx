@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation.js";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { setDate } from "date-fns";
+import { jwtDecode } from "jwt-decode";
 
 // const KakaoMap = ({ scheduleId, date, start, end }) => {
 const KakaoMap = () => {
@@ -35,7 +36,27 @@ const KakaoMap = () => {
   const getStart = searchParams.get("start");
   const getEnd = searchParams.get("end");
 
-  const role = "staff";
+  const [accessToken, setAccessToken] = useState(null);
+  const [loginUserId, setLoginUserId] = useState(null);
+  const [loginUserRole, setLoginUserRole] = useState(null);
+
+  useEffect(() => {
+    // 클라이언트 사이드에서만 실행되도록
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("accessToken");
+      setAccessToken(token);
+
+      const decoded = jwtDecode(token);
+
+      // console.log(decoded.userId);
+
+      setLoginUserId(decoded.userId);
+      setLoginUserRole(decoded.role);
+    }
+  }, []);
+
+  // const userId = 1;
+  // const role = "staff";
 
   useEffect(() => {
     if (getDate) {
@@ -52,7 +73,7 @@ const KakaoMap = () => {
         new Date(getStart).getTime() - 9 * 60 * 60 * 1000
       );
 
-      console.log("Parsed Start in KST:", startInKST); // KST로 출력
+      // console.log("Parsed Start in KST:", startInKST); // KST로 출력
       setStartTime(startInKST);
     }
 
@@ -60,7 +81,7 @@ const KakaoMap = () => {
       const endInKST = new Date(
         new Date(getEnd).getTime() - 9 * 60 * 60 * 1000
       );
-      console.log("Parsed End in KST:", endInKST); // KST로 출력
+      // console.log("Parsed End in KST:", endInKST); // KST로 출력
       setEndTime(endInKST);
     }
 
@@ -69,97 +90,25 @@ const KakaoMap = () => {
     }
   }, [getDate, getStart, getEnd, getScheduleId]);
 
-  // const storeData = [
-  //   {
-  //     storeName: "투썸플레이스 대전한밭대점",
-  //     franchiseName: "투썸플레이스",
-  //     zipCode: 34159,
-  //     roadAddress: "대전 유성구 학하서로121번길 81",
-  //     detailedAddress: "1층",
-  //     latitude: 36.3504,
-  //     longitude: 127.2978,
-  //   },
-  //   {
-  //     storeName: "투썸플레이스 유성점",
-  //     franchiseName: "투썸플레이스",
-  //     zipCode: 34159,
-  //     roadAddress: "대전 유성구 학하서로121번길 87",
-  //     detailedAddress: "1층",
-  //     latitude: 36.35,
-  //     longitude: 127.2978,
-  //   },
-  //   {
-  //     storeName: "투썸플레이스 학하점",
-  //     franchiseName: "투썸플레이스",
-  //     zipCode: 34159,
-  //     roadAddress: "대전 유성구 학하서로121번길 71-10",
-  //     detailedAddress: "1층",
-  //     latitude: 36.3502,
-  //     longitude: 127.2977,
-  //   },
-  //   {
-  //     storeName: "투썸플레이스 봉명점",
-  //     franchiseName: "투썸플레이스",
-  //     zipCode: 34159,
-  //     roadAddress: "대전 유성구 학하서로121번길 55-13",
-  //     detailedAddress: "3층",
-  //     latitude: 36.3497,
-  //     longitude: 127.2987,
-  //   },
-  //   {
-  //     storeName: "투썸플레이스 덕명점",
-  //     franchiseName: "투썸플레이스",
-  //     zipCode: 34159,
-  //     roadAddress: "대전 유성구 학하서로121번길 51",
-  //     detailedAddress: "1층",
-  //     latitude: 36.3497,
-  //     longitude: 127.298,
-  //   },
-  //   {
-  //     storeName: "투썸플레이스 수통골점",
-  //     franchiseName: "투썸플레이스",
-  //     zipCode: 34158,
-  //     roadAddress: "대전 유성구 동서대로 125",
-  //     detailedAddress: "1층",
-  //     latitude: 36.3452,
-  //     longitude: 127.3052,
-  //   },
-  //   {
-  //     storeName: "투썸플레이스 한밭대남문점",
-  //     franchiseName: "투썸플레이스",
-  //     zipCode: 34153,
-  //     roadAddress: "대전 유성구 동서대로 130",
-  //     detailedAddress: "1층",
-  //     latitude: 36.351,
-  //     longitude: 127.2971,
-  //   },
-  //   {
-  //     storeName: "투썸플레이스 한밭대북문점",
-  //     franchiseName: "투썸플레이스",
-  //     zipCode: 34154,
-  //     roadAddress: "대전 유성구 동서대로 138",
-  //     detailedAddress: "2층",
-  //     latitude: 36.3503,
-  //     longitude: 127.2967,
-  //   },
-  // ];
-
-  const userId = 1;
-
   // 반경 내 지점 리스트 받아오기
   useEffect(() => {
-    axios
-      .get(`https://i12b105.p.ssafy.io/api/substitute/nearby-stores`, {
-        params: { userId },
-      })
-      .then((res) => {
-        // console.log("res: ", res.data);
-        setStoreData(res.data);
-      })
-      .catch((err) => {
-        console.log("err", err);
-      });
-  }, []);
+    if (loginUserId) {
+      // console.log("nearby-stores: ", loginUserId);
+
+      axios
+        .get(`https://i12b105.p.ssafy.io/api/substitute/nearby-stores`, {
+          // .get(`http://localhost:8080/api/substitute/nearby-stores`, {
+          params: { userId: loginUserId },
+        })
+        .then((res) => {
+          // console.log("res: ", res.data);
+          setStoreData(res.data);
+        })
+        .catch((err) => {
+          console.log("err", err);
+        });
+    }
+  }, [loginUserId]);
 
   // 지도 출력
   useEffect(() => {
@@ -292,6 +241,7 @@ const KakaoMap = () => {
     // 선택한 지점의 대타 가능 알바생 조회
     axios
       .get(`https://i12b105.p.ssafy.io/api/substitute/available-workers`, {
+        // .get(`http://localhost:8080/api/substitute/available-workers`, {
         params: { storeId },
       })
       .then((res) => {
@@ -305,6 +255,7 @@ const KakaoMap = () => {
     // 선택한 지점의 공석 확인(시간)
     axios
       .get(`https://i12b105.p.ssafy.io/api/substitute/available-stores`, {
+        // .get(`http://localhost:8080/api/substitute/available-stores`, {
         params: { storeId },
         validateStatus: function (status) {
           // 2xx와 4xx 상태 코드에 대해서 모두 then 블록에서 처리하도록 설정
@@ -383,7 +334,7 @@ const KakaoMap = () => {
       <article className="w-3/4 flex flex-col overflow-hidden">
         {/* 상단 리스트 영역 (스크롤 가능) */}
         <section className=" overflow-auto mb-5 ml-5 mt-10">
-          {role === "staff" ? (
+          {loginUserRole === "staff" ? (
             <TimeList
               selectedStore={selectedStore}
               selectedDate={selectedDate}
@@ -391,7 +342,7 @@ const KakaoMap = () => {
               workEndTime={endTime}
               times={canDetaTime}
             />
-          ) : role === "manager" ? (
+          ) : loginUserRole === "manager" ? (
             <AlbaList
               selectedStore={selectedStore}
               selectedDate={selectedDate}

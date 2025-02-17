@@ -11,15 +11,14 @@ app = Flask(__name__)
 CORS(app)  # CORS 활성화
 
 # 모델 로드
-# mtcnn = MTCNN(keep_all=True, device='cuda')  # MTCNN 모델 초기화
-mtcnn = MTCNN(keep_all=True, device='cpu')  # MTCNN 모델 초기화 - CPU 버전으로 설치치
-resnet = InceptionResnetV1(pretrained='vggface2').eval().to('cuda')  # InceptionResnetV1 모델 초기화
+mtcnn = MTCNN(keep_all=True, device='cpu')  # MTCNN 모델 초기화 - CPU 버전으로 설치
+resnet = InceptionResnetV1(pretrained='vggface2').eval().to('cpu')  # InceptionResnetV1 모델 초기화
 
 @app.route('/')
 def home():
     return jsonify({"message": "Face Recognition API Server is running!"})
 
-@app.route('/api/python/face-recognition/recognize', methods=['POST'])  # 엔드포인트 수정
+@app.route('/api/python/face-recognition/recognize', methods=['POST']) 
 def recognize():
     try:
         data = request.json
@@ -38,7 +37,7 @@ def recognize():
         if aligned is not None:
             print("Face detected")  # 디버그 로그
             # 얼굴 인식
-            embeddings = resnet(aligned.to('cuda'))
+            embeddings = resnet(aligned.to('cpu'))  # CPU로 변경
             print("Face embedding created")  # 디버그 로그
             
             # 임베딩을 데이터베이스와 비교하여 인식 수행

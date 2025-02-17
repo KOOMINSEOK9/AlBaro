@@ -7,6 +7,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import "react-datepicker/dist/react-datepicker.css";
 
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -39,97 +40,122 @@ const MyCalendar = () => {
   const [endTime, setEndTime] = useState(null);
   const [workDate, setWorkDate] = useState(null);
 
-  const loginUserId = 374851;
-  const userId = 1;
-  const storeId = 1;
-  const role = "manager";
+  const [accessToken, setAccessToken] = useState(null);
+  const [loginUserAccountId, setLoginUserAccountId] = useState(null);
+  const [loginUserUserId, setLoginUserUserId] = useState(null);
+  const [loginUserStoreId, setLoginUserStoreId] = useState(null);
+  const [loginUserRole, setLoginUserRole] = useState(null);
+
+  useEffect(() => {
+    // 클라이언트 사이드에서만 실행되도록
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("accessToken");
+      setAccessToken(token);
+
+      const decoded = jwtDecode(token);
+
+      setLoginUserUserId(decoded.userId);
+      setLoginUserAccountId(decoded.accountId);
+      setLoginUserStoreId(decoded.storeId);
+      setLoginUserRole(decoded.role);
+    }
+  }, []);
+
+  // const loginUserId = 374851;
+  // const userId = 1;
+  // const storeId = 1;
+  // const role = "staff";
 
   const [isFaceRecognitionOpen, setIsFaceRecognitionOpen] = useState(false); // State to control modal visibility
 
   useEffect(() => {
-    axios
-      .get(`https://i12b105.p.ssafy.io/api/work-information/${storeId}`)
-      .then((response) => {
-        // console.log(response);
+    if (loginUserStoreId) {
+      axios
+        .get(
+          `https://i12b105.p.ssafy.io/api/work-information/${loginUserStoreId}`
+        )
+        // .get(`http://localhost:8080/api/work-information/${loginUserStoreId}`)
+        .then((response) => {
+          // console.log(response);
 
-        // 새 배열을 생성해서 반환값을 담기
-        const updatedWorkSchedule = response.data.map((event) => {
-          // console.log(event);
+          // 새 배열을 생성해서 반환값을 담기
+          const updatedWorkSchedule = response.data.map((event) => {
+            // console.log(event);
 
-          // 공석 혹은 대타면 흰 배경
-          if (event.vacant || event.accountId !== event.realTimeWorker) {
-            event.color = "#FFFFFF";
-            event.borderColor = "#888";
-            if (event.vacant) {
-              event.userName = "공석";
+            // 공석 혹은 대타면 흰 배경
+            if (event.vacant || event.accountId !== event.realTimeWorker) {
+              event.color = "#FFFFFF";
+              event.borderColor = "#888";
+              if (event.vacant) {
+                event.userName = "공석";
+              }
             }
-          }
-          // 아직 근무 전
-          else if (
-            new Date(`${event.workDate}T${event.startTime}`) > new Date()
-          ) {
-            event.color = "#E8E8E8";
-            event.borderColor = "#E8E8E8";
-          }
-          // 지각 혹은 조퇴면 빨간색
-          else if (
-            !event.checkInTime ||
-            event.checkInTime > event.startTime ||
-            event.checkOutTime < event.endTime
-          ) {
-            event.color = "#FFD9D9";
-            event.borderColor = "#FFD9D9";
-          }
-          // 현재 근무 중이면 파란색
-          else if (
-            new Date(`${event.workDate}T${event.startTime}`) < new Date() &&
-            new Date(`${event.workDate}T${event.endTime}`) > new Date() &&
-            event.checkInTime &&
-            new Date(`${event.workDate}T${event.checkInTime}`) <
-              new Date(`${event.workDate}T${event.startTime}`)
-          ) {
-            event.color = "#C5EFFF";
-            event.borderColor = "#C5EFFF";
-          }
-          // 디폴트 초록색(정상 출근)
-          else {
-            // console.log(
-            //   event.userName,
-            //   " ",
-            //   new Date(`${event.workDate}T${event.startTime}`)
-            // );
+            // 아직 근무 전
+            else if (
+              new Date(`${event.workDate}T${event.startTime}`) > new Date()
+            ) {
+              event.color = "#E8E8E8";
+              event.borderColor = "#E8E8E8";
+            }
+            // 지각 혹은 조퇴면 빨간색
+            else if (
+              !event.checkInTime ||
+              event.checkInTime > event.startTime ||
+              event.checkOutTime < event.endTime
+            ) {
+              event.color = "#FFD9D9";
+              event.borderColor = "#FFD9D9";
+            }
+            // 현재 근무 중이면 파란색
+            else if (
+              new Date(`${event.workDate}T${event.startTime}`) < new Date() &&
+              new Date(`${event.workDate}T${event.endTime}`) > new Date() &&
+              event.checkInTime &&
+              new Date(`${event.workDate}T${event.checkInTime}`) <
+                new Date(`${event.workDate}T${event.startTime}`)
+            ) {
+              event.color = "#C5EFFF";
+              event.borderColor = "#C5EFFF";
+            }
+            // 디폴트 초록색(정상 출근)
+            else {
+              // console.log(
+              //   event.userName,
+              //   " ",
+              //   new Date(`${event.workDate}T${event.startTime}`)
+              // );
 
-            event.color = "#DEFFD9";
-            event.borderColor = "#DEFFD9";
-          }
+              event.color = "#DEFFD9";
+              event.borderColor = "#DEFFD9";
+            }
 
-          return {
-            title: event.userName, // userName을 title로 설정
-            start: `${event.workDate}T${event.startTime}`,
-            end: `${event.workDate}T${event.endTime}`,
-            backgroundColor: event.color,
-            borderColor: event.borderColor,
-            extendedProps: {
-              accountId: event.accountId,
-              scheduleId: event.scheduleId,
-              userId: event.userId,
-              isVacant: event.vacant,
-              checkInTime: event.checkInTime,
-              checkOutTime: event.checkOutTime,
-              realTimeWorker: event.realTimeWorker,
-              workDate: new Date(event.workDate),
-            },
-          };
+            return {
+              title: event.userName, // userName을 title로 설정
+              start: `${event.workDate}T${event.startTime}`,
+              end: `${event.workDate}T${event.endTime}`,
+              backgroundColor: event.color,
+              borderColor: event.borderColor,
+              extendedProps: {
+                accountId: event.accountId,
+                scheduleId: event.scheduleId,
+                userId: event.userId,
+                isVacant: event.vacant,
+                checkInTime: event.checkInTime,
+                checkOutTime: event.checkOutTime,
+                realTimeWorker: event.realTimeWorker,
+                workDate: new Date(event.workDate),
+              },
+            };
+          });
+
+          // setEvents에 새로운 배열 전달
+          setEvents(updatedWorkSchedule);
+        })
+        .catch((err) => {
+          console.log("axios err: ", err);
         });
-
-        // setEvents에 새로운 배열 전달
-        setEvents(updatedWorkSchedule);
-      })
-      .catch((err) => {
-        console.log("axios err: ", err);
-      });
-  }, []);
-
+    }
+  }, [loginUserStoreId]);
 
   // 점장 -> 알바 대타구하기(지도 페이지)
   // 점장 -> 알바 대타구하기(지도 페이지)
@@ -188,8 +214,8 @@ const MyCalendar = () => {
     // console.log("selectInfo", selectInfo);
 
     if (
-      role === "staff" &&
-      selectInfo.event.extendedProps.accountId !== loginUserId &&
+      loginUserRole === "staff" &&
+      selectInfo.event.extendedProps.accountId !== loginUserAccountId &&
       selectInfo.event.extendedProps.isVacant === false
     ) {
       return;
@@ -216,7 +242,7 @@ const MyCalendar = () => {
     button.className =
       "z-10 bg-white text-black m-2 px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white pointer-events-auto";
     if (
-      role === "manager" &&
+      loginUserRole === "manager" &&
       selectInfo.event.extendedProps.isVacant === false
     ) {
       button.innerText = "공석 만들기";
@@ -226,7 +252,7 @@ const MyCalendar = () => {
 
     // 클릭 이벤트 추가
     button.addEventListener("click", (event) => {
-      if (role === "manager") {
+      if (loginUserRole === "manager") {
         if (selectInfo.event.extendedProps.isVacant) {
           gotoDeta(selectInfo);
         } else {
@@ -234,6 +260,7 @@ const MyCalendar = () => {
             axios
               .patch(
                 `https://i12b105.p.ssafy.io/api/work-information/${selectInfo.event.extendedProps.scheduleId}/vacant`
+                // `http://localhost:8080/api/work-information/${selectInfo.event.extendedProps.scheduleId}/vacant`
               )
               .then((res) => {
                 alert("해당 근무를 공석 처리했습니다.");
@@ -248,7 +275,8 @@ const MyCalendar = () => {
       } else {
         axios
           .get(`https://i12b105.p.ssafy.io/api/substitute/my-schedule`, {
-            params: { userId },
+            // .get(`http://localhost:8080/api/substitute/my-schedule`, {
+            params: { userId: loginUserUserId },
           })
           .then((res) => {
             console.log("알바생->알바생 axios 응답: ", res.data);
@@ -325,23 +353,25 @@ const MyCalendar = () => {
     const imageData = canvas.toDataURL("image/png");
 
     // 서버로 이미지 데이터 전송
-    axios.post('https://i12b105.p.ssafy.io/api/python/face-recognition/recognize', {
-      image: imageData,
-    })
-    .then(response => {
-      console.log('Response from server:', response.data);
-      // 추가적인 처리 (예: 성공 메시지 표시 등)
-    })
-    .catch(error => {
-      console.error('Error sending image to server:', error);
-    });
+    axios
+      .post("https://i12b105.p.ssafy.io/api/face-recognition/recognize", {
+        // .post("http://localhost:8080/api/face-recognition/recognize", {
+        image: imageData,
+      })
+      .then((response) => {
+        console.log("Response from server:", response.data);
+        // 추가적인 처리 (예: 성공 메시지 표시 등)
+      })
+      .catch((error) => {
+        console.error("Error sending image to server:", error);
+      });
   };
 
   return (
     <div className="App h-full">
       <div className="flex justify-between items-center mb-5">
-        <h1 className="text-3xl font-bold">MEGASSAFY 덕명점</h1>
-        <div className="flex gap-3 text-lg">
+        <h1 className="text-2xl font-bold">MEGASSAFY 덕명점</h1>
+        <div className="flex gap-3 text-base">
           <Link
             href="/map"
             className="bg-gray-400 text-black rounded-md px-4 py-2 flex items-center"
@@ -371,6 +401,8 @@ const MyCalendar = () => {
         </div>
       </div>
       <FullCalendar
+        contentHeight="450px"
+        fixedWeekCount={false}
         headerToolbar={{
           top: "title",
           // left: "",
@@ -390,7 +422,7 @@ const MyCalendar = () => {
         )}
         views={{
           dayGridMonth: {
-            dayMaxEvents: 4,
+            dayMaxEvents: true,
             titleFormat: function (date) {
               const year = date.date.year;
               const month = date.date.month + 1;
@@ -536,9 +568,19 @@ const MyCalendar = () => {
             </div>
             {/* 중앙 정렬을 위한 Flexbox 사용 */}
             <div className="flex justify-center mt-4">
-              <button onClick={captureImage} className="bg-blue-500 text-white rounded-md px-4 py-2">Capture</button>
+              <button
+                onClick={captureImage}
+                className="bg-blue-500 text-white rounded-md px-4 py-2"
+              >
+                Capture
+              </button>
             </div>
-            <canvas id="canvas" width="640" height="480" style={{ display: 'none' }}></canvas>
+            <canvas
+              id="canvas"
+              width="640"
+              height="480"
+              style={{ display: "none" }}
+            ></canvas>
           </div>
         </div>
       )}

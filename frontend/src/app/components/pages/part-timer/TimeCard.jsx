@@ -1,10 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 
 const TimeCard = ({ times, selectedStore }) => {
-  const userId = 1;
-
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [accessToken, setAccessToken] = useState(null);
+  const [loginUserId, setLoginUserId] = useState(null);
+
+  useEffect(() => {
+    // 클라이언트 사이드에서만 실행되도록
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("accessToken");
+      setAccessToken(token);
+
+      const decoded = jwtDecode(token);
+
+      setLoginUserId(decoded.userId);
+    }
+  }, []);
 
   const handleMouseEnter = (index) => {
     setHoveredIndex(index);
@@ -24,8 +37,9 @@ const TimeCard = ({ times, selectedStore }) => {
     ) {
       axios
         .post(`https://i12b105.p.ssafy.io/api/substitute/request`, null, {
+          // .post(`http://localhost:8080/api/substitute/request`, null, {
           params: {
-            senderId: userId,
+            senderId: loginUserId,
             storeId: selectedStore.storeId,
             workDate: time.workDate,
             startTime: time.startTime,

@@ -6,7 +6,7 @@ import axios from "axios";
 
 // axios 인스턴스 생성
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://i12b105.p.ssafy.io',
   timeout: 5000,
   withCredentials: true,
   headers: {
