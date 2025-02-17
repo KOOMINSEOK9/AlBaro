@@ -83,6 +83,38 @@ export default function ManagerPage() {
     }
   }, [loginUserStoreId]);
 
+  // 우리 지점 대타 근무 정보 조회
+  const [myStoreDetaList, setMyStoreDetaList] = useState([]);
+
+  useEffect(() => {
+    if (loginUserStoreId) {
+      axios
+        .get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/manager/internal-substitutes/${loginUserStoreId}`
+        )
+        .then((res) => {
+          console.log("우리 지점 대타타", res.data);
+          setMyStoreDetaList(res.data);
+        });
+    }
+  }, [loginUserStoreId]);
+
+  // 타지점 대타 근무 정보 조회
+  const [notMyStoreDetaList, setNotMyStoreDetaList] = useState([]);
+
+  useEffect(() => {
+    if (loginUserStoreId) {
+      axios
+        .get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/manager/external-substitutes/${loginUserStoreId}`
+        )
+        .then((res) => {
+          console.log("타 지점 대타", res.data);
+          setNotMyStoreDetaList(res.data);
+        });
+    }
+  }, [loginUserStoreId]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -117,7 +149,11 @@ export default function ManagerPage() {
 
           {/* Shift List - Full width on mobile */}
           <div className="lg:h-[370px]">
-            <ShiftList isVacantList={isVacantList} />
+            <ShiftList
+              isVacantList={isVacantList}
+              myStoreDetaList={myStoreDetaList}
+              notMyStoreDetaList={notMyStoreDetaList}
+            />
           </div>
         </div>
 

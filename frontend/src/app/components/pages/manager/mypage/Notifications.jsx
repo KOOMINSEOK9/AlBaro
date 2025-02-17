@@ -22,6 +22,35 @@ export default function Notifications({ notificationList }) {
     return () => clearInterval(interval);
   }, []);
 
+  const denyNotification = (id) => {
+    const regex = /(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})~(\d{2}:\d{2})/;
+    const match = alarmContent.match(regex);
+
+    const workDate = match[1];
+    const startTime = match[2];
+    const endTime = match[3];
+
+    // setRemovingId(id);
+    // setTimeout(() => {
+    //   removeNotification(id);
+    // }, 300);
+    axios
+      .post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/substitute/reject-subRequest/${id}`, // API 엔드포인트 수정
+        null, // Request body가 없으므로 null
+        {
+          params: {
+            workDate: workDate, // YYYY-MM-DD 형식
+            startTime: startTime, // HH:mm:ss 형식
+            endTime: endTime, // HH:mm:ss 형식
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+      });
+  };
+
   const handleNotificationAction = async (id, alarmContent) => {
     const regex = /(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})~(\d{2}:\d{2})/;
     const match = alarmContent.match(regex);
@@ -146,12 +175,7 @@ export default function Notifications({ notificationList }) {
                       <Check size={18} />
                     </button>
                     <button
-                      onClick={() =>
-                        handleNotificationAction(
-                          noti.alarmId,
-                          noti.alarmContent
-                        )
-                      }
+                      onClick={() => denyNotification(noti.alarmId)}
                       className="h-9 w-9 border border-gray-300 rounded-full
                                                 hover:bg-gray-100 transition-transform hover:scale-105
                                                 active:scale-95 duration-150 flex items-center justify-center shadow-md"
