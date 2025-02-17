@@ -20,6 +20,9 @@ def home():
 
 @app.route('/api/python/face-recognition/recognize', methods=['POST']) 
 def recognize():
+    data = request.json
+    print(data)  # 수신한 데이터 출력
+    
     try:
         data = request.json
         image_data = data['image']
