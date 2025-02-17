@@ -358,7 +358,7 @@ const MyCalendar = () => {
     // 서버로 이미지 데이터 전송
     axios
       .post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/face-recognition/recognize`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/python/face-recognition/recognize`,
         {
           // .post("http://localhost:8080/api/face-recognition/recognize", {
           image: imageData,
