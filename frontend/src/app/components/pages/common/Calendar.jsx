@@ -47,6 +47,10 @@ const MyCalendar = () => {
   const [loginUserRole, setLoginUserRole] = useState(null);
 
   useEffect(() => {
+    // 환경 변수 확인
+    console.log("NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
+
+
     // 클라이언트 사이드에서만 실행되도록
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("accessToken");
