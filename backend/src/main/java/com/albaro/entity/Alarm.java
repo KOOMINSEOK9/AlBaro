@@ -1,6 +1,9 @@
 package com.albaro.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -14,8 +17,9 @@ public class Alarm {
     @Column(name = "alarmId", columnDefinition = "INT UNSIGNED")
     private Integer alarmId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId",foreignKey = @ForeignKey(name = "FK_alarm_user"))
+    @JsonIgnore
     private User user;
 
     @Column(name = "alarmContent", length = 200)

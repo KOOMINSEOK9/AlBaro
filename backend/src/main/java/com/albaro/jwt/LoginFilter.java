@@ -85,6 +85,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 
 
+        System.out.println("Access Token Info:");
+        System.out.println("AccountId: " + jwtUtil.getAccountId(access));
+        System.out.println("Username: " + jwtUtil.getUsername(access));
+        System.out.println("Role: " + jwtUtil.getRole(access));
+        System.out.println("StoreId: " + jwtUtil.getStoreId(access));
+        System.out.println("Category: " + jwtUtil.getCategory(access));
+
+
+
         //리프레시 토큰을 저장소에 저장 -> 메서드는 따로 밑에 있음
         addRefreshEntity(accountId, refresh, 86400000L);
 

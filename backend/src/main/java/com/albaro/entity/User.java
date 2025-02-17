@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.List;
+
 @Entity
 @Table(name = "user")
 public class User {
@@ -63,23 +65,8 @@ public class User {
     @Column(name = "businessNumber",length = 12)
     private String businessNumber;
 
-
-    public User(){}
-
-    public User(Integer userId, Store store, String role, Integer accountId, String password, String userName, String phoneNumber, String email, String zipCode, String roadAddress, String detailedAddress, String businessNumber) {
-        this.userId = userId;
-        this.store = store;
-        this.role = role;
-        this.accountId = accountId;
-        this.password = password;
-        this.userName = userName;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-        this.zipCode = zipCode;
-        this.roadAddress = roadAddress;
-        this.detailedAddress = detailedAddress;
-        this.businessNumber = businessNumber;
-    }
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Alarm> alarms;
 
     public Integer getUserId() {
         return userId;
@@ -175,6 +162,14 @@ public class User {
 
     public void setBusinessNumber(String businessNumber) {
         this.businessNumber = businessNumber;
+    }
+
+    public List<Alarm> getAlarms() {
+        return alarms;
+    }
+
+    public void setAlarms(List<Alarm> alarms) {
+        this.alarms = alarms;
     }
 }
 
