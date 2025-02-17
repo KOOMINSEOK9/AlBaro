@@ -362,9 +362,9 @@ const MyCalendar = () => {
     // 서버로 이미지 데이터 전송
     axios
       .post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/python/face-recognition/recognize`,
+        // `${process.env.NEXT_PUBLIC_API_URL}/api/python/face-recognition/recognize`,
         // flask 서버
-        // "http://172.20.0.2:5000/api/python/face-recognition/recognize",
+        "http://172.20.0.2:5000/api/python/face-recognition/recognize",
         {
           // .post("http://localhost:8080/api/face-recognition/recognize", {
           image: imageData,
