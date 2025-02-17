@@ -45,15 +45,21 @@ public class JWTUtil {
     }
 
     public Integer getAccountId(String token){
-        String accountIdString = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("accountId", String.class);
-
-        return Integer.parseInt(accountIdString);
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("accountId", Integer.class);
     }
 
     public Integer getStoreId(String token) {
-        String storeIdString = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("storeId", String.class);
-
-        return Integer.parseInt(storeIdString);
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("storeId", Integer.class);
     }
 
     //토큰 생성할 메서드
