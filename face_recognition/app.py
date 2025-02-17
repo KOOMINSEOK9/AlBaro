@@ -57,4 +57,4 @@ def recognize():
 #     print(response.text)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)  # Flask 서버 실행, 5000번 포트로 실행
+    app.run(host='0.0.0.0', port=5000, ssl_context=('/etc/letsencrypt/live/i12b105.p.ssafy.io/fullchain.pem', '/etc/letsencrypt/live/i12b105.p.ssafy.io/privkey.pem'))
