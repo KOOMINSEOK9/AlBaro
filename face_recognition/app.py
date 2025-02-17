@@ -40,13 +40,13 @@ def recognize():
             embeddings = resnet(aligned.to('cpu'))  # CPU로 변경
             print("Face embedding created")  # 디버그 로그
             
-            # 임베딩을 데이터베이스와 비교하여 인식 수행
-            # 여기에 데이터베이스와의 비교 로직을 추가할 수 있습니다.
+            return jsonify({"message": "Face recognized successfully!"})
+        else:
+            return jsonify({"error": "No face detected in the image."}), 400
 
-        return jsonify({"message": "Face recognized successfully!"})
     except Exception as e:
         print(f"Error processing image: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Error processing image: {str(e)}"}), 500
 
 # def send_embedding_to_backend(user_id, embedding):
 #     url = "http://i12b105.p.ssafy.io/:5000/api/saveEmbedding"  # 백엔드 API URL
