@@ -112,7 +112,7 @@ const MyCalendar = () => {
               new Date(`${event.workDate}T${event.endTime}`) > new Date() &&
               event.checkInTime &&
               new Date(`${event.workDate}T${event.checkInTime}`) <
-                new Date(`${event.workDate}T${event.startTime}`)
+              new Date(`${event.workDate}T${event.startTime}`)
             ) {
               event.color = "#C5EFFF";
               event.borderColor = "#C5EFFF";
@@ -354,7 +354,7 @@ const MyCalendar = () => {
 
     // 서버로 이미지 데이터 전송
     axios
-      .post("https://i12b105.p.ssafy.io/api/face-recognition/recognize", {
+      .post("https://i12b105.p.ssafy.io/api/python/face-recognition/recognize", {
         // .post("http://localhost:8080/api/face-recognition/recognize", {
         image: imageData,
       })

@@ -126,7 +126,7 @@ public class SubstitutionService {
                 .orElseThrow(() -> new RuntimeException("알바생 정보를 찾을 수 없습니다."));
 
         // 알림 내용 생성
-        String content = String.format("%s 매장의 점장님이 %s %s~%s 시간대에 대타 근무를 요청했습니다.",
+        String content = String.format("%s의 점장님이 %s %s~%s에 대타 근무를 요청했습니다.",
                 manager.getStore().getStoreName(),
                 workDate,
                 startTime,
@@ -181,17 +181,25 @@ public class SubstitutionService {
 
     //대타 요청 거절 알림(알바생이 점장 요청 거절했을 때)
     @Transactional
-    public void rejectVacantSubstitutionRequest(int alarmId) {
+    public void rejectSubstitutionRequest(Integer alarmId, LocalDate workDate, LocalTime startTime, LocalTime endTime) {
         Alarm alarm = alarmRepository.findById(alarmId)
                 .orElseThrow(() -> new RuntimeException("대타 요청 알림을 찾을 수 없음"));
 
         User sender = userRepository.findById(alarm.getSenderId())
                 .orElseThrow(() -> new RuntimeException("보낸 사용자를 찾을 수 없음"));
 
+        User worker = alarm.getUser(); // 대타 요청을 받은 알바생
+
         // 대타 요청 거절 알림 전송
+        String alarmContent = String.format("%s님이 %s일 %s~%s 대타 근무를 거절하였습니다.",
+                worker.getUserName(),
+                workDate,
+                startTime,
+                endTime);
+
         Alarm rejectionAlarm = new Alarm();
-        rejectionAlarm.setUser(alarm.getUser()); //alarm 받은 객체(점장 객체)
-        rejectionAlarm.setAlarmContent("대타 요청이 거절되었습니다.");
+        rejectionAlarm.setUser(sender); // 점장에게 알림 전송
+        rejectionAlarm.setAlarmContent(alarmContent);
         rejectionAlarm.setAlarmType(Alarm.AlarmType.SUBSTITUTION_REJECT);
         rejectionAlarm.setSentTime(LocalDateTime.now());
 
@@ -214,7 +222,7 @@ public class SubstitutionService {
                 .orElseThrow(() -> new RuntimeException("알바생 정보를 찾을 수 없습니다."));
 
         // 알림 내용 생성
-        String content = String.format("%s 매장의 %s님이 %s %s~%s 시간대에 대타 근무를 요청했습니다.",
+        String content = String.format("%s의 %s님이 %s %s~%s에 대타 근무를 요청했습니다.",
                 requestWorker.getStore().getStoreName(),
                 requestWorker.getUserName(),
                 workDate,
@@ -277,7 +285,7 @@ public class SubstitutionService {
         insertAlarm(manager, managerContent, Alarm.AlarmType.SCHEDULE_UPDATE, requestWorker.getUserId());
 
         //요청자에게 대타 요청 수락 알림 보내기
-        String workerContent = String.format("%s님이 %s %s~%s 시간대에 대타 근무를 요청을 수락했습니다.",
+        String workerContent = String.format("%s님이 %s %s~%s 대타 근무를 요청을 수락했습니다.",
                 worker.getUserName(),
                 workDate,
                 startTime,
@@ -288,18 +296,18 @@ public class SubstitutionService {
     }
 
     //대타 요청 거절 알림(알바생이 대타 요청 거절했을 때)
-    @Transactional
-    public void rejectSubstitutionRequest(int alarmId) {
-        Alarm alarm = alarmRepository.findById(alarmId)
-                .orElseThrow(() -> new RuntimeException("대타 요청 알림을 찾을 수 없음"));
-
-        User sender = userRepository.findById(alarm.getSenderId())
-                .orElseThrow(() -> new RuntimeException("보낸 사용자를 찾을 수 없음"));
-
-        // 대타 요청 거절 알림 전송
-        insertAlarm(sender,"대타 요청이 거절되었습니다.", Alarm.AlarmType.SUBSTITUTION_REJECT,null);
-
-    }
+//    @Transactional
+//    public void rejectSubstitutionRequest(int alarmId) {
+//        Alarm alarm = alarmRepository.findById(alarmId)
+//                .orElseThrow(() -> new RuntimeException("대타 요청 알림을 찾을 수 없음"));
+//
+//        User sender = userRepository.findById(alarm.getSenderId())
+//                .orElseThrow(() -> new RuntimeException("보낸 사용자를 찾을 수 없음"));
+//
+//        // 대타 요청 거절 알림 전송
+//        insertAlarm(sender,"대타 요청이 거절되었습니다.", Alarm.AlarmType.SUBSTITUTION_REJECT,null);
+//
+//    }
 
 
 

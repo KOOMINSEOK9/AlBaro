@@ -16,6 +16,9 @@ services:
       MYSQL_DATABASE: albaro
       MYSQL_USER: albaro
       MYSQL_PASSWORD: ssafyalbaro105
+      LANG: ko_KR.UTF-8
+      LANGUAGE: ko_KR.UTF-8
+      LC_ALL: ko_KR.UTF-8
     ports:
       - "3306:3306"
     volumes:
