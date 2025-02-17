@@ -1,11 +1,10 @@
 package com.albaro.controller;
 
 import com.albaro.dto.StoreDto;
-import com.albaro.dto.UserDto;
 import com.albaro.dto.WorkInformationDto;
-import com.albaro.entity.Store;
-import com.albaro.entity.User;
+import com.albaro.entity.Alarm;
 import com.albaro.entity.WorkInformation;
+import com.albaro.service.AlarmService;
 import com.albaro.service.StoreService;
 import com.albaro.service.SubstitutionService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -26,10 +25,12 @@ public class SubstitutionController {
 
     private final SubstitutionService substitutionService;
     private final StoreService storeService;
+    private final AlarmService alarmService;
 
-    public SubstitutionController(SubstitutionService substitutionService, StoreService storeService){
+    public SubstitutionController(SubstitutionService substitutionService, StoreService storeService, AlarmService alarmService){
         this.substitutionService = substitutionService;
         this.storeService = storeService;
+        this.alarmService = alarmService;
     }
 
     //--------------------알바생 -> 점장( 공석이 있는 지점 찾기)
@@ -83,20 +84,21 @@ public class SubstitutionController {
     //4. 대타 요청 승인 API
     @PostMapping("/approve/{alarmId}")
     public ResponseEntity<Void> approveSubstitutionRequest(
-            @PathVariable int alarmId,
+            @PathVariable Integer alarmId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate workDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)LocalTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)LocalTime endTime){
         substitutionService.approveAdditionSubstitutionRequest(alarmId, workDate, startTime, endTime);
+        alarmService.deleteAlarm(alarmId);  // 수락한 알람 삭제
         return ResponseEntity.ok().build();
     }
 
     //5. 대타 요청 거절 API
-    @PostMapping("/reject/{alarmId}")
-    public ResponseEntity<Void> rejectSubstitutionRequest(@PathVariable int alarmId){
-        substitutionService.rejectAdditionSubstitutionRequest(alarmId);
-        return ResponseEntity.ok().build();
-    }
+//    @PostMapping("/reject/{alarmId}")
+//    public ResponseEntity<Void> rejectSubstitutionRequest(@PathVariable int alarmId){
+//        substitutionService.rejectAdditionSubstitutionRequest(alarmId);
+//        return ResponseEntity.ok().build();
+//    }
 
     //----------------------점장 -> 알바생(공석 채우기)
 
@@ -131,16 +133,17 @@ public class SubstitutionController {
         return ResponseEntity.ok().build();
     }
 
-    // 알바생이 근무 수락
-    @PostMapping("/approve-vacantWork/{alarmId}")
+    // 대타 요청 수락
+    @PostMapping("/approve-subRequest/{alarmId}")
     public ResponseEntity<Void> approveVacantSubstitutionRequest(
-            @PathVariable int alarmId,
+            @PathVariable Integer alarmId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate workDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime) {
 
         try {
             substitutionService.approveVacantSubstitutionRequest(alarmId, workDate, startTime, endTime);
+            alarmService.deleteAlarm(alarmId); // 수락한 알람 삭제
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             return ResponseEntity
@@ -149,11 +152,16 @@ public class SubstitutionController {
         }
     }
 
-    // 알바생이 근무 거절
-    @PostMapping("/reject-vacantWork/{alarmId}")
-    public ResponseEntity<Void> rejectVacantSubstitutionRequest(@PathVariable int alarmId) {
+    // 대타 요청 거절
+    @PostMapping("/reject-subRequest/{alarmId}")
+    public ResponseEntity<Void> rejectSubstitutionRequest(
+            @PathVariable Integer alarmId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate workDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime) {
         try {
-            substitutionService.rejectVacantSubstitutionRequest(alarmId);
+            substitutionService.rejectSubstitutionRequest(alarmId, workDate, startTime, endTime);
+            alarmService.deleteAlarm(alarmId);  // 거절한 알람 삭제
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             return ResponseEntity
@@ -161,6 +169,7 @@ public class SubstitutionController {
                     .body(null);
         }
     }
+
 
     // -------------------------------(알바생 -> 알바생 대타요청 로직)------------------------------
 
@@ -209,37 +218,12 @@ public class SubstitutionController {
         return ResponseEntity.ok().build();
     }
 
-    // 알바생이 근무 수락
-    @PostMapping("/approve-work/{alarmId}")
-    public ResponseEntity<Void> approveWorkSubstitutionRequest(
-            @PathVariable int alarmId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate workDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime) {
-
-        try {
-            substitutionService.approveSubstitutionRequest(alarmId, workDate, startTime, endTime);
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(null);
-        }
+    // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    // 자신에게 온 모든 알람 조회
+    @GetMapping("/alarms/{userId}")
+    public ResponseEntity<List<Alarm>> getAlarmsForUser(@PathVariable Integer userId) {
+        List<Alarm> alarms = alarmService.getAlarmsByUserId(userId);
+        return ResponseEntity.ok(alarms);
     }
-
-    // 알바생이 근무 거절
-    @PostMapping("/reject-work/{alarmId}")
-    public ResponseEntity<Void> rejectWorkSubstitutionRequest(@PathVariable int alarmId) {
-        try {
-            substitutionService.rejectSubstitutionRequest(alarmId);
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(null);
-        }
-    }
-
-
 
 }
