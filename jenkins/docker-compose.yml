@@ -7,7 +7,8 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - /var/jenkins_home/workspace/jenkinsTest/frontend/.env  # Jenkins 컨테이너 내부 절대 경로
+      # - /var/jenkins_home/workspace/jenkinsTest/frontend/.env  
+      - ../frontend/.env
 
   db:
     image: mysql:8
