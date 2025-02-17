@@ -70,22 +70,28 @@ public class SubstitutionService {
         User sender = userRepository.findById(alarm.getSenderId())
                 .orElseThrow(() -> new RuntimeException("보낸 사용자를 찾을 수 없음"));
 
+
+        User receiver = alarm.getUser();
+
         //새로운 근무 정보 업데이트
         WorkInformation workInformation = new WorkInformation();
 
-        workInformation.setRealTimeWorker(alarm.getSenderId()); //보낸 사람이 일 할 사람
-        workInformation.setVacant(false); // 공석 여부 false로 변환
-        workInformation.setWorkDate(workDate);
-        workInformation.setStartTime(startTime);
-        workInformation.setEndTime(endTime);
-        workInformation.setStore(sender.getStore());
-        workInformation.setUser(sender);
+//        workInformation.setRealTimeWorker(sender.getAccountId()); //보낸 사람이 일 할 사람
+//        workInformation.setVacant(false); // 공석 여부 false로 변환
+//        workInformation.setWorkDate(workDate);
+//        workInformation.setStartTime(startTime);
+//        workInformation.setEndTime(endTime);
+//        workInformation.setStore(sender.getStore());
+//        workInformation.setUser(sender);
+//
+//        workInformationRepository.save(workInformation);
 
-        workInformationRepository.save(workInformation);
+        workInformationRepository.updateWorkerAndVacantStatus(sender.getAccountId(), workDate, receiver.getStore().getStoreId(), startTime,endTime);
 
         //대타 요청 수락 알림 전송 -> 근무할 알바생에게!
         insertAlarm(sender, "대타 요청이 승인되었습니다.", Alarm.AlarmType.SUBSTITUTION_APPROVAL, null);
     }
+
 
     //대타 요청 거절 알림
     @Transactional

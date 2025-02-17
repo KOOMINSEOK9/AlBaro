@@ -41,7 +41,7 @@ export default function ManagerPage() {
           `${process.env.NEXT_PUBLIC_API_URL}/api/manager/user/${loginUserUserId}`
         )
         .then((res) => {
-          console.log(res);
+          //   console.log(res);
           setUserName(res.data.userName);
           setUserStore(res.data.storeName);
         })
@@ -51,11 +51,27 @@ export default function ManagerPage() {
     }
   }, [loginUserUserId]);
 
+  // 알람
+  const [notificationList, setNotificationList] = useState([]);
+  useEffect(() => {
+    if (loginUserUserId) {
+      axios
+        .get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/substitute/alarms/${loginUserUserId}`
+        )
+        .then((res) => {
+          //   console.log("alarm", res.data);
+          setNotificationList(res.data);
+        })
+        .catch((err) => [console.log(err)]);
+    }
+  });
+
   // 우리 지점 공석 근무 정보 조회
   const [isVacantList, setIsVacantList] = useState([]);
 
   useEffect(() => {
-    if (isVacantList && loginUserStoreId) {
+    if (loginUserStoreId) {
       axios
         .get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/manager/vacant/${loginUserStoreId}`
@@ -65,7 +81,7 @@ export default function ManagerPage() {
           setIsVacantList(res.data);
         });
     }
-  }, [isVacantList, loginUserStoreId]);
+  }, [loginUserStoreId]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -93,7 +109,7 @@ export default function ManagerPage() {
               {/* Notifications - Full width on mobile */}
               <div className="lg:col-span-9">
                 <div className="lg:h-[230px]">
-                  <Notifications />
+                  <Notifications notificationList={notificationList} />
                 </div>
               </div>
             </div>

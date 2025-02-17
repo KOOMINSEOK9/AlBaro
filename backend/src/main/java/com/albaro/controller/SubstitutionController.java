@@ -82,7 +82,7 @@ public class SubstitutionController {
         return ResponseEntity.ok().build();
     }
 
-    //4. 대타 요청 승인 API
+    //4. 대타 요청 승인 API(알바생 -> 점장)
     @PostMapping("/approve/{alarmId}")
     public ResponseEntity<Void> approveSubstitutionRequest(
             @PathVariable Integer alarmId,
