@@ -50,7 +50,8 @@ services:
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - ./nginx/conf.d:/etc/nginx/conf.d
-      
+    networks:
+      - app-network      
 
   certbot:
     image: certbot/certbot
