@@ -33,17 +33,24 @@ public class ChatService {
         }
 
         try {
-            // 메시지 저장
+            logger.debug("Received message data: {}", messageDto);
+            // 메시지 저장 (userName 포함하여 저장)
             ChatRoom chatRoom = ChatRoom.createMessage(
                     messageDto.getStoreId(),
                     messageDto.getUserId(),
-                    messageDto.getContent()
+                    messageDto.getContent(),
+                    messageDto.getUserName()
             );
             chatRoomRepository.save(chatRoom);
 
             // WebSocket으로 메시지 발송
             messageDto.setId(chatRoom.getId());
             messageDto.setSentTime(chatRoom.getSentTime());
+
+            // 로깅 추가
+            logger.debug("Sending message. UserName: {}, Content: {}",
+                    messageDto.getUserName(), messageDto.getContent());
+
             messagingTemplate.convertAndSend("/sub/chat/store/" + messageDto.getStoreId(), messageDto);
         } catch (Exception e) {
             logger.error("Error while sending message: ", e);

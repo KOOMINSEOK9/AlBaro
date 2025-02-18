@@ -24,6 +24,9 @@ public class ChatRoom {
     @Column(name = "sentTime")
     private LocalDateTime sentTime;
 
+    @Column(name = "userName")
+    private String userName;
+
     public ChatRoom() {
     }
 
@@ -32,11 +35,12 @@ public class ChatRoom {
         this.sentTime = LocalDateTime.now();
     }
 
-    public static ChatRoom createMessage(Long storeId, Long userId, String content) {
+    public static ChatRoom createMessage(Long storeId, Long userId, String content, String userName) {
         ChatRoom chatRoom = new ChatRoom();
         chatRoom.setStoreId(storeId);
         chatRoom.setUserId(userId);
         chatRoom.setContent(content);
+        chatRoom.setUserName(userName);
         return chatRoom;
     }
 
@@ -79,5 +83,13 @@ public class ChatRoom {
 
     public void setSentTime(LocalDateTime sentTime) {
         this.sentTime = sentTime;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

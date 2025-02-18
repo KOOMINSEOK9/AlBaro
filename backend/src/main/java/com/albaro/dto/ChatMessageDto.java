@@ -30,12 +30,12 @@ public class ChatMessageDto {
                 !content.trim().isEmpty();
     }
 
-    public static ChatMessageDto fromEntity(ChatRoom chatRoom, String userName) {
+    public static ChatMessageDto fromEntity(ChatRoom chatRoom) {
         return new ChatMessageDto(
                 chatRoom.getId(),
                 chatRoom.getStoreId(),
                 chatRoom.getUserId(),
-                userName,
+                chatRoom.getUserName(),
                 chatRoom.getContent(),
                 chatRoom.getSentTime()
         );

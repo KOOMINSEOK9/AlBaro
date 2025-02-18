@@ -1,4 +1,7 @@
 const ChatMessage = ({ message, isOwnMessage }) => {
+
+    console.log('Message props:', message);
+
     return (
         <div className={`flex gap-3 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
             {!isOwnMessage && (
