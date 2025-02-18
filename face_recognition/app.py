@@ -8,7 +8,7 @@ from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/python/face-recognition/*": {"origins": "https://i12b105.p.ssafy.io"}})
+CORS(app)
 
 # 모델 로드
 mtcnn = MTCNN(keep_all=True, device='cpu')  # MTCNN 모델 초기화 - CPU 사용
@@ -20,7 +20,7 @@ DEBUG_MODE = True  # 디버깅 로그 출력 여부 설정
 def home():
     return jsonify({"message": "Face Recognition API Server is running!"})
 
-@app.route('/api/python/face-recognition/recognize', methods=['POST']) 
+@app.route('/flask/face-recognition/recognize', methods=['POST']) 
 def recognize():
     try:
         data = request.json
