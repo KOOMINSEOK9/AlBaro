@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface WorkInformationRepository extends JpaRepository<WorkInformation, Integer> {
@@ -50,5 +51,50 @@ public interface WorkInformationRepository extends JpaRepository<WorkInformation
             @Param("startTime") LocalTime startTime,
             @Param("endTime") LocalTime endTime
     );
+
+    //QR코드 인식 통한 근무 정보 업데이트
+    @Query("SELECT w FROM WorkInformation w " +
+            "WHERE w.realTimeWorker = :realTimeWorker " +
+            "AND w.workDate = :workDate " +
+            "AND w.store.storeId = :storeId")
+    Optional<WorkInformation> findWorkInformation(
+            @Param("realTimeWorker") Integer realTimeWorker,
+            @Param("workDate") LocalDate workDate,
+            @Param("storeId") Integer storeId
+    );
+
+    // 출근 시간 업데이트
+    @Modifying
+    @Transactional
+    @Query("UPDATE WorkInformation w " +
+            "SET w.checkInTime = :checkInTime " +
+            "WHERE w.realTimeWorker = :realTimeWorker " +
+            "AND w.workDate = :workDate " +
+            "AND w.store.storeId = :storeId")
+    void updateCheckInTime(
+            @Param("realTimeWorker") Integer realTimeWorker,
+            @Param("workDate") LocalDate workDate,
+            @Param("storeId") Integer storeId,
+            @Param("checkInTime") LocalTime checkInTime
+    );
+
+    // 퇴근 시간 업데이트
+    @Modifying
+    @Transactional
+    @Query("UPDATE WorkInformation w " +
+            "SET w.checkOutTime = :checkOutTime " +
+            "WHERE w.realTimeWorker = :realTimeWorker " +
+            "AND w.workDate = :workDate " +
+            "AND w.store.storeId = :storeId")
+    void updateCheckOutTime(
+            @Param("realTimeWorker") Integer realTimeWorker,
+            @Param("workDate") LocalDate workDate,
+            @Param("storeId") Integer storeId,
+            @Param("checkOutTime") LocalTime checkOutTime
+    );
+
+
+
+
 
 }
