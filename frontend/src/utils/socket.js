@@ -1,4 +1,5 @@
-import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
 
 let stompClient = null;
 let subscription = null;
@@ -12,17 +13,20 @@ export const connectWebSocket = (onMessageReceived, storeId) => {
     disconnectWebSocket();
   }
 
-  stompClient = new Client({
-    brokerURL: 'wss://i12b105.p.ssafy.io/ws-stomp',
-    connectHeaders: {
-      'X-Forwarded-Proto': 'https'
+  // SockJS를 사용하여 연결
+  const socket = new SockJS('https://i12b105.p.ssafy.io/ws-stomp');
+  stompClient = Stomp.over(socket);
+
+  // STOMP 클라이언트 설정
+  stompClient.reconnect_delay = 5000;
+  
+  // 연결 시도
+  stompClient.connect(
+    {
+      // 필요한 경우 인증 헤더 추가
+      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
     },
-    debug: process.env.NODE_ENV === 'development' ? console.log : () => {},
-    reconnectDelay: 5000,
-    heartbeatIncoming: 20000,
-    heartbeatOutgoing: 20000,
-    
-    onConnect: () => {
+    () => {
       console.log('WebSocket Connected');
       subscription = stompClient.subscribe(
         `/sub/chat/store/${storeId}`,
@@ -36,34 +40,26 @@ export const connectWebSocket = (onMessageReceived, storeId) => {
         }
       );
     },
-
-    onDisconnect: () => {
-      console.log('WebSocket Disconnected');
-    },
-
-    onStompError: (frame) => {
-      console.error('Broker reported error:', frame.headers['message']);
-    },
-
-    onWebSocketError: (event) => {
-      console.error('WebSocket error:', event);
+    (error) => {
+      console.error('STOMP error:', error);
     }
-  });
-
-  stompClient.activate();
+  );
 };
 
 export const sendMessage = async (messageData) => {
-  if (!stompClient?.active) {
+  if (!stompClient?.connected) {
     throw new Error('WebSocket is not connected');
   }
 
   try {
-    await stompClient.publish({
-      destination: "/pub/chat/message",
-      headers: { 'content-type': 'application/json;charset=UTF-8' },
-      body: JSON.stringify(messageData)
-    });
+    stompClient.send(
+      "/pub/chat/message",
+      {
+        'content-type': 'application/json;charset=UTF-8',
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      },
+      JSON.stringify(messageData)
+    );
     return true;
   } catch (error) {
     console.error("Failed to send message:", error);
@@ -77,13 +73,13 @@ export const disconnectWebSocket = () => {
     subscription = null;
   }
 
-  if (stompClient?.active) {
-    stompClient.deactivate();
+  if (stompClient?.connected) {
+    stompClient.disconnect();
   }
   stompClient = null;
 };
 
 export const getConnectionStatus = () => ({
-  isConnected: stompClient?.active ?? false,
-  isConnecting: stompClient?.connected === false && stompClient?.active === true
+  isConnected: stompClient?.connected ?? false,
+  isConnecting: stompClient && !stompClient.connected
 });
