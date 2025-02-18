@@ -13,35 +13,53 @@ export const connectWebSocket = (onMessageReceived, storeId) => {
     disconnectWebSocket();
   }
 
-  // SockJS를 사용하여 연결
-  const socket = new SockJS('https://i12b105.p.ssafy.io/ws-stomp');
-  stompClient = Stomp.over(socket);
+  // SockJS 연결 설정 수정
+  const socket = new SockJS('https://i12b105.p.ssafy.io/ws-stomp', null, {
+    transports: ['websocket'],
+    debug: true,
+    onclose: (event) => {
+      console.log('SockJS closed:', event);
+    },
+    onerror: (error) => {
+      console.log('SockJS error:', error);
+    }
+  });
 
-  // STOMP 클라이언트 설정
-  stompClient.reconnect_delay = 5000;
+  // STOMP 클라이언트 생성
+  stompClient = Stomp.over(function() { return socket; });
   
+  // STOMP 설정
+  stompClient.debug = function(str) {
+    console.log(str);
+  };
+
   // 연결 시도
   stompClient.connect(
     {
-      // 필요한 경우 인증 헤더 추가
       'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
     },
-    () => {
-      console.log('WebSocket Connected');
+    frame => {
+      console.log('Connected:', frame);
       subscription = stompClient.subscribe(
         `/sub/chat/store/${storeId}`,
-        (message) => {
+        message => {
           try {
             const receivedMessage = JSON.parse(message.body);
             onMessageReceived(receivedMessage);
           } catch (error) {
             console.error('Failed to parse message:', error);
           }
-        }
+        },
+        { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
       );
     },
-    (error) => {
+    error => {
       console.error('STOMP error:', error);
+      // 5초 후 재연결 시도
+      setTimeout(() => {
+        console.log('Attempting to reconnect...');
+        connectWebSocket(onMessageReceived, storeId);
+      }, 5000);
     }
   );
 };
