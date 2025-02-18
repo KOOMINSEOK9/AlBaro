@@ -363,7 +363,7 @@ const MyCalendar = () => {
     axios
       .post(
         // `${process.env.NEXT_PUBLIC_API_URL}/flask/face-recognition/recognize`,
-        `http://i12b105.p.ssafy.io:5000/flask/face-recognition/recognize`,
+        `https://i12b105.p.ssafy.io/flask/face-recognition/recognize`,
         // flask 서버
         // "http://172.20.0.2:5000/api/python/face-recognition/recognize",
         {
