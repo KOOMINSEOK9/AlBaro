@@ -1,3 +1,36 @@
 .fc-daygrid-day-events {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  padding: 2px;
+}
+
+.fc-daygrid-event {
+  margin: 1px 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85em;
+}
+
+/* Ensure proper spacing between events */
+.fc-daygrid-event-harness {
+  width: 100%;
+}
+
+/* .fc .fc-header-toolbar .fc-toolbar-chunk .fc-button-group button {
+  color: black;
+  border: 0px;
+}
+
+.fc .fc-button-primary {
+  background-color: white;
+  :hover {
+    color: white;
+  }
+} */
+
+.fc .fc-header-toolbar {
+  margin-bottom: 1em;
 }
