@@ -27,26 +27,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-stomp")
-                .setAllowedOriginPatterns("https://i12b105.p.ssafy.io")
-                .withSockJS()
-                .setClientLibraryUrl("https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"); // SockJS 클라이언트 URL 설정
+                .setAllowedOrigins("https://i12b105.p.ssafy.io")
+                .withSockJS();
     }
 
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
-        registration.setMessageSizeLimit(64 * 1024)  // 64KB
-                .setSendBufferSizeLimit(512 * 1024)  // 512KB
-                .setSendTimeLimit(20000);  // 20초
+        registration.setMessageSizeLimit(128 * 1024);
+        registration.setSendTimeLimit(20000);
+        registration.setSendBufferSizeLimit(512 * 1024);
     }
-
-    // @Override
-    // public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
-    //     MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-    //     ObjectMapper objectMapper = new ObjectMapper();
-    //     objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    //     objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    //     converter.setObjectMapper(objectMapper);
-    //     messageConverters.add(converter);
-    //     return false;
-    // }
 }

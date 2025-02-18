@@ -1,30 +1,46 @@
 import SockJS from 'sockjs-client';
-import { Stomp } from '@stomp/stompjs';
+import { Client } from '@stomp/stompjs';  // Stomp 대신 Client 임포트
 
 let stompClient = null;
 let subscription = null;
 
 export const connectWebSocket = (onMessageReceived, storeId) => {
-  const socket = new SockJS('https://i12b105.p.ssafy.io/ws-stomp');
-  stompClient = Stomp.over(socket);
+  if (stompClient) {
+    disconnectWebSocket();
+  }
 
-  stompClient.connect(
-    {},  // 헤더 없이 시도
-    frame => {
-      console.log('Connected:', frame);
-      
-      subscription = stompClient.subscribe(
-        `/sub/chat/store/${storeId}`,
-        message => {
-          const receivedMessage = JSON.parse(message.body);
-          onMessageReceived(receivedMessage);
-        }
-      );
+  // STOMP Client 생성
+  stompClient = new Client({
+    webSocketFactory: () => new SockJS('https://i12b105.p.ssafy.io/ws-stomp'),
+    debug: function (str) {
+      console.log('STOMP: ' + str);
     },
-    error => {
-      console.error('STOMP error:', error);
-    }
-  );
+    reconnectDelay: 5000,
+    heartbeatIncoming: 4000,
+    heartbeatOutgoing: 4000
+  });
+
+  // 연결 성공시 콜백
+  stompClient.onConnect = function(frame) {
+    console.log('Connected:', frame);
+    
+    subscription = stompClient.subscribe(`/sub/chat/store/${storeId}`, message => {
+      try {
+        const receivedMessage = JSON.parse(message.body);
+        onMessageReceived(receivedMessage);
+      } catch (error) {
+        console.error('Failed to parse message:', error);
+      }
+    });
+  };
+
+  // 에러 발생시 콜백
+  stompClient.onStompError = function (frame) {
+    console.error('STOMP error:', frame);
+  };
+
+  // 연결
+  stompClient.activate();
 };
 
 export const sendMessage = (messageData) => {
@@ -32,21 +48,24 @@ export const sendMessage = (messageData) => {
     throw new Error('WebSocket is not connected');
   }
 
-  stompClient.send(
-    "/pub/chat/message",
-    {},
-    JSON.stringify(messageData)
-  );
+  stompClient.publish({
+    destination: "/pub/chat/message",
+    body: JSON.stringify(messageData)
+  });
 };
 
 export const disconnectWebSocket = () => {
-  if (subscription) {
-    subscription.unsubscribe();
-    subscription = null;
+  if (stompClient) {
+    if (subscription) {
+      subscription.unsubscribe();
+      subscription = null;
+    }
+    stompClient.deactivate();
+    stompClient = null;
   }
-
-  if (stompClient?.connected) {
-    stompClient.disconnect();
-  }
-  stompClient = null;
 };
+
+export const getConnectionStatus = () => ({
+  isConnected: stompClient?.connected ?? false,
+  isConnecting: stompClient?.active && !stompClient?.connected
+});
