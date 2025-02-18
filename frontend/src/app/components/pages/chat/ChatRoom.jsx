@@ -38,7 +38,7 @@ const ChatRoom = () => {
             const payload = JSON.parse(window.atob(base64));
             setUserInfo({
                 userId: payload.userId,
-                username: payload.username,
+                userName: payload.username,
                 storeId: payload.storeId,
                 role: payload.role
             });
@@ -57,9 +57,9 @@ const ChatRoom = () => {
 
             const formattedMessages = history.map(msg => ({
                 id: msg.id.toString(),
-                content: msg.content,
+                content: decodeURIComponent(msg.content),
                 userId: msg.userId,
-                username: msg.userName,
+                userName: msg.userName,
                 timestamp: new Date(msg.sentTime).toLocaleTimeString('ko-KR', {
                     hour: 'numeric',
                     minute: '2-digit',
@@ -83,14 +83,13 @@ const ChatRoom = () => {
     }, [userInfo?.storeId, setMessages]);
 
     const handleMessageReceived = useCallback((message) => {
-
         console.log('Received message:', message);
 
         const formattedMessage = {
             id: Date.now().toString(),
-            content: message.content,
+            content: decodeURIComponent(message.content),
             userId: message.userId,
-            username: message.userName,
+            userName: message.userName,
             timestamp: new Date().toLocaleTimeString('ko-KR', {
                 hour: 'numeric',
                 minute: '2-digit',
@@ -162,9 +161,9 @@ const ChatRoom = () => {
         }
 
         const messageData = {
-            content: inputMessage.trim(),
-            userId: userInfo.userId,
-            username: userInfo.username,
+            content: encodeURIComponent(inputMessage.trim()),
+            userId: parseInt(userInfo.userId),
+            userName: userInfo.userName,
             storeId: userInfo.storeId,
             sentTime: new Date().toISOString()
         };
