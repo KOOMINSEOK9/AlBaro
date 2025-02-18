@@ -1,6 +1,7 @@
 package com.albaro.entity;
 
 import jakarta.persistence.*;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,9 +17,10 @@ public class ChatRoom {
     private Long storeId;
 
     @Column(name = "userId", nullable = false)
-    private Long userId;
+    private Integer userId;
 
     @Column(name = "content", length = 300)
+    @Lob
     private String content;
 
     @Column(name = "sentTime")
@@ -35,7 +37,7 @@ public class ChatRoom {
         this.sentTime = LocalDateTime.now();
     }
 
-    public static ChatRoom createMessage(Long storeId, Long userId, String content, String userName) {
+    public static ChatRoom createMessage(Long storeId, Integer userId, String content, String userName) {
         ChatRoom chatRoom = new ChatRoom();
         chatRoom.setStoreId(storeId);
         chatRoom.setUserId(userId);
@@ -44,7 +46,7 @@ public class ChatRoom {
         return chatRoom;
     }
 
-    // Getters and Setters
+    // Getters and Setters with encoding
     public Long getId() {
         return id;
     }
@@ -61,11 +63,11 @@ public class ChatRoom {
         this.storeId = storeId;
     }
 
-    public Long getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
@@ -74,7 +76,11 @@ public class ChatRoom {
     }
 
     public void setContent(String content) {
-        this.content = content;
+        try {
+            this.content = new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            this.content = content;
+        }
     }
 
     public LocalDateTime getSentTime() {
@@ -90,6 +96,10 @@ public class ChatRoom {
     }
 
     public void setUserName(String userName) {
-        this.userName = userName;
+        try {
+            this.userName = new String(userName.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            this.userName = userName;
+        }
     }
 }

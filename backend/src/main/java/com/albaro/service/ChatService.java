@@ -2,7 +2,9 @@ package com.albaro.service;
 
 import com.albaro.dto.ChatMessageDto;
 import com.albaro.entity.ChatRoom;
+import com.albaro.entity.User;
 import com.albaro.repository.ChatRoomRepository;
+import com.albaro.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -10,7 +12,9 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ChatService {
@@ -18,11 +22,14 @@ public class ChatService {
     private static final Logger logger = LoggerFactory.getLogger(ChatService.class);
 
     private final ChatRoomRepository chatRoomRepository;
+    private final UserRepository userRepository;
     private final SimpMessageSendingOperations messagingTemplate;
 
     public ChatService(ChatRoomRepository chatRoomRepository,
+                       UserRepository userRepository,
                        SimpMessageSendingOperations messagingTemplate) {
         this.chatRoomRepository = chatRoomRepository;
+        this.userRepository = userRepository;
         this.messagingTemplate = messagingTemplate;
     }
 
@@ -33,21 +40,27 @@ public class ChatService {
         }
 
         try {
+            User user = userRepository.findById(messageDto.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // DB에서 가져온 userName으로 설정하고 UTF-8 인코딩 적용
+            String userName = new String(user.getUserName().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+            messageDto.setUserName(userName);
+
             logger.debug("Received message data: {}", messageDto);
-            // 메시지 저장 (userName 포함하여 저장)
+
             ChatRoom chatRoom = ChatRoom.createMessage(
                     messageDto.getStoreId(),
                     messageDto.getUserId(),
-                    messageDto.getContent(),
-                    messageDto.getUserName()
+                    new String(messageDto.getContent().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8),
+                    userName
             );
+
             chatRoomRepository.save(chatRoom);
 
-            // WebSocket으로 메시지 발송
             messageDto.setId(chatRoom.getId());
             messageDto.setSentTime(chatRoom.getSentTime());
 
-            // 로깅 추가
             logger.debug("Sending message. UserName: {}, Content: {}",
                     messageDto.getUserName(), messageDto.getContent());
 
@@ -59,18 +72,24 @@ public class ChatService {
     }
 
     @Transactional(readOnly = true)
-    public List<ChatRoom> getChatHistory(Long storeId) {
+    public List<ChatMessageDto> getRecentChatHistory(Long storeId, int limit) {
         validateStoreId(storeId);
-        return chatRoomRepository.findByStoreIdOrderBySentTimeDesc(storeId);
-    }
-
-    @Transactional(readOnly = true)
-    public List<ChatRoom> getRecentChatHistory(Long storeId, int limit) {
-        validateStoreId(storeId);
-        return chatRoomRepository.findByStoreIdOrderBySentTimeDesc(
+        List<ChatRoom> chatRooms = chatRoomRepository.findByStoreIdOrderBySentTimeDesc(
                 storeId,
                 PageRequest.of(0, limit)
         );
+
+        return chatRooms.stream()
+                .map(chatRoom -> {
+                    ChatMessageDto dto = ChatMessageDto.fromEntity(chatRoom);
+                    userRepository.findById(chatRoom.getUserId())
+                            .ifPresent(user -> {
+                                String userName = new String(user.getUserName().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+                                dto.setUserName(userName);
+                            });
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     private void validateStoreId(Long storeId) {
