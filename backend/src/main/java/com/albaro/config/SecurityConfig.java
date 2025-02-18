@@ -101,7 +101,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/ws-stomp/**", "/chat/**", "/ws-stomp/info/**", "/main", "/map").permitAll()
-                        .requestMatchers("/ws/**", "/topic/**", "/queue/**", "/app/**").permitAll()  // WebSocket endpoints
+                        .requestMatchers("/ws-stomp/**", "/topic/**", "/queue/**", "/app/**").permitAll()  // WebSocket endpoints
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/manager").hasRole("MANAGER")
                         .anyRequest().authenticated());
