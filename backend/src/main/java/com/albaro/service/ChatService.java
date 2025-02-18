@@ -1,45 +1,74 @@
-// package com.albaro.service;
+package com.albaro.service;
 
-// import com.albaro.dto.ChatMessageDto;
-// import com.albaro.entity.ChatRoom;
-// import com.albaro.repository.ChatRoomRepository;
-// import org.springframework.data.redis.core.RedisTemplate;
-// import org.springframework.data.redis.listener.ChannelTopic;
-// import org.springframework.stereotype.Service;
-// import org.springframework.transaction.annotation.Transactional;
-// import java.time.LocalDateTime;
-// import java.util.List;
+import com.albaro.dto.ChatMessageDto;
+import com.albaro.entity.ChatRoom;
+import com.albaro.repository.ChatRoomRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-// @Service
-// public class ChatService {
-//     private final ChannelTopic channelTopic;
-//     private final RedisPublisher redisPublisher;
-//     private final ChatRoomRepository chatRoomRepository;
-//     private final RedisTemplate<String, Object> redisTemplate;
+import java.util.List;
 
-//     public ChatService(RedisPublisher redisPublisher,
-//                        ChatRoomRepository chatRoomRepository,
-//                        RedisTemplate<String, Object> redisTemplate) {
-//         this.channelTopic = new ChannelTopic("chatroom");
-//         this.redisPublisher = redisPublisher;
-//         this.chatRoomRepository = chatRoomRepository;
-//         this.redisTemplate = redisTemplate;
-//     }
+@Service
+public class ChatService {
 
-//     @Transactional
-//     public void sendMessage(ChatMessageDto messageDto) {
-//         ChatRoom chatRoom = new ChatRoom();
-//         chatRoom.setStoreId(messageDto.getStoreId());
-//         chatRoom.setSenderId(messageDto.getSenderId());
-//         chatRoom.setContent(messageDto.getContent());
-//         chatRoom.setSentTime(LocalDateTime.now());
+    private static final Logger logger = LoggerFactory.getLogger(ChatService.class);
 
-//         chatRoomRepository.save(chatRoom);
-//         redisPublisher.publish(channelTopic, messageDto);
-//     }
+    private final ChatRoomRepository chatRoomRepository;
+    private final SimpMessageSendingOperations messagingTemplate;
 
-//     @Transactional(readOnly = true)
-//     public List<ChatRoom> getChatHistory(Integer storeId) {
-//         return chatRoomRepository.findByStoreId(storeId);
-//     }
-// }
+    public ChatService(ChatRoomRepository chatRoomRepository,
+                       SimpMessageSendingOperations messagingTemplate) {
+        this.chatRoomRepository = chatRoomRepository;
+        this.messagingTemplate = messagingTemplate;
+    }
+
+    @Transactional
+    public void sendMessage(ChatMessageDto messageDto) {
+        if (!messageDto.isValid()) {
+            throw new IllegalArgumentException("Invalid message data");
+        }
+
+        try {
+            // 메시지 저장
+            ChatRoom chatRoom = ChatRoom.createMessage(
+                    messageDto.getStoreId(),
+                    messageDto.getUserId(),
+                    messageDto.getContent()
+            );
+            chatRoomRepository.save(chatRoom);
+
+            // WebSocket으로 메시지 발송
+            messageDto.setId(chatRoom.getId());
+            messageDto.setSentTime(chatRoom.getSentTime());
+            messagingTemplate.convertAndSend("/sub/chat/store/" + messageDto.getStoreId(), messageDto);
+        } catch (Exception e) {
+            logger.error("Error while sending message: ", e);
+            throw new RuntimeException("Failed to send message", e);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChatRoom> getChatHistory(Long storeId) {
+        validateStoreId(storeId);
+        return chatRoomRepository.findByStoreIdOrderBySentTimeDesc(storeId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChatRoom> getRecentChatHistory(Long storeId, int limit) {
+        validateStoreId(storeId);
+        return chatRoomRepository.findByStoreIdOrderBySentTimeDesc(
+                storeId,
+                PageRequest.of(0, limit)
+        );
+    }
+
+    private void validateStoreId(Long storeId) {
+        if (storeId == null) {
+            throw new IllegalArgumentException("Store ID cannot be null");
+        }
+    }
+}

@@ -15,9 +15,9 @@ export default function ShiftList({
   myStoreDetaList,
   notMyStoreDetaList,
 }) {
-  console.log(isVacantList);
-  console.log(myStoreDetaList);
-  console.log(notMyStoreDetaList);
+  // console.log(isVacantList);
+  // console.log(myStoreDetaList);
+  // console.log(notMyStoreDetaList);
 
   const [activeTab, setActiveTab] = useState("vacancy");
 
@@ -131,22 +131,20 @@ export default function ShiftList({
               onClick={() => setActiveTab(tab.id)}
               className={`flex flex-1 items-center justify-center gap-2 py-2 px-3 rounded-full text-sm font-medium
                             transition-all duration-300 ease-out active:scale-95
-                            ${
-                              activeTab === tab.id
-                                ? `bg-${tab.color}-50 text-${tab.color}-600 ring-1 ring-${tab.color}-200 shadow-sm`
-                                : "text-gray-500 hover:bg-gray-50"
-                            }`}
+                            ${activeTab === tab.id
+                  ? `bg-${tab.color}-50 text-${tab.color}-600 ring-1 ring-${tab.color}-200 shadow-sm`
+                  : "text-gray-500 hover:bg-gray-50"
+                }`}
             >
               <tab.icon className="w-4 h-4" />
               <span className="truncate">
                 {tab.label.replace("우리 지점 ", "")}
               </span>
               <span
-                className={`text-xs ${
-                  activeTab === tab.id
+                className={`text-xs ${activeTab === tab.id
                     ? `text-${tab.color}-500`
                     : "text-gray-400"
-                }`}
+                  }`}
               >
                 {getShiftsByType(tab.id).length}
               </span>

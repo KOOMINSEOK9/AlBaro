@@ -143,6 +143,9 @@ public class SubstitutionController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime) {
 
         try {
+
+            System.out.println("approve-subRequest: " + alarmId);
+
             substitutionService.approveVacantSubstitutionRequest(alarmId, workDate, startTime, endTime);
             alarmService.deleteAlarm(alarmId); // 수락한 알람 삭제
             return ResponseEntity.ok().build();

@@ -21,7 +21,7 @@ export default function EmployeePage() {
           <h1 className="text-lg font-semibold">Employee Dashboard</h1>
           <div className="w-10 h-10 rounded-full overflow-hidden">
             <img
-              src="/employee.jpg"
+              src="/boyoung.jpg"
               alt="Profile"
               className="w-full h-full object-cover"
             />
@@ -63,27 +63,7 @@ export default function EmployeePage() {
           </div>
         </div>
 
-        {/* Mobile Navigation - Fixed bottom nav */}
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t">
-          <div className="flex justify-around items-center h-16">
-            <button className="flex flex-col items-center justify-center w-full py-2 text-blue-500">
-              <span className="block h-6 w-6 mb-1">🏠</span>
-              <span className="text-xs">Home</span>
-            </button>
-            <button className="flex flex-col items-center justify-center w-full py-2">
-              <span className="block h-6 w-6 mb-1">👥</span>
-              <span className="text-xs">Staff</span>
-            </button>
-            <button className="flex flex-col items-center justify-center w-full py-2">
-              <span className="block h-6 w-6 mb-1">📅</span>
-              <span className="text-xs">Schedule</span>
-            </button>
-            <button className="flex flex-col items-center justify-center w-full py-2">
-              <span className="block h-6 w-6 mb-1">⚙️</span>
-              <span className="text-xs">Settings</span>
-            </button>
-          </div>
-        </nav>
+
       </main>
     </div>
   );

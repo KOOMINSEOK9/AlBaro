@@ -8,6 +8,11 @@ from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
+
+# PEM 키 파일 경로
+PEM_KEY_PATH = '/etc/letsencrypt/live/i12b105.p.ssafy.io/privkey.pem'
+CERT_PATH = '/etc/letsencrypt/live/i12b105.p.ssafy.io/fullchain.pem'
+
 CORS(app)
 
 # 모델 로드
@@ -25,9 +30,13 @@ def recognize():
     try:
         data = request.json
         if DEBUG_MODE:
-            print(data)  # 디버깅 로그
+            print("Received data:", data)  # 디버깅 로그
 
-        image_data = data['image']
+        # 요청 데이터에서 이미지 추출
+        image_data = data.get('image')
+        if not image_data:
+            return jsonify({"error": "No image data provided."}), 400
+
         image_data = image_data.split(",")[1]  # base64 데이터 추출
         image = Image.open(io.BytesIO(base64.b64decode(image_data)))
 
@@ -59,4 +68,4 @@ def recognize():
 #     print(response.text)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)  # SSL 제거, Nginx에서 SSL 처리
+    app.run(host='0.0.0.0', port=5000 , ssl_context=(CERT_PATH, PEM_KEY_PATH))  # SSL 제거, Nginx에서 SSL 처리

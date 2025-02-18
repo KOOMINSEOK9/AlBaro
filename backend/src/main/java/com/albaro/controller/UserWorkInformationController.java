@@ -19,8 +19,9 @@ public class UserWorkInformationController {
     }
 
     // 1. 특정 사용자의 결근한 근무 조회
-    @GetMapping("/absent/{userId}")
+        @GetMapping("/absent/{userId}")
     public ResponseEntity<List<UserWorkInformationResponse>> getAbsentWorkInformation(@PathVariable Integer userId) {
+            System.out.println(userId);
         List<UserWorkInformationResponse> absentWork = userWorkInformationService.getAbsentWorkInformation(userId);
         return ResponseEntity.ok(absentWork);
     }

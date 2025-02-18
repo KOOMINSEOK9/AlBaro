@@ -1,40 +1,83 @@
-// package com.albaro.entity;
+package com.albaro.entity;
 
-// import jakarta.persistence.*;
-// import java.time.LocalDateTime;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
-// @Entity
-// @Table(name = "chatRoom")
-// public class ChatRoom {
-//     @Id
-//     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//     private Long id;
+@Entity
+@Table(name = "chatRoom")
+public class ChatRoom {
 
-//     @Column(name = "storeId")
-//     private Long storeId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "chatRoomId")
+    private Long id;
 
-//     @Column(name = "senderId")
-//     private Long senderId;
+    @Column(name = "storeId", nullable = false)
+    private Long storeId;
 
-//     @Column(name = "content", length = 500)
-//     private String content;
+    @Column(name = "userId", nullable = false)
+    private Long userId;
 
-//     @Column(name = "sentTime")
-//     private LocalDateTime sentTime;
+    @Column(name = "content", length = 300)
+    private String content;
 
-//     // Getters and Setters
-//     public Long getId() { return id; }
-//     public void setId(Long id) { this.id = id; }
+    @Column(name = "sentTime")
+    private LocalDateTime sentTime;
 
-//     public Long getStoreId() { return storeId; }
-//     public void setStoreId(Long storeId) { this.storeId = storeId; }
+    public ChatRoom() {
+    }
 
-//     public Long getSenderId() { return senderId; }
-//     public void setSenderId(Long senderId) { this.senderId = senderId; }
+    @PrePersist
+    public void prePersist() {
+        this.sentTime = LocalDateTime.now();
+    }
 
-//     public String getContent() { return content; }
-//     public void setContent(String content) { this.content = content; }
+    public static ChatRoom createMessage(Long storeId, Long userId, String content) {
+        ChatRoom chatRoom = new ChatRoom();
+        chatRoom.setStoreId(storeId);
+        chatRoom.setUserId(userId);
+        chatRoom.setContent(content);
+        return chatRoom;
+    }
 
-//     public LocalDateTime getSentTime() { return sentTime; }
-//     public void setSentTime(LocalDateTime sentTime) { this.sentTime = sentTime; }
-// }
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(Long storeId) {
+        this.storeId = storeId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public LocalDateTime getSentTime() {
+        return sentTime;
+    }
+
+    public void setSentTime(LocalDateTime sentTime) {
+        this.sentTime = sentTime;
+    }
+}
