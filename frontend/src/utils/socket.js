@@ -19,11 +19,16 @@ export const connectWebSocket = (onMessageReceived, storeId) => {
   }
 
   const socket = new SockJS(SOCKET_URL, null, {
-    transports: ['websocket', 'xhr-streaming', 'xhr-polling'],
-    timeout: 30000, // 30 seconds
+    transports: ['websocket'],
+    timeout: 30000,
+    headers: {
+        'X-Forwarded-Proto': 'https'
+    }
   });
 
   stompClient = Stomp.over(socket);
+  stompClient.heartbeat.outgoing = 20000;
+  stompClient.heartbeat.incoming = 20000;
   //stompClient.debug = null;
 
   const connectCallback = () => {
