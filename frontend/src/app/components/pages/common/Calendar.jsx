@@ -364,6 +364,26 @@ const MyCalendar = () => {
     setEventInfo(null);
   };
 
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+
+  const openQRModal = () => {
+    setIsQRModalOpen(true);
+    axios
+      .post(`${process.env.NEXT_PUBLIC_API_URL}/api/qr/generate`, {
+        userId: loginUserUserId, // body로 userId를 직접 보냅니다
+      })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const closeQRModal = () => {
+    setIsQRModalOpen(false);
+  };
+
   const openFaceRecognition = () => {
     setIsFaceRecognitionOpen(true);
     // Start video stream
@@ -428,10 +448,7 @@ const MyCalendar = () => {
 
   return (
     <div className="App h-full">
-      <div
-        class="mainHeader"
-        className="flex justify-between items-center mb-5"
-      >
+      <div className="flex justify-between items-center mb-5">
         <h1 className="text-2xl font-bold">MEGASSAFY 덕명점</h1>
         <div className="flex gap-3 text-base">
           <Link
@@ -448,7 +465,14 @@ const MyCalendar = () => {
             대타 찾기
           </Link>
           <button
-            onClick={openFaceRecognition}
+            onClick={() => {
+              if (loginUserRole === "staff") {
+                openQRModal(); // admin 역할에 해당하는 함수 호출
+              }
+              if (loginUserRole === "manager") {
+                openFaceRecognition(); // 일반 사용자 역할에 해당하는 함수 호출
+              }
+            }}
             className="bg-gray-400 text-black rounded-md px-4 py-2 flex items-center"
           >
             <Image
@@ -588,6 +612,27 @@ const MyCalendar = () => {
               {new Date(eventInfo.event.start).toLocaleString()} ~{" "}
               {new Date(eventInfo.event.end).toLocaleString()}
             </p> */}
+          </div>
+        </div>
+      )}
+
+      {/* 큐알 모달 */}
+      {isQRModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg w-96 max-w-full relative">
+            <button
+              onClick={() => setIsQRModalOpen(false)}
+              className="absolute top-2 right-2 bg-gray-300 text-gray-800 rounded-full p-2 hover:bg-gray-400 transition-all"
+            >
+              X
+            </button>
+            <div className="flex justify-center items-center">
+              <img
+                src="QR_CODE_IMAGE_URL"
+                alt="QR Code"
+                className="w-64 h-64 object-contain"
+              />
+            </div>
           </div>
         </div>
       )}
