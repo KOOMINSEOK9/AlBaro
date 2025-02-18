@@ -4,7 +4,7 @@ import { Stomp } from '@stomp/stompjs';
 // const SOCKET_URL = process.env.NODE_ENV === 'production'
 //   ? 'https://i12b105.p.ssafy.io/ws-stomp'
 //   : 'http://localhost:8080/ws-stomp';
-const SOCKET_URL = 'wss://i12b105.p.ssafy.io/ws-stomp';
+const SOCKET_URL = 'https://i12b105.p.ssafy.io/ws-stomp';
 
 let stompClient = null;
 let subscription = null;
