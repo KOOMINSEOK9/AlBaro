@@ -1,128 +1,89 @@
-import SockJS from 'sockjs-client';
-import { Stomp } from '@stomp/stompjs';
-
-// const SOCKET_URL = process.env.NODE_ENV === 'production'
-//   ? 'https://i12b105.p.ssafy.io/ws-stomp'
-//   : 'http://localhost:8080/ws-stomp';
-const SOCKET_URL = 'https://i12b105.p.ssafy.io/ws-stomp';
+import { Client } from '@stomp/stompjs';
 
 let stompClient = null;
 let subscription = null;
 
 export const connectWebSocket = (onMessageReceived, storeId) => {
   if (!storeId) {
-    console.error('Store ID is required for WebSocket connection');
-    return;
+    throw new Error('Store ID is required for WebSocket connection');
   }
 
   if (stompClient) {
     disconnectWebSocket();
   }
 
-  const socket = new SockJS(SOCKET_URL, null, {
-    transports: ['websocket'],
-    timeout: 30000,
-    headers: {
+  stompClient = new Client({
+    brokerURL: 'wss://i12b105.p.ssafy.io/ws-stomp',
+    connectHeaders: {
       'X-Forwarded-Proto': 'https'
+    },
+    debug: process.env.NODE_ENV === 'development' ? console.log : () => {},
+    reconnectDelay: 5000,
+    heartbeatIncoming: 20000,
+    heartbeatOutgoing: 20000,
+    
+    onConnect: () => {
+      console.log('WebSocket Connected');
+      subscription = stompClient.subscribe(
+        `/sub/chat/store/${storeId}`,
+        (message) => {
+          try {
+            const receivedMessage = JSON.parse(message.body);
+            onMessageReceived(receivedMessage);
+          } catch (error) {
+            console.error('Failed to parse message:', error);
+          }
+        }
+      );
+    },
+
+    onDisconnect: () => {
+      console.log('WebSocket Disconnected');
+    },
+
+    onStompError: (frame) => {
+      console.error('Broker reported error:', frame.headers['message']);
+    },
+
+    onWebSocketError: (event) => {
+      console.error('WebSocket error:', event);
     }
   });
 
-  stompClient = Stomp.over(socket);
-  stompClient.heartbeat.outgoing = 20000;
-  stompClient.heartbeat.incoming = 20000;
-  //stompClient.debug = null;
-
-  const connectCallback = () => {
-    console.log('WebSocket Connected');
-    subscription = stompClient.subscribe(
-      `/sub/chat/store/${storeId}`,
-      (message) => {
-        try {
-          const receivedMessage = JSON.parse(message.body);
-          onMessageReceived(receivedMessage);
-        } catch (error) {
-          console.error('Failed to parse message:', error);
-        }
-      },
-      // {
-      //   // STOMP 구독 옵션 추가
-      //   'heart-beat': '10000,10000',
-      //   'accept-version': '1.1,1.2'
-      // }
-    );
-  };
-
-  const errorCallback = (error) => {
-    console.error('WebSocket connection error:', error);
-    setTimeout(() => {
-      if (!stompClient?.connected) {
-        console.log('Attempting to reconnect...');
-        connectWebSocket(onMessageReceived, storeId);
-      }
-    }, 5000);
-  };
-
-  try {
-    stompClient.connect(
-      {
-        // STOMP 연결 헤더 추가
-        'heart-beat': '10000,10000',
-        'accept-version': '1.1,1.2'
-      },
-      connectCallback,
-      errorCallback
-    );
-  } catch (error) {
-    console.error('Failed to establish WebSocket connection:', error);
-    errorCallback(error);
-  }
+  stompClient.activate();
 };
 
-export const sendMessage = (messageData) => {
-  if (!stompClient?.connected) {
-    console.error('WebSocket is not connected');
-    return false;
+export const sendMessage = async (messageData) => {
+  if (!stompClient?.active) {
+    throw new Error('WebSocket is not connected');
   }
 
   try {
-    stompClient.send(
-      "/pub/chat/message",
-      {
-        'content-type': 'application/json;charset=UTF-8'
-      },
-      JSON.stringify(messageData)
-    );
+    await stompClient.publish({
+      destination: "/pub/chat/message",
+      headers: { 'content-type': 'application/json;charset=UTF-8' },
+      body: JSON.stringify(messageData)
+    });
     return true;
   } catch (error) {
     console.error("Failed to send message:", error);
-    return false;
+    throw error;
   }
 };
 
 export const disconnectWebSocket = () => {
   if (subscription) {
-    try {
-      subscription.unsubscribe();
-    } catch (error) {
-      console.error('Failed to unsubscribe:', error);
-    }
+    subscription.unsubscribe();
     subscription = null;
   }
 
-  if (stompClient?.connected) {
-    try {
-      stompClient.disconnect(() => {
-        console.log('WebSocket disconnected');
-      });
-    } catch (error) {
-      console.error("Failed to disconnect WebSocket:", error);
-    }
+  if (stompClient?.active) {
+    stompClient.deactivate();
   }
-
   stompClient = null;
 };
 
-// 연결 상태 확인 함수 추가
-export const isConnected = () => {
-  return stompClient?.connected || false;
-};
+export const getConnectionStatus = () => ({
+  isConnected: stompClient?.active ?? false,
+  isConnecting: stompClient?.connected === false && stompClient?.active === true
+});
