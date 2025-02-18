@@ -2,8 +2,8 @@
 import * as StompJs from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
-const SOCKET_URL = 'https://i12b105.p.ssafy.io/ws-stomp';
-  
+const SOCKET_URL = 'wss://i12b105.p.ssafy.io/ws-stomp';
+
 export const connectWebSocket = (onMessageReceived, storeId) => {
   if (!storeId) {
     console.error('Store ID is required');

@@ -90,11 +90,11 @@ public class SecurityConfig {
         //경로별 인가 작업(권한에 대한 내용)
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/ws-stomp/**", "/ws-stomp/info/**", "/main", "/map").permitAll() 
+                        .requestMatchers("/ws-stomp/**", "/ws-stomp/info/**", "/main", "/map", "/api/**").permitAll() 
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/manager").hasRole("MANAGER")
                         .anyRequest().authenticated());
-        //이외의 요청에는 로그인한 사용자만 하도록
+        //이외의 요청에는 로그인한     사용자만 하도록
 
         //로그인 필터 앞에 jwtfilter 넣을 것임
         http
