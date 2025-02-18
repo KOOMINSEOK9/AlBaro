@@ -49,21 +49,24 @@ const ChatRoom = () => {
         if (!userInfo?.storeId) return;
 
         try {
-            // const response = await axios.get(`https://i12b105.p.ssafy.io/chat/store/${userInfo.storeId}`);
-            const response = await axios.get(`http://localhost:8080/chat/store/${userInfo.storeId}`);
+            // const response = await axios.get(`http://localhost:8080/chat/store/${userInfo.storeId}`);
+            const response = await axios.get(`https://i12b105.p.ssafy.io/chat/store/${userInfo.storeId}`);
             const history = response.data;
+
+            console.log('Chat history:', history);
 
             const formattedMessages = history.map(msg => ({
                 id: msg.id.toString(),
                 content: msg.content,
                 userId: msg.userId,
-                username: msg.username,
+                username: msg.userName,
                 timestamp: new Date(msg.sentTime).toLocaleTimeString('ko-KR', {
                     hour: 'numeric',
                     minute: '2-digit',
                     hour12: true
                 }),
-            }));
+            }))
+                .reverse();
 
             setMessages(formattedMessages);
             setError(null);
@@ -80,11 +83,14 @@ const ChatRoom = () => {
     }, [userInfo?.storeId, setMessages]);
 
     const handleMessageReceived = useCallback((message) => {
+
+        console.log('Received message:', message);
+
         const formattedMessage = {
             id: Date.now().toString(),
             content: message.content,
             userId: message.userId,
-            username: message.username,
+            username: message.userName,
             timestamp: new Date().toLocaleTimeString('ko-KR', {
                 hour: 'numeric',
                 minute: '2-digit',
