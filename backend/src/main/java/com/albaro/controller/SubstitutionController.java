@@ -227,4 +227,14 @@ public class SubstitutionController {
         return ResponseEntity.ok(alarms);
     }
 
+    // 알람 삭제
+    @DeleteMapping("/alarms/{alarmId}")
+    public ResponseEntity<String> deleteAlarm(@PathVariable Integer alarmId) {
+        try {
+            substitutionService.deleteAlarm(alarmId);
+            return ResponseEntity.ok("알람이 성공적으로 삭제되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("알람 삭제 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
 }
