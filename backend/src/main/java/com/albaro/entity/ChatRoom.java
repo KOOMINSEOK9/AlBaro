@@ -4,12 +4,12 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "chatRoom")
+@Table(name = "chatroom")
 public class ChatRoom {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "chatRoomId")
+//    @Column(name = "chatRoomId")
     private Long id;
 
     @Column(name = "storeId", nullable = false)

@@ -54,6 +54,8 @@ public class SubstitutionController {
     public ResponseEntity<?> checkVacantSchedule(
             @RequestParam int storeId) {
 
+        System.out.println(storeId);
+
         List<WorkInformation> vacantInfo = storeService.checkVacantSchedule(storeId);
 
         if(vacantInfo == null || vacantInfo.isEmpty()) {

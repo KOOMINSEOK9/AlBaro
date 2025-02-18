@@ -217,8 +217,8 @@ const MyCalendar = () => {
 
     if (
       loginUserRole === "staff" &&
-      selectInfo.event.extendedProps.accountId !== loginUserAccountId &&
-      selectInfo.event.extendedProps.isVacant === false
+      selectInfo.event.extendedProps.realTimeWorker !== loginUserAccountId
+      // selectInfo.event.extendedProps.isVacant === false
     ) {
       return;
     }
