@@ -62,6 +62,8 @@ services:
         context: ../face_recognition 
       ports:
         - "5000:5000"  # 호스트와 컨테이너 간의 포트 매핑
+      volumes:
+        - /etc/letsencrypt:/etc/letsencrypt:ro
 
 
 volumes:
