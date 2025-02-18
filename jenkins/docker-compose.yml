@@ -37,6 +37,8 @@ services:
     depends_on:
       - db
     command: ["./wait-for-it.sh", "db:3306", "--", "java", "-jar", "/app.jar"]
+    networks:
+      - app-network  
     
 
   nginx:
@@ -69,7 +71,12 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"  # 호스트와 컨테이너 간의 포트 매핑
-
+    networks:
+      - app-network
 
 volumes:
   db_data:
+
+networks:
+  app-network:
+    driver: bridge
