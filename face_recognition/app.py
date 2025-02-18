@@ -8,11 +8,13 @@ from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
-CORS(app)  # CORS 활성화
+CORS(app, resources={r"/api/python/face-recognition/*": {"origins": "https://i12b105.p.ssafy.io"}})
 
 # 모델 로드
-mtcnn = MTCNN(keep_all=True, device='cpu')  # MTCNN 모델 초기화 - CPU 버전으로 설치
-resnet = InceptionResnetV1(pretrained='vggface2').eval().to('cpu')  # InceptionResnetV1 모델 초기화
+mtcnn = MTCNN(keep_all=True, device='cpu')  # MTCNN 모델 초기화 - CPU 사용
+resnet = InceptionResnetV1(pretrained='vggface2').eval().to('cpu')  # 얼굴 임베딩 모델
+
+DEBUG_MODE = True  # 디버깅 로그 출력 여부 설정
 
 @app.route('/')
 def home():
@@ -20,29 +22,29 @@ def home():
 
 @app.route('/api/python/face-recognition/recognize', methods=['POST']) 
 def recognize():
-    data = request.json
-    print(data)  # 수신한 데이터 출력
-    
     try:
         data = request.json
+        if DEBUG_MODE:
+            print(data)  # 디버깅 로그
+
         image_data = data['image']
         image_data = image_data.split(",")[1]  # base64 데이터 추출
         image = Image.open(io.BytesIO(base64.b64decode(image_data)))
 
-        # 이미지를 RGB로 변환
         if image.mode != 'RGB':
             image = image.convert('RGB')
-        
-        print("Image received and decoded")  # 디버그 로그
 
-        # 얼굴 검출 및 정렬
         aligned = mtcnn(image)
-        if aligned is not None:
-            print("Face detected")  # 디버그 로그
-            # 얼굴 인식
-            embeddings = resnet(aligned.to('cpu'))  # CPU로 변경
-            print("Face embedding created")  # 디버그 로그
-            
+        if aligned is not None and len(aligned) > 0:
+            if DEBUG_MODE:
+                print("Face detected")
+
+            embeddings = resnet(aligned.to('cpu'))  # 얼굴 임베딩 생성
+            if DEBUG_MODE:
+                print("Face embedding created")
+
+            # send_embedding_to_backend(user_id, embeddings)  # 백엔드로 전송
+
             return jsonify({"message": "Face recognized successfully!"})
         else:
             return jsonify({"error": "No face detected in the image."}), 400
@@ -52,9 +54,9 @@ def recognize():
         return jsonify({"error": f"Error processing image: {str(e)}"}), 500
 
 # def send_embedding_to_backend(user_id, embedding):
-#     url = "http://i12b105.p.ssafy.io/:5000/api/saveEmbedding"  # 백엔드 API URL
+#     url = "http://i12b105.p.ssafy.io/api/saveEmbedding"  # 올바른 백엔드 URL 확인
 #     response = requests.post(url, json={"userId": user_id, "embedding": embedding.tolist()})
 #     print(response.text)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, ssl_context=('/etc/letsencrypt/live/i12b105.p.ssafy.io/fullchain.pem', '/etc/letsencrypt/live/i12b105.p.ssafy.io/privkey.pem'))
+    app.run(host='0.0.0.0', port=5000)  # SSL 제거, Nginx에서 SSL 처리
