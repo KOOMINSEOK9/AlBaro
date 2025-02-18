@@ -427,7 +427,10 @@ const MyCalendar = () => {
 
   return (
     <div className="App h-full">
-      <div className="flex justify-between items-center mb-5">
+      <div
+        class="mainHeader"
+        className="flex justify-between items-center mb-5"
+      >
         <h1 className="text-2xl font-bold">MEGASSAFY 덕명점</h1>
         <div className="flex gap-3 text-base">
           <Link
@@ -480,7 +483,7 @@ const MyCalendar = () => {
         )}
         views={{
           dayGridMonth: {
-            dayMaxEvents: true,
+            // dayMaxEvents: true,
             titleFormat: function (date) {
               const year = date.date.year;
               const month = date.date.month + 1;
@@ -492,6 +495,8 @@ const MyCalendar = () => {
             allDaySlot: false,
             nowIndicator: true,
             slotEventOverlap: false,
+            slotMinTime: "09:00:00",
+            slotDuration: "01:00:00",
             // titleFormat: function (date) {
             //   const year = date.date.year;
             //   const month = date.date.month;
