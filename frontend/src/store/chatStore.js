@@ -4,7 +4,6 @@ import { create } from 'zustand';
 
 const useChatStore = create((set) => ({
     messages: [],
-    currentRoom: null,
     isConnected: false,
 
     addMessage: (message) =>
@@ -14,9 +13,6 @@ const useChatStore = create((set) => ({
 
     setMessages: (messages) =>
         set({ messages }),
-
-    setCurrentRoom: (room) =>
-        set({ currentRoom: room }),
 
     setConnected: (status) =>
         set({ isConnected: status }),

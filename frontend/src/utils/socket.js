@@ -1,71 +1,95 @@
-"use client";
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
 
-import { Client } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
+const SOCKET_URL = 'http://localhost:8080/ws-stomp';
+let stompClient = null;
+let subscription = null;
 
-class WebSocketService {
-  constructor() {
-    this.client = null;
+export const connectWebSocket = (onMessageReceived, storeId) => {
+  if (!storeId) {
+    console.error('Store ID is required for WebSocket connection');
+    return;
   }
 
-  connect(onMessageReceived) {
-    const socket = new SockJS('https://i12b105.p.ssafy.io:8080/wss');
-    // const socket = new SockJS("http://localhost:8080/wss");
-
-    this.client = new Client({
-      // webSocketFactory: () => new WebSocket("wss://localhost:8080/wss"),
-      webSocketFactory: () => new WebSocket("wss://i12b105.p.ssafy.io:8080/wss"),
-      debug: (str) => {
-        console.log(str);
-      },
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-    });
-
-    this.client.onConnect = () => {
-      console.log("Connected to WebSocket");
-
-      this.client.subscribe("/topic/store/chat", (message) => {
-        const receivedMessage = JSON.parse(message.body);
-        console.log("Received message:", receivedMessage);
-        onMessageReceived(receivedMessage);
-      });
-    };
-
-    this.client.onStompError = (frame) => {
-      console.error("WebSocket Error:", frame);
-    };
-
-    this.client.activate();
+  if (stompClient) {
+    disconnectWebSocket();
   }
 
-  sendMessage(message) {
-    if (this.client && this.client.connected) {
-      const messageToSend = {
-        ...message,
-        timestamp: new Date().toISOString(),
-      };
-      console.log("Sending message:", messageToSend);
-      this.client.publish({
-        destination: "/app/chat",
-        body: JSON.stringify(messageToSend),
+  const socket = new SockJS(SOCKET_URL);
+  stompClient = Stomp.over(socket);
+  //stompClient.debug = null;
+
+  const connectCallback = () => {
+    console.log('WebSocket Connected');
+    subscription = stompClient.subscribe(
+      `/sub/chat/store/${storeId}`,
+      (message) => {
+        try {
+          const receivedMessage = JSON.parse(message.body);
+          onMessageReceived(receivedMessage);
+        } catch (error) {
+          console.error('Failed to parse message:', error);
+        }
+      }
+    );
+  };
+
+  const errorCallback = (error) => {
+    console.error('WebSocket connection error:', error);
+    setTimeout(() => {
+      if (!stompClient?.connected) {
+        console.log('Attempting to reconnect...');
+        connectWebSocket(onMessageReceived, storeId);
+      }
+    }, 5000);
+  };
+
+  try {
+    stompClient.connect({}, connectCallback, errorCallback);
+  } catch (error) {
+    console.error('Failed to establish WebSocket connection:', error);
+    errorCallback(error);
+  }
+};
+
+export const sendMessage = (messageData) => {
+  if (!stompClient?.connected) {
+    console.error('WebSocket is not connected');
+    return false;
+  }
+
+  try {
+    stompClient.send(
+      "/pub/chat/message",
+      {},
+      JSON.stringify(messageData)
+    );
+    return true;
+  } catch (error) {
+    console.error('Failed to send message:', error);
+    return false;
+  }
+};
+
+export const disconnectWebSocket = () => {
+  if (subscription) {
+    try {
+      subscription.unsubscribe();
+    } catch (error) {
+      console.error('Failed to unsubscribe:', error);
+    }
+    subscription = null;
+  }
+
+  if (stompClient?.connected) {
+    try {
+      stompClient.disconnect(() => {
+        console.log('WebSocket disconnected');
       });
-    } else {
-      console.log("WebSocket is not connected");
+    } catch (error) {
+      console.error('Failed to disconnect WebSocket:', error);
     }
   }
 
-  disconnect() {
-    if (this.client) {
-      this.client.deactivate();
-    }
-  }
-}
-
-const webSocketService = new WebSocketService();
-
-export const connectWebSocket = (onMessageReceived) =>
-  webSocketService.connect(onMessageReceived);
-export const sendMessage = (message) => webSocketService.sendMessage(message);
-export const disconnectWebSocket = () => webSocketService.disconnect();
+  stompClient = null;
+};

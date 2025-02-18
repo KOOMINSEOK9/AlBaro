@@ -21,10 +21,27 @@ const Notice = () => {
     },
   });
 
+  // access 토큰에서 storeId 추출하는 함수
+  const getStoreIdFromToken = () => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return null;
+
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload).storeId;
+  };
+
   // 공지사항 목록 조회
   const fetchNotices = async () => {
     try {
-      const response = await api.get('/notifications');
+      const storeId = getStoreIdFromToken();
+      if (!storeId) throw new Error('Invalid access token');
+
+      const response = await api.get(`/notifications/store/${storeId}`);
       setNotices(response.data.map(notice => ({
         id: notice.notificationId,
         title: notice.notificationTitle,
@@ -61,9 +78,12 @@ const Notice = () => {
   };
 
   // 공지사항 작성
-  const createNotice = async (userId) => {
+  const createNotice = async () => {
     try {
-      await api.post(`/notifications/${userId}`, formData);
+      const storeId = getStoreIdFromToken();
+      if (!storeId) throw new Error('Invalid access token');
+
+      await api.post(`/notifications/${storeId}`, formData);
       await fetchNotices();
       setShowForm(false);
       setFormData({
@@ -75,7 +95,7 @@ const Notice = () => {
     }
   };
 
-  // 공지사항 삭제
+  // 공지사항 삭제 
   const deleteNotice = async (id) => {
     try {
       await api.delete(`/notifications/${id}`);
@@ -99,9 +119,7 @@ const Notice = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // 현재 로그인한 사용자의 ID를 받아와야 합니다
-    const userId = 1; // 예시로 1을 사용
-    await createNotice(userId);
+    await createNotice();
   };
 
   const handleInputChange = (e) => {
@@ -177,7 +195,7 @@ const Notice = () => {
                     className="h-full w-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-all duration-200 hover:shadow-lg active:bg-red-700"
                     onClick={(e) => {
                       e.stopPropagation();
-                      // 삭제 전 애니메이션
+                      // 삭제 전 애니메이션 
                       const element = e.currentTarget.closest('.relative.rounded-2xl');
                       element.style.transform = 'translateX(-100%)';
                       element.style.opacity = '0';

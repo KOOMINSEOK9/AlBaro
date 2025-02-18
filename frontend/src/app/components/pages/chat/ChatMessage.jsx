@@ -1,7 +1,3 @@
-'use client';
-
-import React from 'react';
-
 const ChatMessage = ({ message, isOwnMessage }) => {
     return (
         <div className={`flex gap-3 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
@@ -9,7 +5,7 @@ const ChatMessage = ({ message, isOwnMessage }) => {
                 <div className="flex-shrink-0">
                     <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center shadow-sm">
                         <span className="text-sm font-medium text-blue-700">
-                            {message.senderName?.[0]}
+                            {message.username?.[0]?.toUpperCase()}
                         </span>
                     </div>
                 </div>
@@ -18,7 +14,7 @@ const ChatMessage = ({ message, isOwnMessage }) => {
             <div className={`flex flex-col max-w-[70%] ${isOwnMessage ? 'items-end' : 'items-start'}`}>
                 {!isOwnMessage && (
                     <span className="text-sm font-medium text-gray-700 mb-1.5 ml-0.5">
-                        {message.senderName}
+                        {message.username}
                     </span>
                 )}
 
@@ -29,13 +25,11 @@ const ChatMessage = ({ message, isOwnMessage }) => {
                         </span>
                     )}
 
-                    <div
-                        className={`px-4 py-2.5 ${isOwnMessage
-                            ? 'bg-blue-600 text-white rounded-2xl rounded-br-md shadow-sm'
-                            : 'bg-white text-gray-800 rounded-2xl rounded-bl-md shadow-sm'
-                            }`}
-                    >
-                        <p className="text-sm leading-relaxed">{message.content}</p>
+                    <div className={`px-4 py-2.5 ${isOwnMessage
+                        ? 'bg-blue-600 text-white rounded-2xl rounded-br-md shadow-sm'
+                        : 'bg-white text-gray-800 rounded-2xl rounded-bl-md shadow-sm'
+                        }`}>
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                     </div>
 
                     {!isOwnMessage && (
