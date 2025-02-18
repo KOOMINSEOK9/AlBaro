@@ -1,12 +1,16 @@
-package com.albaro.config;
+// package com.albaro.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
+// import org.springframework.context.annotation.Bean;
+// import org.springframework.context.annotation.Configuration;
+// import org.springframework.data.redis.connection.RedisConnectionFactory;
+// import org.springframework.data.redis.core.RedisTemplate;
+// import org.springframework.data.redis.listener.ChannelTopic;
+// import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+// import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+// import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+// import org.springframework.data.redis.serializer.StringRedisSerializer;
+// import com.albaro.dto.ChatMessageDto;
+// import com.albaro.service.RedisSubscriber;
 
 // @Configuration
 // public class RedisConfig {
@@ -42,22 +46,88 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 //    }
 // }
 
+
+
+package com.albaro.config;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import com.albaro.service.RedisSubscriber;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import lombok.RequiredArgsConstructor;
+
 @Configuration
+@EnableRedisRepositories
+@RequiredArgsConstructor
 public class RedisConfig {
-    
+
+    @Value("${spring.data.redis.host}")
+    private String redisHost;
+
+    @Value("${spring.data.redis.port}")
+    private int redisPort;
+
+    private final RedisSubscriber redisSubscriber;
+    private final ObjectMapper objectMapper; // 기존 ObjectMapper 주입
+
+    @Bean
+    public RedisConnectionFactory redisConnectionFactory() {
+        RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration(redisHost, redisPort);
+        return new LettuceConnectionFactory(redisConfig);
+    }
+
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         
-        // JSON 직렬화 설정
+        // 주입받은 ObjectMapper 사용
+        Jackson2JsonRedisSerializer<Object> jsonSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
+        jsonSerializer.setObjectMapper(objectMapper);
+        
+        // 직렬화 설정
         template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
+        template.setValueSerializer(jsonSerializer);
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setHashValueSerializer(jsonSerializer);
+        template.setStringSerializer(new StringRedisSerializer());
+        
         return template;
     }
 
     @Bean
     public ChannelTopic channelTopic() {
         return new ChannelTopic("chatroom");
+    }
+
+    @Bean
+    public RedisMessageListenerContainer redisMessageListener(
+            RedisConnectionFactory connectionFactory,
+            MessageListenerAdapter listenerAdapter,
+            ChannelTopic channelTopic) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.addMessageListener(redisSubscriber, channelTopic);
+        return container;
+    }
+
+    @Bean
+    public MessageListenerAdapter listenerAdapter(RedisSubscriber subscriber) {
+        return new MessageListenerAdapter(subscriber, "onMessage");
     }
 }
