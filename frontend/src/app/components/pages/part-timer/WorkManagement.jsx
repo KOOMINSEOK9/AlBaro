@@ -5,9 +5,13 @@ import { useScheduleChangeStore } from '@/store/scheduleChangeStore';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
 import styles from '@/styles/scrollbar.module.css';
 import { ko } from 'date-fns/locale';
+import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
+
 
 export default function WorkManagement() {
-    const { missedShifts, additionalShifts, fetchShifts } = useScheduleChangeStore();
+    const [missedShifts, setMissedShifts] = useState([]);
+    const [additionalShifts, setAdditionalShifts] = useState([]);
     const [selectedDate, setSelectedDate] = useState(null);
     const [showTimeModal, setShowTimeModal] = useState(false);
     const [timeSlot, setTimeSlot] = useState({ startTime: '', endTime: '' });
@@ -17,10 +21,45 @@ export default function WorkManagement() {
     const [showListModal, setShowListModal] = useState(false);
     const DISPLAY_COUNT = 2; // 표시할 칩 개수
     const [isClosing, setIsClosing] = useState(false);
+    const [loginUserUserId, setLoginUserUserId] = useState(null);
+    const [loginUserStoreId, setLoginUserStoreId] = useState(null);
+    const [accessToken, setAccessToken] = useState(null);
 
     useEffect(() => {
-        fetchShifts();
-    }, [fetchShifts]);
+        // 클라이언트 사이드에서만 실행되도록
+        if (typeof window !== "undefined") {
+            const token = localStorage.getItem("accessToken");
+            setAccessToken(token);
+
+            const decoded = jwtDecode(token);
+
+            setLoginUserUserId(decoded.userId);
+            setLoginUserStoreId(decoded.storeId);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (loginUserUserId) {
+            axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/user-work/absent/${loginUserUserId}`)
+                .then(response => {
+                    console.log('알바 마이페이지 결근 정보', response.data);
+                    // setAvailableDates(response.data);
+                })
+                .catch(error => console.error('Error fetching work management data:', error));
+        }
+        else {
+            console.log('userid 없음')
+        }
+    }, [loginUserUserId])
+
+    useEffect(() => {
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/schedule-references`)
+            .then(response => {
+                console.log('알바 마이페이지 추가 근무 가능 어쩌구', response.data);
+                setAvailableDates(response.data);
+            })
+            .catch(error => console.error('Error fetching work management data:', error));
+    }, []);
 
     const currentMonth = new Date();
     const startDate = startOfWeek(startOfMonth(currentMonth));
@@ -31,29 +70,76 @@ export default function WorkManagement() {
         if (new Date(date) < new Date().setHours(0, 0, 0, 0)) return; // 과거 날짜는 선택 불가능
         setSelectedDate(date);
         const existingSlot = availableDates.find(
-            slot => format(slot.date, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+            slot => format(slot.scheduleDate, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
         );
         if (existingSlot) {
-            setTimeSlot({ startTime: existingSlot.startTime, endTime: existingSlot.endTime });
+            console.log('기존 슬롯', existingSlot);
+            setTimeSlot({ scheduleStartTime: existingSlot.scheduleStartTime, scheduleEndTime: existingSlot.scheduleEndTime });
         } else {
-            setTimeSlot({ startTime: '', endTime: '' });
+            setTimeSlot({ scheduleStartTime: '', scheduleEndTime: '' });
         }
         setShowTimeModal(true);
     };
 
-    const handleTimeSubmit = () => {
-        if (timeSlot.startTime && timeSlot.endTime) {
-            const newDates = availableDates.filter(
-                slot => format(slot.date, 'yyyy-MM-dd') !== format(selectedDate, 'yyyy-MM-dd')
+    const handleTimeSubmit = (scheduleDate) => {
+        console.log('scheduleDate', scheduleDate);
+
+        if (timeSlot.scheduleStartTime && timeSlot.scheduleEndTime) {
+            // 기존 날짜가 있는지 확인
+            const isUpdate = availableDates.some(slot =>
+                format(slot.scheduleDate, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd')
             );
+
+            const scheduleData = {
+                userId: loginUserUserId,  // 현재 유저 ID (상태나 props에서 가져와야 함)
+                storeId: loginUserStoreId,  // 현재 매장 ID (상태나 props에서 가져와야 함)
+                scheduleDate: format(selectedDate, 'yyyy-MM-dd'),  // LocalDate 형식으로 변환
+                scheduleStartTime: timeSlot.scheduleStartTime,  // LocalTime 형식
+                scheduleEndTime: timeSlot.scheduleEndTime  // LocalTime 형식
+            };
+
+            if (isUpdate) {
+
+                // 수정하기 API 호출
+                axios.put('/api/schedule-references/', {
+                    date: selectedDate,
+                    ...timeSlot
+                });
+            } else {
+                // 등록하기 API 호출
+                axios.post('/api/schedule-references', scheduleData)
+                    .then((res) => {
+                        console.log('수정하기 API 호출 성공', res);
+                    })
+                    .catch((err) => {
+                        console.log('수정하기 API 호출 실패', err);
+                    });
+            }
+
+            const newDates = availableDates.filter(
+                slot => format(slot.scheduleDate, 'yyyy-MM-dd') !== format(selectedDate, 'yyyy-MM-dd')
+            );
+
             setAvailableDates([...newDates, { date: selectedDate, ...timeSlot }]);
             setShowTimeModal(false);
         }
+        // alert('submit');
+
+        // if (timeSlot.scheduleStartTime && timeSlot.scheduleEndTime) {
+        //     const newDates = availableDates.filter(
+        //         slot => format(slot.scheduleDate, 'yyyy-MM-dd') !== format(selectedDate, 'yyyy-MM-dd')
+        //     );
+
+        //     console.log('새로운 날짜', newDates);
+
+        //     setAvailableDates([...newDates, { date: selectedDate, ...timeSlot }]);
+        //     setShowTimeModal(false);
+        // }
     };
 
     const handleTimeDelete = () => {
         const newDates = availableDates.filter(
-            slot => format(slot.date, 'yyyy-MM-dd') !== format(selectedDate, 'yyyy-MM-dd')
+            slot => format(slot.scheduleDate, 'yyyy-MM-dd') !== format(selectedDate, 'yyyy-MM-dd')
         );
         setAvailableDates(newDates);
         setShowTimeModal(false);
@@ -123,7 +209,7 @@ export default function WorkManagement() {
                         px-3 py-1.5 rounded-full cursor-pointer transition-all duration-200">
                 <CalendarClock className="w-4 h-4 text-blue-500" />
                 <span className="text-sm text-blue-600 font-medium whitespace-nowrap">
-                    {format(slot.date, 'M월 d일(eee)', { locale: ko })}
+                    {format(slot.scheduleDate, 'M월 d일(eee)', { locale: ko })}
                 </span>
                 <div className="text-xs text-blue-500 whitespace-nowrap">
                     {formatTime(slot.startTime)} ~ {formatTime(slot.endTime)}
@@ -137,7 +223,7 @@ export default function WorkManagement() {
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                handleDateClick(slot.date);
+                                handleDateClick(slot.scheduleDate);
                             }}
                             className="p-1 hover:bg-gray-100 rounded-full"
                         >
@@ -146,7 +232,7 @@ export default function WorkManagement() {
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                setSelectedDate(slot.date);
+                                setSelectedDate(slot.scheduleDate);
                                 handleTimeDelete();
                             }}
                             className="p-1 hover:bg-gray-100 rounded-full"
@@ -239,7 +325,7 @@ export default function WorkManagement() {
                                     {days.map((day, index) => {
                                         const isCurrentMonth = format(day, 'M') === format(currentMonth, 'M');
                                         const hasTimeSlot = availableDates.some(
-                                            slot => format(slot.date, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
+                                            slot => format(slot.scheduleDate, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
                                         );
                                         const isToday = format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
                                         const isPast = new Date(day) < new Date().setHours(0, 0, 0, 0);
@@ -320,7 +406,7 @@ export default function WorkManagement() {
                                                                 </div>
                                                                 <div className="flex flex-col">
                                                                     <div className="text-sm font-medium text-gray-900">
-                                                                        {format(slot.date, 'M월 d일(eee)', { locale: ko })}
+                                                                        {format(slot.scheduleDate, 'M월 d일(eee)', { locale: ko })}
                                                                     </div>
                                                                     <div className="flex items-center gap-1.5">
                                                                         <Clock className="w-3.5 h-3.5 text-gray-400" />
@@ -341,7 +427,7 @@ export default function WorkManagement() {
                                                                 </button>
                                                                 <button
                                                                     onClick={() => {
-                                                                        setSelectedDate(slot.date);
+                                                                        setSelectedDate(slot.scheduleDate);
                                                                         handleTimeDelete();
                                                                     }}
                                                                     className="p-2 text-gray-400 hover:text-red-600 
@@ -376,7 +462,7 @@ export default function WorkManagement() {
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-lg font-semibold text-gray-900">
                                 {availableDates.some(slot =>
-                                    format(slot.date, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd')
+                                    format(slot.scheduleDate, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd')
                                 ) ? '근무 가능 시간 수정' : '근무 가능 시간 등록'}
                             </h3>
                             <button
@@ -402,13 +488,15 @@ export default function WorkManagement() {
                                             시작 시간
                                         </label>
                                         <select
-                                            value={timeSlot.startTime}
-                                            onChange={(e) => setTimeSlot({ ...timeSlot, startTime: e.target.value })}
+                                            value={timeSlot.scheduleStartTime ? timeSlot.scheduleStartTime.substring(0, 5) : ""}
+                                            onChange={(e) => setTimeSlot({ ...timeSlot, scheduleStartTime: e.target.value + ":00" })}
                                             className="w-full appearance-none bg-gray-50 border border-gray-300 
                                                      rounded-lg py-2.5 px-3 text-gray-800 leading-tight 
                                                      focus:outline-none focus:ring-2 focus:ring-gray-500 focus:bg-white"
                                         >
-                                            <option value="">선택해주세요</option>
+                                            <option value="" disabled={timeSlot.scheduleStartTime}>
+                                                선택해주세요
+                                            </option>
                                             {Array.from({ length: 48 }).map((_, i) => {
                                                 const hour = Math.floor(i / 2).toString().padStart(2, '0');
                                                 const minute = i % 2 === 0 ? '00' : '30';
@@ -428,8 +516,8 @@ export default function WorkManagement() {
                                             종료 시간
                                         </label>
                                         <select
-                                            value={timeSlot.endTime}
-                                            onChange={(e) => setTimeSlot({ ...timeSlot, endTime: e.target.value })}
+                                            value={timeSlot.scheduleEndTime ? timeSlot.scheduleEndTime.substring(0, 5) : ""}
+                                            onChange={(e) => setTimeSlot({ ...timeSlot, scheduleEndTime: e.target.value + ":00" })}
                                             className="w-full appearance-none bg-gray-50 border border-gray-300 
                                                      rounded-lg py-2.5 px-3 text-gray-800 leading-tight 
                                                      focus:outline-none focus:ring-2 focus:ring-gray-500 focus:bg-white"
@@ -451,13 +539,13 @@ export default function WorkManagement() {
                                     </div>
                                 </div>
 
-                                {timeSlot.startTime && timeSlot.endTime && (
+                                {timeSlot.scheduleStartTime && timeSlot.scheduleEndTime && (
                                     <div className="bg-gray-100 p-3 rounded-lg">
                                         <p className="text-sm text-gray-700 flex items-center gap-2">
                                             <Clock className="w-4 h-4 text-gray-500" />
                                             <span>총 근무 시간: </span>
                                             <span className="font-medium text-gray-800">
-                                                {calculateWorkHours(timeSlot.startTime, timeSlot.endTime)}
+                                                {calculateWorkHours(timeSlot.scheduleStartTime, timeSlot.scheduleEndTime)}
                                             </span>
                                         </p>
                                     </div>
@@ -466,12 +554,15 @@ export default function WorkManagement() {
 
                             <div className="flex gap-2 pt-2">
                                 <button
-                                    onClick={handleTimeSubmit}
+                                    onClick={handleTimeSubmit((e) => {
+                                        e.stopPropagation();
+                                        timeSlot.scheduleDate
+                                    })}
                                     className="flex-1 bg-gray-800 text-white rounded-lg py-2.5 
                                              hover:bg-gray-900 transition-colors font-medium shadow-md"
                                 >
                                     {availableDates.some(slot =>
-                                        format(slot.date, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd')
+                                        format(slot.scheduleDate, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd')
                                     ) ? '수정하기' : '등록하기'}
                                 </button>
                                 <button

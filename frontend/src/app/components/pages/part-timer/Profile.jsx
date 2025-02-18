@@ -24,7 +24,7 @@ export default function Profile() {
                 const userId = decoded.userId; // JWT 페이로드에서 userId 추출
 
                 // const response = await axios.get(`http://localhost:8080/api/user-work/user/${userId}`, {
-                const response = await axios.get(`https://i12b105.p.ssafy.io/api/user-work/user/${userId}`, {
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/user-work/user/${userId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }

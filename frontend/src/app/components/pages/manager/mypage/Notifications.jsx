@@ -21,7 +21,7 @@ export default function Notifications({ notificationList }) {
   }, []);
 
   const denyNotification = async (id, alarmContent) => {
-    const regex = /(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})~(\d{2}:\d{2})/;
+    const regex = /(\d{4}-\d{2}-\d{2})일 (\d{2}:\d{2})~(\d{2}:\d{2})/;
     const match = alarmContent.match(regex);
 
     if (!match) {
@@ -58,6 +58,27 @@ export default function Notifications({ notificationList }) {
   };
 
   const handleNotificationAction = async (id, alarmContent) => {
+
+
+
+    setRemovingId(id);
+
+    try {
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/substitute/alarms/${id}`
+      );
+    } catch (err) {
+      console.error("요청 처리 실패:", err);
+      console.error("에러 세부 정보:", err.response?.data);
+    } finally {
+      setTimeout(() => {
+        removeNotification(id);
+      }, 300);
+    }
+  };
+
+  const handleApproveNotificationAction = async (id, alarmContent) => {
+
     const regex = /(\d{4}-\d{2}-\d{2})일 (\d{2}:\d{2})~(\d{2}:\d{2})/;
     const match = alarmContent.match(regex);
 
@@ -150,7 +171,7 @@ export default function Notifications({ notificationList }) {
                   <>
                     <button
                       onClick={() =>
-                        handleNotificationAction(noti.alarmId, noti.alarmContent)
+                        handleApproveNotificationAction(noti.alarmId, noti.alarmContent)
                       }
                       className="h-9 w-9 bg-blue-500 text-white rounded-full
                                                 hover:bg-blue-600 transition-transform hover:scale-105

@@ -367,7 +367,7 @@ const MyCalendar = () => {
         // flask 서버
         // "http://172.20.0.2:5000/api/python/face-recognition/recognize",
         {
-          // .post("http://localhost:8080/api/face-recognition/recognize", {
+          // "http://localhost:8080/api/face-recognition/recognize", {
           image: imageData,
         }
       )

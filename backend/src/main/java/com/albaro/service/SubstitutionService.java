@@ -166,7 +166,7 @@ public class SubstitutionService {
 //        workInformationRepository.save(workInformation);
 
         //WorkInformation 근무 정보 수정
-        workInformationRepository.updateWorkerAndVacantStatus(worker.getUserId(), workDate, manager.getStore().getStoreId(), startTime,endTime);
+        workInformationRepository.updateWorkerAndVacantStatus(worker.getAccountId(), workDate, manager.getStore().getStoreId(), startTime,endTime);
 
 
         // 점장에게 수락 알림 보내기
@@ -175,6 +175,8 @@ public class SubstitutionService {
                 workDate,
                 startTime,
                 endTime);
+
+        System.out.println("아무튼 알바생 정보:"+worker);
 
         insertAlarm(manager, managerContent, Alarm.AlarmType.SUBSTITUTION_APPROVAL, alarm.getUser().getUserId());
     }
@@ -331,14 +333,6 @@ public class SubstitutionService {
         alarm.setSenderId(senderId);
         alarm.setSentTime(LocalDateTime.now());
         alarmRepository.save(alarm);
-    }
-
-    @Transactional
-    public void deleteAlarm(Integer alarmId) {
-        if (!alarmRepository.existsById(alarmId)) {
-            throw new IllegalArgumentException("알람이 존재하지 않습니다: " + alarmId);
-        }
-        alarmRepository.deleteById(alarmId);
     }
 
 }
