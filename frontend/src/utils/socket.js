@@ -1,8 +1,10 @@
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 
-// const SOCKET_URL = 'http://localhost:8080/ws-stomp';
-const SOCKET_URL = 'https://i12b105.p.ssafy.io/ws-stomp';
+const SOCKET_URL = process.env.NODE_ENV === 'production'
+  ? 'https://i12b105.p.ssafy.io/ws-stomp'
+  : 'http://localhost:8080/ws-stomp';
+
 let stompClient = null;
 let subscription = null;
 
@@ -16,7 +18,11 @@ export const connectWebSocket = (onMessageReceived, storeId) => {
     disconnectWebSocket();
   }
 
-  const socket = new SockJS(SOCKET_URL);
+  const socket = new SockJS(SOCKET_URL, null, {
+    transports: ['websocket', 'xhr-streaming', 'xhr-polling'],
+    timeout: 30000, // 30 seconds
+  });
+
   stompClient = Stomp.over(socket);
   //stompClient.debug = null;
 
@@ -31,6 +37,11 @@ export const connectWebSocket = (onMessageReceived, storeId) => {
         } catch (error) {
           console.error('Failed to parse message:', error);
         }
+      },
+      {
+        // STOMP 구독 옵션 추가
+        'heart-beat': '10000,10000',
+        'accept-version': '1.1,1.2'
       }
     );
   };
@@ -46,7 +57,15 @@ export const connectWebSocket = (onMessageReceived, storeId) => {
   };
 
   try {
-    stompClient.connect({}, connectCallback, errorCallback);
+    stompClient.connect(
+      {
+        // STOMP 연결 헤더 추가
+        'heart-beat': '10000,10000',
+        'accept-version': '1.1,1.2'
+      },
+      connectCallback,
+      errorCallback
+    );
   } catch (error) {
     console.error('Failed to establish WebSocket connection:', error);
     errorCallback(error);
@@ -62,7 +81,9 @@ export const sendMessage = (messageData) => {
   try {
     stompClient.send(
       "/pub/chat/message",
-      {},
+      {
+        'content-type': 'application/json;charset=UTF-8'
+      },
       JSON.stringify(messageData)
     );
     return true;
@@ -93,4 +114,9 @@ export const disconnectWebSocket = () => {
   }
 
   stompClient = null;
+};
+
+// 연결 상태 확인 함수 추가
+export const isConnected = () => {
+  return stompClient?.connected || false;
 };
