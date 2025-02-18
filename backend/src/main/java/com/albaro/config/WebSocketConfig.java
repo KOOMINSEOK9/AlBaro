@@ -29,7 +29,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws-stomp")
                 .setAllowedOriginPatterns("https://i12b105.p.ssafy.io")
                 .withSockJS()
-                .setWebSocketEnabled(true);
+                .setClientLibraryUrl("https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"); // SockJS 클라이언트 URL 설정
     }
 
     @Override
@@ -39,14 +39,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setSendTimeLimit(20000);  // 20초
     }
 
-    @Override
-    public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
-        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        converter.setObjectMapper(objectMapper);
-        messageConverters.add(converter);
-        return false;
-    }
+    // @Override
+    // public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
+    //     MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+    //     ObjectMapper objectMapper = new ObjectMapper();
+    //     objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    //     objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    //     converter.setObjectMapper(objectMapper);
+    //     messageConverters.add(converter);
+    //     return false;
+    // }
 }
