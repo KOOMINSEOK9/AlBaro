@@ -22,7 +22,7 @@ export const connectWebSocket = (onMessageReceived, storeId) => {
     transports: ['websocket'],
     timeout: 30000,
     headers: {
-        'X-Forwarded-Proto': 'https'
+      'X-Forwarded-Proto': 'https'
     }
   });
 
