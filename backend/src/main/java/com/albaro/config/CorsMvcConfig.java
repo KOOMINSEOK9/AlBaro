@@ -16,6 +16,10 @@ public class CorsMvcConfig implements WebMvcConfigurer {
 
                 .allowedMethods("GET", "POST", "PATCH" , "PUT", "DELETE","OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(true);
+                .allowCredentials(true)
+                // 웹소켓 관련
+                .allowedHeaders("Upgrade", "Connection", "Sec-WebSocket-Key", 
+                              "Sec-WebSocket-Version", "Sec-WebSocket-Extensions",
+                              "Sec-WebSocket-Protocol");
     }
 }

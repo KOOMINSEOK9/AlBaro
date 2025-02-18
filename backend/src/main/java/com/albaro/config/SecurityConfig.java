@@ -69,7 +69,7 @@ public class SecurityConfig {
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
                         configuration.setMaxAge(3600L);
                         configuration.setExposedHeaders(Collections.singletonList("access"));
-
+                        configuration.setExposedHeaders(Arrays.asList("access", "Upgrade", "Connection"));  // 웹소켓 헤더 추가
                         return configuration;
                     }
                 }));
@@ -90,6 +90,7 @@ public class SecurityConfig {
         //경로별 인가 작업(권한에 대한 내용)
         http
                 .authorizeHttpRequests((auth) -> auth
+                        .requestMatchers("/ws-stomp/**").permitAll()  // 웹소켓 엔드포인트 명시적 허용
                         .requestMatchers("/**", "/main", "/map").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/manager").hasRole("MANAGER")
