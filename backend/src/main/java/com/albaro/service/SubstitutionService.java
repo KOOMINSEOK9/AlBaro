@@ -296,6 +296,13 @@ public class SubstitutionService {
     }
 
     // 알람 삭제
+    @Transactional
+    public void deleteAlarm(Integer alarmId) {
+        if (!alarmRepository.existsById(alarmId)) {
+            throw new IllegalArgumentException("알람이 존재하지 않습니다: " + alarmId);
+        }
+        alarmRepository.deleteById(alarmId);
+    }
     //대타 요청 거절 알림(알바생이 대타 요청 거절했을 때)
 //    @Transactional
 //    public void rejectSubstitutionRequest(int alarmId) {
@@ -325,6 +332,5 @@ public class SubstitutionService {
         alarm.setSentTime(LocalDateTime.now());
         alarmRepository.save(alarm);
     }
-
 
 }
