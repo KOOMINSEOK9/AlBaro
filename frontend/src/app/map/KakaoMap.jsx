@@ -246,7 +246,6 @@ const KakaoMap = () => {
       .get(
         `${process.env.NEXT_PUBLIC_API_URL}/api/substitute/available-workers`,
         {
-          // .get(`http://localhost:8080/api/substitute/available-workers`, {
           params: { storeId },
         }
       )
@@ -263,23 +262,11 @@ const KakaoMap = () => {
       .get(
         `${process.env.NEXT_PUBLIC_API_URL}/api/substitute/available-stores`,
         {
-          // .get(`http://localhost:8080/api/substitute/available-stores`, {
           params: { storeId },
-          validateStatus: function (status) {
-            // 2xx와 4xx 상태 코드에 대해서 모두 then 블록에서 처리하도록 설정
-            return status >= 200 && status < 500;
-          },
         }
       )
       .then((res) => {
-        if (res.status === 400) {
-          // 400 에러인 경우, 에러 처리 로직
-          // console.log("Bad Request: No data available.");
-          return;
-        } else {
-          // console.log(res.data);
-          setcanDetaTime(res.data);
-        }
+        setcanDetaTime(res.data);
       })
       .catch((err) => {
         console.log(err);
