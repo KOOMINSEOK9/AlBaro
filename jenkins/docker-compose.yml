@@ -7,7 +7,8 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - /var/jenkins_home/workspace/jenkinsTest/jenkins/.env  # Jenkins 컨테이너 내부 절대 경로
+      # - /var/jenkins_home/workspace/jenkinsTest/frontend/.env  
+      - ../frontend/.env
 
   db:
     image: mysql:8
@@ -16,6 +17,9 @@ services:
       MYSQL_DATABASE: albaro
       MYSQL_USER: albaro
       MYSQL_PASSWORD: ssafyalbaro105
+      LANG: ko_KR.UTF-8
+      LANGUAGE: ko_KR.UTF-8
+      LC_ALL: ko_KR.UTF-8
     ports:
       - "3306:3306"
     volumes:
@@ -58,6 +62,8 @@ services:
         context: ../face_recognition 
       ports:
         - "5000:5000"  # 호스트와 컨테이너 간의 포트 매핑
+      volumes:
+        - /etc/letsencrypt:/etc/letsencrypt:ro
 
 
 volumes:

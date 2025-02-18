@@ -1,48 +1,107 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, ChevronRight, ChevronLeft, Clock, MapPin, X, Plus } from 'lucide-react';
+import { Bell, ChevronLeft, Clock, X, Plus, Trash2 } from 'lucide-react';
+import axios from 'axios';
 
 const Notice = () => {
   const [selectedNotice, setSelectedNotice] = useState(null);
   const [readNotices, setReadNotices] = useState(new Set());
   const [isAnimating, setIsAnimating] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [notices, setNotices] = useState([]);
   const [formData, setFormData] = useState({
-    title: '',
-    content: ''
+    notificationTitle: '',
+    notificationContent: ''
   });
 
-  const notices = [
-    {
-      id: 1,
-      title: "긴급 대타 구함 - 강남점",
-      date: "2025.02.13",
-      time: "오후 2시 - 오후 9시",
-      location: "서울 강남구 테헤란로 123",
-      content: "금일 오후 근무자 갑작스러운 병가로 대타 구합니다. 바리스타 경력 1년 이상, 동일 프랜차이즈 근무 경험자 우대. 시급 15,000원\n\n필요 인원: 1명\n근무 시간: 오후 2시 - 오후 9시\n업무 내용: 음료 제조, 매장 관리\n연락처: 점장 (010-1234-5678)"
+  // API 기본 설정
+  const api = axios.create({
+    baseURL: 'http://localhost:8080/api',
+    headers: {
+      'Content-Type': 'application/json',
     },
-    {
-      id: 2,
-      title: "2월 신메뉴 출시 및 레시피 교육 안내",
-      date: "2025.02.12",
-      location: "각 지점 해당",
-      content: "2월 밸런타인 시즌 신메뉴 3종이 출시됩니다. 아래 레시피 교육에 필수 참석 부탁드립니다.\n\n신메뉴:\n1. 초콜릿 로즈 라떼\n2. 스트로베리 하트 프라페\n3. 러브레터 티\n\n레시피 교육일시: 2025년 2월 15일 오전 10시\n교육 방식: 온라인 실시간 교육 (링크는 당일 공지)\n\n* 모든 매장은 15일부터 판매 시작해주시기 바랍니다."
-    },
-    {
-      id: 3,
-      title: "월간 위생 점검 일정 안내",
-      date: "2025.02.11",
-      content: "2월 정기 위생 점검이 진행됩니다. 아래 체크리스트를 참고하여 사전 점검 부탁드립니다.\n\n점검 항목:\n1. 매장 청결도\n2. 식자재 보관 상태\n3. 직원 위생 상태\n4. 시설물 관리 상태\n\n* 상세 체크리스트는 매뉴얼 7장을 참고해주세요.\n* 지점별 점검 일정은 추후 개별 공지 예정입니다."
-    }
-  ];
+  });
 
-  const handleSubmit = (e) => {
+  // 공지사항 목록 조회
+  const fetchNotices = async () => {
+    try {
+      const response = await api.get('/notifications');
+      setNotices(response.data.map(notice => ({
+        id: notice.notificationId,
+        title: notice.notificationTitle,
+        content: notice.notificationContent,
+        date: new Date(notice.createdTime).toLocaleDateString('ko-KR', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        }).replace(/\. /g, '.').slice(0, -1)
+      })));
+    } catch (error) {
+      console.error('공지사항 조회 실패:', error);
+    }
+  };
+
+  // 공지사항 상세 조회
+  const fetchNoticeDetail = async (id) => {
+    try {
+      const response = await api.get(`/notifications/${id}`);
+      const notice = response.data;
+      setSelectedNotice({
+        id: notice.notificationId,
+        title: notice.notificationTitle,
+        content: notice.notificationContent,
+        date: new Date(notice.createdTime).toLocaleDateString('ko-KR', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        }).replace(/\. /g, '.').slice(0, -1)
+      });
+    } catch (error) {
+      console.error('공지사항 상세 조회 실패:', error);
+    }
+  };
+
+  // 공지사항 작성
+  const createNotice = async (userId) => {
+    try {
+      await api.post(`/notifications/${userId}`, formData);
+      await fetchNotices();
+      setShowForm(false);
+      setFormData({
+        notificationTitle: '',
+        notificationContent: ''
+      });
+    } catch (error) {
+      console.error('공지사항 작성 실패:', error);
+    }
+  };
+
+  // 공지사항 삭제
+  const deleteNotice = async (id) => {
+    try {
+      await api.delete(`/notifications/${id}`);
+      await fetchNotices();
+    } catch (error) {
+      console.error('공지사항 삭제 실패:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotices();
+  }, []);
+
+  useEffect(() => {
+    if (!isAnimating) return;
+    const timer = setTimeout(() => {
+      setIsAnimating(false);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [isAnimating]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    setShowForm(false);
-    setFormData({
-      title: '',
-      content: ''
-    });
+    // 현재 로그인한 사용자의 ID를 받아와야 합니다
+    const userId = 1; // 예시로 1을 사용
+    await createNotice(userId);
   };
 
   const handleInputChange = (e) => {
@@ -53,17 +112,9 @@ const Notice = () => {
     }));
   };
 
-  useEffect(() => {
-    if (!isAnimating) return;
-    const timer = setTimeout(() => {
-      setIsAnimating(false);
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [isAnimating]);
-
-  const openNotice = (notice) => {
+  const openNotice = async (notice) => {
     setIsAnimating(true);
-    setSelectedNotice(notice);
+    await fetchNoticeDetail(notice.id);
     setReadNotices(prev => new Set([...prev, notice.id]));
   };
 
@@ -97,19 +148,50 @@ const Notice = () => {
           {notices.map((notice) => (
             <div
               key={notice.id}
-              className="group relative p-4 cursor-pointer transition-transform duration-300 bg-white hover:shadow-lg rounded-xl border border-gray-200 transform hover:-translate-y-1"
-              onClick={() => openNotice(notice)}
+              className="relative rounded-2xl border border-gray-100 bg-white hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
             >
-              <div className="flex flex-col space-y-2">
-                <div className="flex justify-between items-center">
-                  <h3 className={`text-base font-bold truncate ${readNotices.has(notice.id) ? 'text-gray-500' : 'text-gray-800'}`}>
-                    {notice.title}
-                  </h3>
-                  <span className="text-sm text-gray-400">{notice.date}</span>
+              {/* 컨텐츠 영역 */}
+              <div className="relative group overflow-hidden rounded-2xl">
+                {/* 메인 컨텐츠 */}
+                <div
+                  className="p-5 cursor-pointer bg-white transform transition-all duration-300 ease-out group-hover:-translate-x-16 group-hover:pl-8"
+                  onClick={() => openNotice(notice)}
+                >
+                  <div className="flex flex-col space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <h3 className={`text-base font-semibold truncate ${readNotices.has(notice.id) ? 'text-gray-500' : 'text-gray-800'} transition-colors duration-200`}>
+                        {notice.title}
+                      </h3>
+                      <span className="text-sm text-gray-400 font-medium">{notice.date}</span>
+                    </div>
+                    <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed group-hover:text-gray-900 transition-colors duration-200">
+                      {notice.content}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-sm text-gray-600 line-clamp-2">
-                  {notice.content}
-                </p>
+
+                {/* 삭제 버튼 */}
+                <div className="absolute right-0 top-0 h-full w-16 translate-x-full group-hover:translate-x-0 transition-all duration-300 ease-out">
+                  <button
+                    type="button"
+                    className="h-full w-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-all duration-200 hover:shadow-lg active:bg-red-700"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // 삭제 전 애니메이션
+                      const element = e.currentTarget.closest('.relative.rounded-2xl');
+                      element.style.transform = 'translateX(-100%)';
+                      element.style.opacity = '0';
+                      element.style.transition = 'all 0.3s ease-out';
+
+                      // 애니메이션 완료 후 실제 삭제
+                      setTimeout(() => {
+                        deleteNotice(notice.id);
+                      }, 300);
+                    }}
+                  >
+                    <Trash2 className="w-5 h-5 text-white transform transition-transform duration-200 group-hover:scale-110" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -137,14 +219,8 @@ const Notice = () => {
                 <div className="flex items-center gap-4 text-sm text-gray-500">
                   <div className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
-                    <span>{selectedNotice.time || selectedNotice.date}</span>
+                    <span>{selectedNotice.date}</span>
                   </div>
-                  {selectedNotice.location && (
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      <span>{selectedNotice.location}</span>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -180,7 +256,7 @@ const Notice = () => {
                   className="text-gray-500 hover:text-gray-700 transform hover:rotate-90 transition-transform"
                   onClick={() => setShowForm(false)}
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-5 h-5" />
                 </button>
               </div>
               <h2 className="text-xl font-semibold text-gray-900">새 공지사항 작성</h2>
@@ -194,8 +270,8 @@ const Notice = () => {
                     </label>
                     <input
                       type="text"
-                      name="title"
-                      value={formData.title}
+                      name="notificationTitle"
+                      value={formData.notificationTitle}
                       onChange={handleInputChange}
                       className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       placeholder="공지사항 제목을 입력하세요"
@@ -207,8 +283,8 @@ const Notice = () => {
                       내용
                     </label>
                     <textarea
-                      name="content"
-                      value={formData.content}
+                      name="notificationContent"
+                      value={formData.notificationContent}
                       onChange={handleInputChange}
                       rows={6}
                       className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"

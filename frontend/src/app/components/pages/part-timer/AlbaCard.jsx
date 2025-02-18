@@ -105,7 +105,7 @@ const AlbaCard = ({ selectedDate, startTime, endTime, albas }) => {
 
       axios
         .post(
-          `https://i12b105.p.ssafy.io/api/substitute/workerRequest?${queryParams}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/substitute/workerRequest?${queryParams}`
           // `http://localhost:8080/api/substitute/workerRequest?${queryParams}`
         )
         .then((res) => {
