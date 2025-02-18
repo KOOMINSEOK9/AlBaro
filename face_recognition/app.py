@@ -8,6 +8,11 @@ from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
+
+# PEM 키 파일 경로
+PEM_KEY_PATH = '/etc/letsencrypt/live/i12b105.p.ssafy.io/privkey.pem'
+CERT_PATH = '/etc/letsencrypt/live/i12b105.p.ssafy.io/fullchain.pem'
+
 CORS(app)
 
 # 모델 로드
@@ -63,4 +68,4 @@ def recognize():
 #     print(response.text)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)  # SSL 제거, Nginx에서 SSL 처리
+    app.run(host='0.0.0.0', port=5000 , ssl_context=(CERT_PATH, PEM_KEY_PATH))  # SSL 제거, Nginx에서 SSL 처리
