@@ -25,9 +25,13 @@ def recognize():
     try:
         data = request.json
         if DEBUG_MODE:
-            print(data)  # 디버깅 로그
+            print("Received data:", data)  # 디버깅 로그
 
-        image_data = data['image']
+        # 요청 데이터에서 이미지 추출
+        image_data = data.get('image')
+        if not image_data:
+            return jsonify({"error": "No image data provided."}), 400
+
         image_data = image_data.split(",")[1]  # base64 데이터 추출
         image = Image.open(io.BytesIO(base64.b64decode(image_data)))
 
