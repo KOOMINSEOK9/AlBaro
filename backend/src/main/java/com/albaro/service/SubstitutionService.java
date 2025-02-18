@@ -70,18 +70,23 @@ public class SubstitutionService {
         User sender = userRepository.findById(alarm.getSenderId())
                 .orElseThrow(() -> new RuntimeException("보낸 사용자를 찾을 수 없음"));
 
+
+        User receiver = alarm.getUser();
+
+//        WorkInformation workInformation = new WorkInformation();
+
+//        workInformation.setRealTimeWorker(sender.getAccountId()); //보낸 사람이 일 할 사람
+//        workInformation.setVacant(false); // 공석 여부 false로 변환
+//        workInformation.setWorkDate(workDate);
+//        workInformation.setStartTime(startTime);
+//        workInformation.setEndTime(endTime);
+//        workInformation.setStore(sender.getStore());
+//        workInformation.setUser(sender);
+//
+//        workInformationRepository.save(workInformation);
+
         //새로운 근무 정보 업데이트
-        WorkInformation workInformation = new WorkInformation();
-
-        workInformation.setRealTimeWorker(alarm.getSenderId()); //보낸 사람이 일 할 사람
-        workInformation.setVacant(false); // 공석 여부 false로 변환
-        workInformation.setWorkDate(workDate);
-        workInformation.setStartTime(startTime);
-        workInformation.setEndTime(endTime);
-        workInformation.setStore(sender.getStore());
-        workInformation.setUser(sender);
-
-        workInformationRepository.save(workInformation);
+        workInformationRepository.updateWorkerAndVacantStatus(sender.getAccountId(), workDate, receiver.getStore().getStoreId(), startTime,endTime);
 
         //대타 요청 수락 알림 전송 -> 근무할 알바생에게!
         insertAlarm(sender, "대타 요청이 승인되었습니다.", Alarm.AlarmType.SUBSTITUTION_APPROVAL, null);
@@ -148,17 +153,21 @@ public class SubstitutionService {
         User manager = userRepository.findById(alarm.getSenderId())
                 .orElseThrow(() -> new RuntimeException("점장 정보를 찾을 수 없습니다."));
 
-        // WorkInformation에 근무 정보 저장
-        WorkInformation workInformation = new WorkInformation();
-        workInformation.setUser(manager);
-        workInformation.setStore(manager.getStore());
-        workInformation.setWorkDate(workDate);
-        workInformation.setStartTime(startTime);
-        workInformation.setEndTime(endTime);
-        workInformation.setVacant(false);  // 공석 아님으로 설정
-        workInformation.setRealTimeWorker(worker.getUserId());
+//        // WorkInformation에 근무 정보 저장
+//        WorkInformation workInformation = new WorkInformation();
+//        workInformation.setUser(manager);
+//        workInformation.setStore(manager.getStore());
+//        workInformation.setWorkDate(workDate);
+//        workInformation.setStartTime(startTime);
+//        workInformation.setEndTime(endTime);
+//        workInformation.setVacant(false);  // 공석 아님으로 설정
+//        workInformation.setRealTimeWorker(worker.getUserId());
+//
+//        workInformationRepository.save(workInformation);
 
-        workInformationRepository.save(workInformation);
+        //WorkInformation 근무 정보 수정
+        workInformationRepository.updateWorkerAndVacantStatus(worker.getUserId(), workDate, manager.getStore().getStoreId(), startTime,endTime);
+
 
         // 점장에게 수락 알림 보내기
         String managerContent = String.format("%s님이 %s일 %s~%s 대타 근무를 수락하였습니다.",
@@ -241,17 +250,21 @@ public class SubstitutionService {
         User requestWorker = userRepository.findById(alarm.getSenderId())
                 .orElseThrow(() -> new RuntimeException("알바생 정보를 찾을 수 없습니다."));
 
-        // WorkInformation에 근무 정보 저장
-        WorkInformation workInformation = new WorkInformation();
-        workInformation.setUser(requestWorker);
-        workInformation.setStore(requestWorker.getStore());
-        workInformation.setWorkDate(workDate);
-        workInformation.setStartTime(startTime);
-        workInformation.setEndTime(endTime);
-        workInformation.setVacant(false);  // 공석 아님으로 설정
-        workInformation.setRealTimeWorker(worker.getUserId());
+//        // WorkInformation에 근무 정보 저장
+//        WorkInformation workInformation = new WorkInformation();
+//        workInformation.setUser(requestWorker);
+//        workInformation.setStore(requestWorker.getStore());
+//        workInformation.setWorkDate(workDate);
+//        workInformation.setStartTime(startTime);
+//        workInformation.setEndTime(endTime);
+//        workInformation.setVacant(false);  // 공석 아님으로 설정
+//        workInformation.setRealTimeWorker(worker.getUserId());
+//
+//        workInformationRepository.save(workInformation);
 
-        workInformationRepository.save(workInformation);
+       //WorkInformation 근무 정보 수정
+        workInformationRepository.updateWorkerAndVacantStatus(worker.getUserId(), workDate, requestWorker.getStore().getStoreId(), startTime,endTime);
+
 
         //가게이름으로 점장아이디 찾기
         int managerId = userRepository.findManagerIdByStoreId(requestWorker.getStore().getStoreId())
@@ -310,6 +323,14 @@ public class SubstitutionService {
         alarm.setSenderId(senderId);
         alarm.setSentTime(LocalDateTime.now());
         alarmRepository.save(alarm);
+    }
+
+    @Transactional
+    public void deleteAlarm(Integer alarmId) {
+        if (!alarmRepository.existsById(alarmId)) {
+            throw new IllegalArgumentException("알람이 존재하지 않습니다: " + alarmId);
+        }
+        alarmRepository.deleteById(alarmId);
     }
 
 }

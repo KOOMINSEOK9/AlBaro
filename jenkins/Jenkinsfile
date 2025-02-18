@@ -43,6 +43,7 @@ pipeline {
                         sh '''
                         echo "NEXT_PUBLIC_KAKAO_KEY=$NEXT_PUBLIC_KAKAO_KEY" > /var/jenkins_home/workspace/jenkinsTest/jenkins/.env
                         cp /var/jenkins_home/workspace/jenkinsTest/jenkins/.env /var/jenkins_home/workspace/jenkinsTest/frontend/.env
+                        echo "NEXT_PUBLIC_API_URL=https://i12b105.p.ssafy.io" >> /var/jenkins_home/workspace/jenkinsTest/frontend/.env
                         '''
                     }
                 }

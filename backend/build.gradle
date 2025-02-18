@@ -21,6 +21,7 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven {url 'https://jitpack.io'}
 }
 
 dependencies {
@@ -51,6 +52,9 @@ dependencies {
 	// JSON 처리 의존성
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+	//QR코드 의존성
+	implementation 'com.github.kenglxn.QRGen:javase:3.0.1'
 }
 
 tasks.named('test') {

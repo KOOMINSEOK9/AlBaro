@@ -17,6 +17,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
 //    User findByAccountId(int accountId);
 
+    @Query("SELECT u.accountId FROM User u WHERE u.id = :userId")
+    Integer findAccountIdByUserId(@Param("userId") int userId);
+
     //userId로 storeId찾기
     @Query("SELECT u.store.id FROM User u WHERE u.id = :userId")
     int findStoreIdByUserId(@Param("userId") int userId);

@@ -47,6 +47,10 @@ const MyCalendar = () => {
   const [loginUserRole, setLoginUserRole] = useState(null);
 
   useEffect(() => {
+    // 환경 변수 확인
+    console.log("NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
+
+
     // 클라이언트 사이드에서만 실행되도록
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("accessToken");
@@ -71,10 +75,10 @@ const MyCalendar = () => {
   useEffect(() => {
     if (loginUserStoreId) {
       axios
-        // .get(
-        //   `https://i12b105.p.ssafy.io/api/work-information/${loginUserStoreId}`
-        // )
-        .get(`http://localhost:8080/api/work-information/${loginUserStoreId}`)
+        .get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/work-information/${loginUserStoreId}`
+        )
+        // .get(`http://localhost:8080/api/work-information/${loginUserStoreId}`)
         .then((response) => {
           // console.log(response);
 
@@ -259,8 +263,8 @@ const MyCalendar = () => {
           if (confirm(`해당 근무를 공석으로 변경하시겠습니까?`)) {
             axios
               .patch(
-                // `https://i12b105.p.ssafy.io/api/work-information/${selectInfo.event.extendedProps.scheduleId}/vacant`
-                `http://localhost:8080/api/work-information/${selectInfo.event.extendedProps.scheduleId}/vacant`
+                `${process.env.NEXT_PUBLIC_API_URL}/api/work-information/${selectInfo.event.extendedProps.scheduleId}/vacant`
+                // `http://localhost:8080/api/work-information/${selectInfo.event.extendedProps.scheduleId}/vacant`
               )
               .then((res) => {
                 alert("해당 근무를 공석 처리했습니다.");
@@ -274,10 +278,13 @@ const MyCalendar = () => {
         }
       } else {
         axios
-          // .get(`https://i12b105.p.ssafy.io/api/substitute/my-schedule`, {
-          .get(`http://localhost:8080/api/substitute/my-schedule`, {
-            params: { userId: loginUserUserId },
-          })
+          .get(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/substitute/my-schedule`,
+            {
+              // .get(`http://localhost:8080/api/substitute/my-schedule`, {
+              params: { userId: loginUserUserId },
+            }
+          )
           .then((res) => {
             console.log("알바생->알바생 axios 응답: ", res.data);
 
@@ -354,10 +361,15 @@ const MyCalendar = () => {
 
     // 서버로 이미지 데이터 전송
     axios
-      // .post("https://i12b105.p.ssafy.io/api/python/face-recognition/recognize", {
-      .post("http://localhost:8080/api/face-recognition/recognize", {
-        image: imageData,
-      })
+      .post(
+        "https://i12b105.p.ssafy.io/api/python/face-recognition/recognize",
+        // flask 서버
+        // "http://172.20.0.2:5000/api/python/face-recognition/recognize",
+        {
+          // .post("http://localhost:8080/api/face-recognition/recognize", {
+          image: imageData,
+        }
+      )
       .then((response) => {
         console.log("Response from server:", response.data);
         // 추가적인 처리 (예: 성공 메시지 표시 등)

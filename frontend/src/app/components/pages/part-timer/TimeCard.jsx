@@ -36,16 +36,20 @@ const TimeCard = ({ times, selectedStore }) => {
       )
     ) {
       axios
-        // .post(`https://i12b105.p.ssafy.io/api/substitute/request`, null, {
-        .post(`http://localhost:8080/api/substitute/request`, null, {
-          params: {
-            senderId: loginUserId,
-            storeId: selectedStore.storeId,
-            workDate: time.workDate,
-            startTime: time.startTime,
-            endTime: time.endTime,
-          },
-        })
+        .post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/substitute/request`,
+          null,
+          {
+            // .post(`http://localhost:8080/api/substitute/request`, null, {
+            params: {
+              senderId: loginUserId,
+              storeId: selectedStore.storeId,
+              workDate: time.workDate,
+              startTime: time.startTime,
+              endTime: time.endTime,
+            },
+          }
+        )
         .then((res) => {
           alert(`대타 요청을 완료했습니다.`);
         })

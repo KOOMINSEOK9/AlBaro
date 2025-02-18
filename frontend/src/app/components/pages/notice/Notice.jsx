@@ -15,7 +15,8 @@ const Notice = () => {
 
   // API 기본 설정
   const api = axios.create({
-    baseURL: 'http://localhost:8080/api',
+    // baseURL: 'http://localhost:8080/api',
+    baseURL: 'https://i12b105.p.ssafy.io/api',
     headers: {
       'Content-Type': 'application/json',
     },
