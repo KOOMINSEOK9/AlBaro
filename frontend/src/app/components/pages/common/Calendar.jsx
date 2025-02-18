@@ -22,7 +22,7 @@ import AlbaListModal from "../part-timer/AlbaListModal";
 import DatePicker from "react-datepicker";
 import AlbaCard from "../part-timer/AlbaCard";
 
-// import "./Calendar.css";
+import "./Calendar.css";
 
 const MyCalendar = () => {
   const router = useRouter(); // Next.js Router 사용
@@ -49,7 +49,6 @@ const MyCalendar = () => {
   useEffect(() => {
     // 환경 변수 확인
     console.log("NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
-
 
     // 클라이언트 사이드에서만 실행되도록
     if (typeof window !== "undefined") {
@@ -116,7 +115,7 @@ const MyCalendar = () => {
               new Date(`${event.workDate}T${event.endTime}`) > new Date() &&
               event.checkInTime &&
               new Date(`${event.workDate}T${event.checkInTime}`) <
-              new Date(`${event.workDate}T${event.startTime}`)
+                new Date(`${event.workDate}T${event.startTime}`)
             ) {
               event.color = "#C5EFFF";
               event.borderColor = "#C5EFFF";
@@ -161,7 +160,6 @@ const MyCalendar = () => {
     }
   }, [loginUserStoreId]);
 
-  // 점장 -> 알바 대타구하기(지도 페이지)
   // 점장 -> 알바 대타구하기(지도 페이지)
   const gotoDeta = (info) => {
     // console.log(info);
@@ -215,7 +213,7 @@ const MyCalendar = () => {
   };
 
   const handleEventHover = (selectInfo) => {
-    // console.log("selectInfo", selectInfo);
+    console.log("selectInfo", selectInfo);
 
     if (
       loginUserRole === "staff" &&
@@ -296,9 +294,57 @@ const MyCalendar = () => {
             console.log("알바->알바 axios err: ", err);
           });
 
-        // 알바생 -> 알바생 대타 구하기 모달 열기
-        setIsModalOpen(true);
-        setEventInfo(selectInfo);
+        // 알바생 공석 대타 구하기 ->
+        if (selectInfo.event.extendedProps.isVacant) {
+          const workDate = new Date(
+            new Date(selectInfo.event.extendedProps.workDate).getTime() +
+              9 * 60 * 60 * 1000
+          )
+            .toISOString()
+            .split("T")[0];
+
+          const startTime = new Date(
+            new Date(selectInfo.event.start).getTime() + 9 * 60 * 60 * 1000
+          )
+            .toISOString()
+            .slice(11, 16);
+          const endTime = new Date(
+            new Date(selectInfo.event.end).getTime() + 9 * 60 * 60 * 1000
+          )
+            .toISOString()
+            .slice(11, 16);
+
+          if (
+            confirm(
+              `${workDate} ${startTime} ~ ${endTime} 근무 대타를 구하시겠습니까?`
+            )
+          ) {
+            axios
+              .post(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/substitute/request`,
+                null,
+                {
+                  params: {
+                    senderId: loginUserUserId,
+                    storeId: loginUserStoreId,
+                    workDate: workDate,
+                    startTime: startTime,
+                    endTime: endTime,
+                  },
+                }
+              )
+              .then((res) => {
+                alert(`대타 요청을 완료했습니다.`);
+              })
+              .catch((err) => {
+                console.log("대타 요청 보내기 에러: ", err);
+              });
+          }
+        } else {
+          // 알바생 -> 알바생 대타 구하기 모달 열기
+          setIsModalOpen(true);
+          setEventInfo(selectInfo);
+        }
       }
     });
 
@@ -382,7 +428,10 @@ const MyCalendar = () => {
 
   return (
     <div className="App h-full">
-      <div className="flex justify-between items-center mb-5">
+      <div
+        class="mainHeader"
+        className="flex justify-between items-center mb-5"
+      >
         <h1 className="text-2xl font-bold">MEGASSAFY 덕명점</h1>
         <div className="flex gap-3 text-base">
           <Link
@@ -435,7 +484,7 @@ const MyCalendar = () => {
         )}
         views={{
           dayGridMonth: {
-            dayMaxEvents: true,
+            // dayMaxEvents: true,
             titleFormat: function (date) {
               const year = date.date.year;
               const month = date.date.month + 1;
@@ -447,6 +496,8 @@ const MyCalendar = () => {
             allDaySlot: false,
             nowIndicator: true,
             slotEventOverlap: false,
+            slotMinTime: "09:00:00",
+            slotDuration: "01:00:00",
             // titleFormat: function (date) {
             //   const year = date.date.year;
             //   const month = date.date.month;

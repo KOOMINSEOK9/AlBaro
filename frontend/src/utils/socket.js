@@ -67,7 +67,7 @@ export const sendMessage = (messageData) => {
     );
     return true;
   } catch (error) {
-    console.error('Failed to send message:', error);
+    console.error("Failed to send message:", error);
     return false;
   }
 };
@@ -88,7 +88,7 @@ export const disconnectWebSocket = () => {
         console.log('WebSocket disconnected');
       });
     } catch (error) {
-      console.error('Failed to disconnect WebSocket:', error);
+      console.error("Failed to disconnect WebSocket:", error);
     }
   }
 
