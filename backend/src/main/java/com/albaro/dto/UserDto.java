@@ -13,7 +13,7 @@ public class UserDto {
         private LocalDate scheduleDate;
         private LocalTime scheduleStartTime ;
         private LocalTime scheduleEndTime ;
-//        private String filePath;
+        private String filePath;
 
         public static com.albaro.dto.UserDto fromEntity(User user) {
             return new com.albaro.dto.UserDto(
@@ -23,6 +23,24 @@ public class UserDto {
                     user.getPhoneNumber()
             );
         }
+
+    // 이미지 포함된 fromEntity
+    public static UserDto fromEntityWithImage(User user, LocalDate scheduleDate,
+                                              LocalTime scheduleStartTime, LocalTime scheduleEndTime) {
+        String filePath = null;
+        if (user.getUserProfileImage() != null) {
+            filePath = user.getUserProfileImage().getFilePath();
+        }
+
+        return new UserDto(
+                user.getUserId(),
+                user.getUserName(),
+                scheduleDate,
+                scheduleStartTime,
+                scheduleEndTime,
+                filePath
+        );
+    }
 
     // 새로운 생성자 추가
     public UserDto(Integer userId, String userName) {
@@ -49,8 +67,19 @@ public class UserDto {
         this.scheduleDate = scheduleDate;
         this.scheduleStartTime = scheduleStartTime;
         this.scheduleEndTime = scheduleEndTime;
-//        this.filePath = filePath;
     }
+
+    //프로필 이미지 넣은 dto, 알바생 찾는 로직(점장 공석채우기, 알바생 대타 구하기)에 사용
+    public UserDto(Integer userId, String userName, LocalDate scheduleDate,
+                   LocalTime scheduleStartTime, LocalTime scheduleEndTime, String filePath) {
+        this.userId = userId;
+        this.userName = userName;
+        this.scheduleDate = scheduleDate;
+        this.scheduleStartTime = scheduleStartTime;
+        this.scheduleEndTime = scheduleEndTime;
+        this.filePath = filePath;
+    }
+
 
     public Integer getUserId() {
         return userId;
@@ -108,7 +137,11 @@ public class UserDto {
         this.scheduleEndTime = scheduleEndTime;
     }
 
-//    public String getFilePath(){ return filePath; }
+    public String getFilePath() {
+        return filePath;
+    }
 
-//        public void setFilePath(String filePath){ this.filePath = filePath; }
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
 }
