@@ -41,38 +41,38 @@ public interface ScheduleReferenceRepository extends JpaRepository<ScheduleRefer
     List<UserDto> findWorkersByStoreId(@Param("storeId") Integer storeId);
 
     //알바생-> 알바생 로직(내부)
-    @Query("SELECT DISTINCT new com.albaro.dto.UserDto(sr.user.userId, sr.user.userName, sr.scheduleDate, sr.scheduleStartTime, sr.scheduleEndTime) " +
-            "FROM ScheduleReference sr " +
-            "WHERE sr.store.storeId = :storeId " +
-            "AND sr.user.userId != :userId")
-    List<UserDto> findWorkerInInternalStore(@Param("storeId") Integer storeId, @Param("userId") Integer userId);
-
-//    //프로필 이미지 넣은 버전
-//    @Query("SELECT DISTINCT new com.albaro.dto.UserDto(" +
-//            "sr.user.userId, sr.user.userName, sr.scheduleDate, sr.scheduleStartTime, sr.scheduleEndTime, " +
-//            "(SELECT upi.filePath FROM UserProfileImage upi WHERE upi.user = sr.user ORDER BY upi.userProfileImageId DESC LIMIT 1)) " +
+//    @Query("SELECT DISTINCT new com.albaro.dto.UserDto(sr.user.userId, sr.user.userName, sr.scheduleDate, sr.scheduleStartTime, sr.scheduleEndTime) " +
 //            "FROM ScheduleReference sr " +
 //            "WHERE sr.store.storeId = :storeId " +
 //            "AND sr.user.userId != :userId")
 //    List<UserDto> findWorkerInInternalStore(@Param("storeId") Integer storeId, @Param("userId") Integer userId);
 
+    //프로필 이미지 넣은 버전
+    @Query("SELECT DISTINCT new com.albaro.dto.UserDto(" +
+            "sr.user.userId, sr.user.userName, sr.scheduleDate, sr.scheduleStartTime, sr.scheduleEndTime, " +
+            "(SELECT upi.filePath FROM UserProfileImage upi WHERE upi.user = sr.user ORDER BY upi.userProfileImageId DESC LIMIT 1)) " +
+            "FROM ScheduleReference sr " +
+            "WHERE sr.store.storeId = :storeId " +
+            "AND sr.user.userId != :userId")
+    List<UserDto> findWorkerInInternalStore(@Param("storeId") Integer storeId, @Param("userId") Integer userId);
+
 
     //알바생-> 알바생 로직(외부)
-    @Query("SELECT DISTINCT new com.albaro.dto.UserDto(sr.user.userId, sr.user.userName, sr.scheduleDate, sr.scheduleStartTime, sr.scheduleEndTime) FROM ScheduleReference sr WHERE sr.store.storeId IN :storeIdList AND sr.user.userId != :excludeUserId")
-    List<UserDto> findWorkersInExternalStore(@Param("storeIdList") List<Integer> storeIdList, @Param("excludeUserId") Integer excludeUserId);
+//    @Query("SELECT DISTINCT new com.albaro.dto.UserDto(sr.user.userId, sr.user.userName, sr.scheduleDate, sr.scheduleStartTime, sr.scheduleEndTime) FROM ScheduleReference sr WHERE sr.store.storeId IN :storeIdList AND sr.user.userId != :excludeUserId")
+//    List<UserDto> findWorkersInExternalStore(@Param("storeIdList") List<Integer> storeIdList, @Param("excludeUserId") Integer excludeUserId);
 
     //프로필 이미지 넣은 버전
-//    @Query("SELECT DISTINCT new com.albaro.dto.UserDto(" +
-//            "sr.user.userId, " +
-//            "sr.user.userName, " +
-//            "sr.scheduleDate, " +
-//            "sr.scheduleStartTime, " +
-//            "sr.scheduleEndTime, " +
-//            "(SELECT upi.filePath FROM UserProfileImage upi WHERE upi.user = sr.user ORDER BY upi.userProfileImageId DESC LIMIT 1)) " +
-//            "FROM ScheduleReference sr " +
-//            "WHERE sr.store.storeId IN :storeIdList " +
-//            "AND sr.user.userId != :excludeUserId")
-//    List<UserDto> findWorkersInExternalStore(@Param("storeIdList") List<Integer> storeIdList, @Param("excludeUserId") Integer excludeUserId);
+    @Query("SELECT DISTINCT new com.albaro.dto.UserDto(" +
+            "sr.user.userId, " +
+            "sr.user.userName, " +
+            "sr.scheduleDate, " +
+            "sr.scheduleStartTime, " +
+            "sr.scheduleEndTime, " +
+            "(SELECT upi.filePath FROM UserProfileImage upi WHERE upi.user = sr.user ORDER BY upi.userProfileImageId DESC LIMIT 1)) " +
+            "FROM ScheduleReference sr " +
+            "WHERE sr.store.storeId IN :storeIdList " +
+            "AND sr.user.userId != :excludeUserId")
+    List<UserDto> findWorkersInExternalStore(@Param("storeIdList") List<Integer> storeIdList, @Param("excludeUserId") Integer excludeUserId);
 
 
 
