@@ -107,24 +107,32 @@ const ChatRoom = () => {
             if (!userInfo?.storeId) return;
 
             try {
+                console.log('Starting WebSocket setup...');
                 await fetchChatHistory();
+                
+                console.log('Connecting WebSocket...', {
+                    storeId: userInfo.storeId,
+                    userId: userInfo.userId
+                });
                 
                 connectWebSocket(
                     handleMessageReceived,
                     userInfo.storeId
                 );
                 
-                // 주기적으로 연결 상태 확인
+                // 연결 상태 모니터링 개선
                 const statusInterval = setInterval(() => {
                     if (mounted) {
-                        setConnectionStatus(getConnectionStatus());
+                        const status = getConnectionStatus();
+                        setConnectionStatus(status);
+                        console.log('Connection status:', status);
                     }
                 }, 1000);
 
                 return () => clearInterval(statusInterval);
             } catch (err) {
                 console.error('WebSocket setup failed:', err);
-                setError('채팅 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
+                setError(`채팅 연결 실패: ${err.message}`);
             }
         };
 
