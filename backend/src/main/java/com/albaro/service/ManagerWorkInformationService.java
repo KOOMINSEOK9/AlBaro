@@ -2,6 +2,7 @@ package com.albaro.service;
 
 import com.albaro.dto.ManagerWorkInformationResponse;
 import com.albaro.dto.UserDto;
+import com.albaro.dto.UserProfileImageResponse;
 import com.albaro.entity.User;
 import com.albaro.entity.WorkInformation;
 import com.albaro.repository.UserRepository;
@@ -83,5 +84,19 @@ public class ManagerWorkInformationService {
     public Optional<ManagerWorkInformationResponse> getUserWithStoreNameById(Integer userId) {
         return userRepository.findById(userId)
                 .map(user -> new ManagerWorkInformationResponse(user.getUserId(), user.getUserName(), user.getStore().getStoreName()));
+    }
+
+    // 새로운 메서드: storeId에 해당하는 STAFF 역할의 사용자 목록 반환 (userName과 filePath 포함)
+    public List<UserProfileImageResponse> getStaffWithImagesByStoreId(Integer storeId) {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getStore() != null && user.getStore().getStoreId().equals(storeId))
+                .filter(user -> "STAFF".equalsIgnoreCase(user.getRole()))
+                .map(user -> {
+                    String filePath = (user.getUserProfileImage() != null)
+                            ? user.getUserProfileImage().getFilePath()
+                            : null;
+                    return new UserProfileImageResponse(user.getUserName(), filePath);
+                })
+                .collect(Collectors.toList());
     }
 }
