@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import "react-datepicker/dist/react-datepicker.css";
+import QrScanner from "qr-scanner"; // 라이브러리 import
 
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
@@ -364,6 +365,28 @@ const MyCalendar = () => {
     setEventInfo(null);
   };
 
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+  const [qrCode, setQrCode] = useState("");
+
+  const openQRModal = () => {
+    setIsQRModalOpen(true);
+    axios
+      .post(`${process.env.NEXT_PUBLIC_API_URL}/api/qr/generate`, {
+        userId: loginUserUserId, // body로 userId를 직접 보냅니다
+      })
+      .then((res) => {
+        // console.log(res);
+        setQrCode(`data:image/png;base64,${res.data.qrCode}`);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const closeQRModal = () => {
+    setIsQRModalOpen(false);
+  };
+
   const openFaceRecognition = () => {
     setIsFaceRecognitionOpen(true);
     // Start video stream
@@ -388,6 +411,71 @@ const MyCalendar = () => {
       tracks.forEach((track) => track.stop());
       video.srcObject = null;
     }
+  };
+
+  const captureQR = async () => {
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const context = canvas.getContext("2d");
+
+    // 비디오 크기를 캔버스에 맞게 설정
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    // 비디오에서 이미지 캡처
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    console.log(
+      "context.drawImage",
+      context.drawImage(video, 0, 0, canvas.width, canvas.height)
+    );
+
+    // 캔버스의 이미지를 Blob으로 변환
+    canvas.toBlob(async (blob) => {
+      if (!blob) {
+        console.error("Blob 변환 실패");
+        return;
+      }
+
+      console.log("🔍 캡처된 Blob 데이터:", blob); // 디버깅용 로그 추가
+
+      try {
+        // QR 코드 디코딩 시도
+        console.log("🔍 QR 코드 스캔 시작");
+        const result = await QrScanner.scanImage(blob, {
+          returnDetailedScanResult: true,
+        });
+
+        console.log("🔍 QR 코드 스캔 결과:", result);
+
+        if (result && result.data) {
+          console.log("✅ QR 코드 스캔 성공:", result.data);
+
+          // 서버로 QR 코드 데이터 전송
+          axios
+            .post(`${process.env.NEXT_PUBLIC_API_URL}/api/qr/verify`, {
+              token: result.data, // QR 코드에서 추출한 token 값
+              storeId: loginUserStoreId,
+            })
+            .then((response) => {
+              console.log("✅ QR 인증 성공:", response.data);
+              alert("정상적으로 본인 인증 되었습니다.");
+              setIsFaceRecognitionOpen(false);
+              location.reload(true);
+            })
+            .catch((error) => {
+              console.error("❌ QR 인증 실패:", error);
+              alert("오류가 발생했습니다. 다시 시도해주세요.");
+              setIsFaceRecognitionOpen(false);
+              location.reload(true);
+            });
+        } else {
+          console.error("❌ QR 코드에서 데이터를 추출하지 못함");
+        }
+      } catch (error) {
+        console.error("❌ QR 코드 스캔 오류:", error);
+      }
+    }, "image/png");
   };
 
   const captureImage = () => {
@@ -428,10 +516,7 @@ const MyCalendar = () => {
 
   return (
     <div className="App h-full">
-      <div
-        class="mainHeader"
-        className="flex justify-between items-center mb-5"
-      >
+      <div className="flex justify-between items-center mb-5">
         <h1 className="text-2xl font-bold">MEGASSAFY 덕명점</h1>
         <div className="flex gap-3 text-base">
           <Link
@@ -448,7 +533,14 @@ const MyCalendar = () => {
             대타 찾기
           </Link>
           <button
-            onClick={openFaceRecognition}
+            onClick={() => {
+              if (loginUserRole === "staff") {
+                openQRModal(); // admin 역할에 해당하는 함수 호출
+              }
+              if (loginUserRole === "manager") {
+                openFaceRecognition(); // 일반 사용자 역할에 해당하는 함수 호출
+              }
+            }}
             className="bg-gray-400 text-black rounded-md px-4 py-2 flex items-center"
           >
             <Image
@@ -592,6 +684,31 @@ const MyCalendar = () => {
         </div>
       )}
 
+      {/* 큐알 모달 */}
+      {isQRModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg w-96 max-w-full relative">
+            <button
+              onClick={() => setIsQRModalOpen(false)}
+              className="absolute top-2 right-2 bg-gray-300 text-gray-800 rounded-full p-2 hover:bg-gray-400 transition-all"
+            >
+              X
+            </button>
+            <div className="flex justify-center items-center">
+              {qrCode ? (
+                <img
+                  src={qrCode}
+                  alt="QR Code"
+                  className="w-64 h-64 object-contain"
+                />
+              ) : (
+                <p>QR 코드 생성 중...</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 얼굴 인식 모달 */}
       {isFaceRecognitionOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
@@ -604,7 +721,8 @@ const MyCalendar = () => {
               &times; {/* X 모양 */}
             </button>
             <h1 className="text-center text-xl font-bold mb-4">
-              Face Recognition
+              {/* Face Recognition */}
+              출석 체크
             </h1>
             <div className="relative">
               <video
@@ -615,7 +733,7 @@ const MyCalendar = () => {
                 className="mb-4"
               ></video>
               {/* 얼굴 인식을 위한 SVG 실루엣 추가 */}
-              <svg
+              {/* <svg
                 className="absolute inset-0 flex items-center justify-center"
                 viewBox="0 0 100 100"
                 width="100%"
@@ -628,12 +746,34 @@ const MyCalendar = () => {
                   strokeWidth="2"
                   strokeDasharray="5,5"
                 />
+              </svg> */}
+              <svg
+                className="absolute inset-0 flex items-center justify-center"
+                viewBox="0 0 100 100"
+                width="100%"
+                height="100%"
+              >
+                <rect
+                  x="10"
+                  y="10"
+                  width="80"
+                  height="80"
+                  fill="none"
+                  stroke="#00BFFF"
+                  strokeWidth="4"
+                  strokeDasharray="5,5"
+                />
+
+                {/* <rect x="15" y="15" width="15" height="15" fill="#00BFFF" />
+                <rect x="70" y="15" width="15" height="15" fill="#00BFFF" />
+                <rect x="15" y="70" width="15" height="15" fill="#00BFFF" /> */}
               </svg>
             </div>
             {/* 중앙 정렬을 위한 Flexbox 사용 */}
             <div className="flex justify-center mt-4">
               <button
-                onClick={captureImage}
+                // onClick={captureImage}
+                onClick={captureQR}
                 className="bg-blue-500 text-white rounded-md px-4 py-2"
               >
                 Capture
