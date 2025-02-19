@@ -57,6 +57,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+        http
+                .headers(headers -> headers
+                        .disable()
+                );
 
         http
                 .cors((cors) -> cors.configurationSource(new CorsConfigurationSource() {
@@ -127,10 +131,7 @@ public class SecurityConfig {
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http
-                .headers(headers -> headers
-                        .httpStrictTransportSecurity(hsts -> hsts.disable())  // 헤더 못붙이게
-                );
+
 
         return http.build();
     }
