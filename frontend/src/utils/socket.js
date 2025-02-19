@@ -12,7 +12,8 @@ export const connectWebSocket = (onMessageReceived, storeId) => {
   // STOMP Client 생성
   stompClient = new Client({
     webSocketFactory: () => new SockJS('https://i12b105.p.ssafy.io/ws-stomp', null, {
-      transports: ['websocket', 'xhr-streaming', 'xhr-polling'],
+      // transports: ['websocket', 'xhr-streaming', 'xhr-polling'],
+      transports: ['websocket'], // xhr-streaming과 xhr-polling 제거
       timeout: 10000
     }),
     connectHeaders: {
