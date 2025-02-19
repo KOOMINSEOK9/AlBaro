@@ -2,6 +2,7 @@ package com.albaro.controller;
 
 import com.albaro.dto.ManagerWorkInformationResponse;
 import com.albaro.dto.UserDto;
+import com.albaro.dto.UserProfileImageResponse;
 import com.albaro.service.ManagerWorkInformationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,5 +50,12 @@ public class ManagerWorkInformationController {
         return managerWorkInformationService.getUserWithStoreNameById(userId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // 6. 특정 storeId에 해당하는 STAFF 역할의 사용자 목록 조회 (userName 및 filePath 포함)
+    @GetMapping("/staff-with-images/{storeId}")
+    public ResponseEntity<List<UserProfileImageResponse>> getStaffWithImagesByStoreId(@PathVariable Integer storeId) {
+        List<UserProfileImageResponse> staffWithImages = managerWorkInformationService.getStaffWithImagesByStoreId(storeId);
+        return ResponseEntity.ok(staffWithImages);
     }
 }
