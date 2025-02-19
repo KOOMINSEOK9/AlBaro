@@ -9,25 +9,13 @@ export const connectWebSocket = (onMessageReceived, storeId) => {
     disconnectWebSocket();
   }
 
-  // STOMP Client 생성
-  stompClient = new Client({
-    webSocketFactory: () => new SockJS('https://i12b105.p.ssafy.io/ws-stomp', null, {
-      // transports: ['websocket', 'xhr-streaming', 'xhr-polling'],
-      transports: ['websocket'], // xhr-streaming과 xhr-polling 제거
-      timeout: 10000
-    }),
-    connectHeaders: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    debug: function (str) {
-      console.log('STOMP: ' + str);
-    },
-    reconnectDelay: 5000,
-    heartbeatIncoming: 4000,
-    heartbeatOutgoing: 4000,
-    forceBinaryWSFrames: true,
-    appendMissingNULLonIncoming: true
+  const socket = new SockJS('https://i12b105.p.ssafy.io/ws-stomp', null, {
+    transportOptions: {
+      xhr: {
+        // XHR 요청에 대한 헤더 설정 제거
+        headers: {} 
+      }
+    }
   });
 
   // 연결 성공시 콜백
