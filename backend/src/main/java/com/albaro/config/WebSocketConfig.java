@@ -6,6 +6,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -23,9 +24,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-stomp")
-                .setAllowedOrigins("https://i12b105.p.ssafy.io")
+                .setAllowedOrigins("*")
                 .withSockJS()
-                .setClientLibraryUrl("https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js")
+                .setInterceptors(new HttpSessionHandshakeInterceptor())  // 세션 인터셉터 추가
+                .setWebSocketEnabled(true)  // WebSocket 명시적 활성화
                 .setSessionCookieNeeded(false); // 세션 쿠키 비활성화
     }
 
@@ -41,4 +43,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                    .setSendBufferSizeLimit(512 * 1024)
                    .setSendTimeLimit(20000);
     }
+
+
 }
