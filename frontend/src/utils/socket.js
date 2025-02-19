@@ -1,127 +1,110 @@
 import SockJS from 'sockjs-client';
-import { Stomp } from '@stomp/stompjs';
-
-const SOCKET_URL = process.env.NODE_ENV === 'production'
-  ? 'https://i12b105.p.ssafy.io/ws-stomp'
-  : 'http://localhost:8080/ws-stomp';
+import { Client } from '@stomp/stompjs';
 
 let stompClient = null;
 let subscription = null;
 
 export const connectWebSocket = (onMessageReceived, storeId) => {
-  if (!storeId) {
-    console.error('Store ID is required for WebSocket connection');
-    return;
-  }
-
   if (stompClient) {
     disconnectWebSocket();
   }
 
-  const socket = new SockJS(SOCKET_URL, null, {
-    transports: ['websocket'],
-    timeout: 30000,
-    headers: {
-      'X-Forwarded-Proto': 'https'
+  // STOMP Client 생성
+  stompClient = new Client({
+    webSocketFactory: () => new SockJS('https://i12b105.p.ssafy.io/ws-stomp'),
+    debug: function (str) {
+      console.log('STOMP: ' + str);
+    },
+    reconnectDelay: 5000,
+    heartbeatIncoming: 4000,
+    heartbeatOutgoing: 4000,
+    // 추가된 설정
+    connectHeaders: {
+      'Content-Type': 'application/json'
     }
   });
 
-  stompClient = Stomp.over(socket);
-  stompClient.heartbeat.outgoing = 20000;
-  stompClient.heartbeat.incoming = 20000;
-  //stompClient.debug = null;
-
-  const connectCallback = () => {
-    console.log('WebSocket Connected');
-    subscription = stompClient.subscribe(
-      `/sub/chat/store/${storeId}`,
-      (message) => {
+  // 연결 성공시 콜백
+  stompClient.onConnect = function(frame) {
+    console.log('Connected:', frame);
+    
+    try {
+      subscription = stompClient.subscribe(`/sub/chat/store/${storeId}`, message => {
         try {
           const receivedMessage = JSON.parse(message.body);
           onMessageReceived(receivedMessage);
         } catch (error) {
           console.error('Failed to parse message:', error);
         }
-      },
-      {
-        // STOMP 구독 옵션 추가
-        'heart-beat': '10000,10000',
-        'accept-version': '1.1,1.2'
-      }
-    );
+      }, {
+        // 구독 헤더 추가
+        'Content-Type': 'application/json'
+      });
+    } catch (error) {
+      console.error('Subscription error:', error);
+    }
   };
 
-  const errorCallback = (error) => {
-    console.error('WebSocket connection error:', error);
-    setTimeout(() => {
-      if (!stompClient?.connected) {
-        console.log('Attempting to reconnect...');
-        connectWebSocket(onMessageReceived, storeId);
-      }
-    }, 5000);
+  // 에러 발생시 콜백
+  stompClient.onStompError = function (frame) {
+    console.error('STOMP error:', frame);
   };
 
+  // WebSocket 에러 핸들링 추가
+  stompClient.onWebSocketError = function (event) {
+    console.error('WebSocket error:', event);
+  };
+
+  // WebSocket 종료 핸들링 추가
+  stompClient.onWebSocketClose = function (event) {
+    console.log('WebSocket closed:', event);
+  };
+
+  // 연결
   try {
-    stompClient.connect(
-      {
-        // STOMP 연결 헤더 추가
-        'heart-beat': '10000,10000',
-        'accept-version': '1.1,1.2'
-      },
-      connectCallback,
-      errorCallback
-    );
+    stompClient.activate();
   } catch (error) {
-    console.error('Failed to establish WebSocket connection:', error);
-    errorCallback(error);
+    console.error('Connection activation error:', error);
+    throw error;
   }
 };
 
 export const sendMessage = (messageData) => {
   if (!stompClient?.connected) {
-    console.error('WebSocket is not connected');
-    return false;
+    throw new Error('WebSocket is not connected');
   }
 
   try {
-    stompClient.send(
-      "/pub/chat/message",
-      {
-        'content-type': 'application/json;charset=UTF-8'
-      },
-      JSON.stringify(messageData)
-    );
+    stompClient.publish({
+      destination: "/pub/chat/message",
+      body: JSON.stringify(messageData),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
     return true;
   } catch (error) {
-    console.error("Failed to send message:", error);
+    console.error('Send message error:', error);
     return false;
   }
 };
 
 export const disconnectWebSocket = () => {
-  if (subscription) {
+  if (stompClient) {
     try {
-      subscription.unsubscribe();
+      if (subscription) {
+        subscription.unsubscribe();
+        subscription = null;
+      }
+      stompClient.deactivate();
+      stompClient = null;
     } catch (error) {
-      console.error('Failed to unsubscribe:', error);
-    }
-    subscription = null;
-  }
-
-  if (stompClient?.connected) {
-    try {
-      stompClient.disconnect(() => {
-        console.log('WebSocket disconnected');
-      });
-    } catch (error) {
-      console.error("Failed to disconnect WebSocket:", error);
+      console.error('Disconnect error:', error);
     }
   }
-
-  stompClient = null;
 };
 
-// 연결 상태 확인 함수 추가
-export const isConnected = () => {
-  return stompClient?.connected || false;
-};
+export const getConnectionStatus = () => ({
+  isConnected: stompClient?.connected ?? false,
+  isConnecting: stompClient?.active && !stompClient?.connected
+});
