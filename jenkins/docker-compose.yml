@@ -9,6 +9,8 @@ services:
     env_file:
       # - /var/jenkins_home/workspace/jenkinsTest/frontend/.env  
       - ../frontend/.env
+    networks:
+      - app-network
 
   db:
     image: mysql:8
@@ -24,6 +26,8 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+    networks:
+      - app-network
 
   backend:
     build:
@@ -36,7 +40,10 @@ services:
       - SPRING_DATASOURCE_PASSWORD=ssafyalbaro105
     depends_on:
       - db
+      - redis
     command: ["./wait-for-it.sh", "db:3306", "--", "java", "-jar", "/app.jar"]
+    networks:
+      - app-network  
     
 
   nginx:
@@ -48,14 +55,19 @@ services:
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - ./nginx/conf.d:/etc/nginx/conf.d
-      
+    networks:
+      - app-network      
+    depends_on:
+      - backend
+      - frontend
 
   certbot:
     image: certbot/certbot
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt  # 호스트 머신의 인증서 마운트
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew && nginx -s reload; sleep 12h & wait $${!}; done;'"
-
+    networks:
+      - app-network
 
   face_recognition:
       build:
@@ -64,12 +76,19 @@ services:
         - "5000:5000"  # 호스트와 컨테이너 간의 포트 매핑
       volumes:
         - /etc/letsencrypt:/etc/letsencrypt:ro
+      networks:
+      - app-network
 
   redis:
     image: redis:latest
     ports:
       - "6379:6379"  # 호스트와 컨테이너 간의 포트 매핑
-
+    networks:
+      - app-network
 
 volumes:
   db_data:
+
+networks:
+  app-network:
+    driver: bridge

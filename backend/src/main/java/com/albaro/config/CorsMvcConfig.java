@@ -11,15 +11,15 @@ public class CorsMvcConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry corsRegistry) {
 
         corsRegistry.addMapping("/**")
-//                 .allowedOrigins("http://localhost:3000")
+//                .allowedOrigins("http://localhost:3000")
                 .allowedOrigins("https://i12b105.p.ssafy.io")
 
                 .allowedMethods("GET", "POST", "PATCH" , "PUT", "DELETE","OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(true)
+                .allowCredentials(true);
                 // 웹소켓 관련
-                .allowedHeaders("Upgrade", "Connection", "Sec-WebSocket-Key", 
-                              "Sec-WebSocket-Version", "Sec-WebSocket-Extensions",
-                              "Sec-WebSocket-Protocol");
+//                .allowedHeaders("Upgrade", "Connection", "Sec-WebSocket-Key",
+//                              "Sec-WebSocket-Version", "Sec-WebSocket-Extensions",
+//                              "Sec-WebSocket-Protocol");
     }
 }

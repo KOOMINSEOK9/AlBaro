@@ -1,28 +1,33 @@
 package com.albaro.entity;
 
 import jakarta.persistence.*;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "chatRoom")
+@Table(name = "chatroom")
 public class ChatRoom {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "chatRoomId")
+//    @Column(name = "chatRoomId")
     private Long id;
 
     @Column(name = "storeId", nullable = false)
     private Long storeId;
 
     @Column(name = "userId", nullable = false)
-    private Long userId;
+    private Integer userId;
 
     @Column(name = "content", length = 300)
+    @Lob
     private String content;
 
     @Column(name = "sentTime")
     private LocalDateTime sentTime;
+
+    @Column(name = "userName")
+    private String userName;
 
     public ChatRoom() {
     }
@@ -32,15 +37,16 @@ public class ChatRoom {
         this.sentTime = LocalDateTime.now();
     }
 
-    public static ChatRoom createMessage(Long storeId, Long userId, String content) {
+    public static ChatRoom createMessage(Long storeId, Integer userId, String content, String userName) {
         ChatRoom chatRoom = new ChatRoom();
         chatRoom.setStoreId(storeId);
         chatRoom.setUserId(userId);
         chatRoom.setContent(content);
+        chatRoom.setUserName(userName);
         return chatRoom;
     }
 
-    // Getters and Setters
+    // Getters and Setters with encoding
     public Long getId() {
         return id;
     }
@@ -57,11 +63,11 @@ public class ChatRoom {
         this.storeId = storeId;
     }
 
-    public Long getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
@@ -70,7 +76,11 @@ public class ChatRoom {
     }
 
     public void setContent(String content) {
-        this.content = content;
+        try {
+            this.content = new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            this.content = content;
+        }
     }
 
     public LocalDateTime getSentTime() {
@@ -79,5 +89,17 @@ public class ChatRoom {
 
     public void setSentTime(LocalDateTime sentTime) {
         this.sentTime = sentTime;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        try {
+            this.userName = new String(userName.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            this.userName = userName;
+        }
     }
 }

@@ -19,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -63,13 +64,22 @@ public class SecurityConfig {
 
                         CorsConfiguration configuration = new CorsConfiguration();
 
-                        configuration.setAllowedOrigins(Arrays.asList("https://i12b105.p.ssafy.io", "http://localhost:3000"));
+                        configuration.setAllowedOrigins(Arrays.asList(
+                            "https://i12b105.p.ssafy.io",
+                            "http://localhost:3000"
+                        ));
                         configuration.setAllowedMethods(Collections.singletonList("*"));
                         configuration.setAllowCredentials(true);
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
                         configuration.setMaxAge(3600L);
-                        configuration.setExposedHeaders(Collections.singletonList("access"));
-                        configuration.setExposedHeaders(Arrays.asList("access", "Upgrade", "Connection"));  // 웹소켓 헤더 추가
+                        configuration.setExposedHeaders(Arrays.asList(
+                            "access",
+                            "Upgrade",
+                            "Connection",
+                            "Sec-WebSocket-Accept",
+                            "Sec-WebSocket-Key",
+                            "Sec-WebSocket-Version"
+                        ));
                         return configuration;
                     }
                 }));
@@ -90,7 +100,8 @@ public class SecurityConfig {
         //경로별 인가 작업(권한에 대한 내용)
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/ws-stomp/**", "/ws-stomp/info/**", "/main", "/map").permitAll() 
+                        .requestMatchers("/ws-stomp/**", "/chat/**", "/ws-stomp/info/**").permitAll()
+                        .requestMatchers("/ws-stomp/**", "/sub/**", "/pub/**").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/manager").hasRole("MANAGER")
                         .anyRequest().authenticated());

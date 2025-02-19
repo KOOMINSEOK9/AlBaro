@@ -13,6 +13,7 @@ public class UserDto {
         private LocalDate scheduleDate;
         private LocalTime scheduleStartTime ;
         private LocalTime scheduleEndTime ;
+//        private String filePath;
 
         public static com.albaro.dto.UserDto fromEntity(User user) {
             return new com.albaro.dto.UserDto(
@@ -48,6 +49,7 @@ public class UserDto {
         this.scheduleDate = scheduleDate;
         this.scheduleStartTime = scheduleStartTime;
         this.scheduleEndTime = scheduleEndTime;
+//        this.filePath = filePath;
     }
 
     public Integer getUserId() {
@@ -105,4 +107,8 @@ public class UserDto {
     public void setScheduleEndTime(LocalTime scheduleEndTime) {
         this.scheduleEndTime = scheduleEndTime;
     }
+
+//    public String getFilePath(){ return filePath; }
+
+//        public void setFilePath(String filePath){ this.filePath = filePath; }
 }

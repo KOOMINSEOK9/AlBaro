@@ -2,12 +2,16 @@
 import React from 'react';
 import { Bell, UserCheck, Clock, AlertCircle, Check, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import useNotificationStore from "@/store/notificationStore";
+
 import { ko } from 'date-fns/locale';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import styles from '@/styles/scrollbar.module.css';
 
 export default function Notifications() {
+    const { removeNotifications, removeNotification } = useNotificationStore();
+
     const [notifications, setNotifications] = React.useState([]);
     const [removingId, setRemovingId] = React.useState(null);
     const [currentTime, setCurrentTime] = React.useState(new Date());
@@ -24,7 +28,7 @@ export default function Notifications() {
 
             const response = await axios.get(
                 // `http://localhost:8080/api/substitute/alarms/${userId}`,
-                `https://i12b105.p.ssafy.io/api/substitute/alarms/${userId}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/api/substitute/alarms/${userId}`,
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }
@@ -80,63 +84,113 @@ export default function Notifications() {
         }
     };
 
-    const handleNotificationAction = async (noti, isApproved) => {
+    const denyNotification = async (id, alarmContent) => {
+        const regex = /(\d{4}-\d{2}-\d{2})일 (\d{2}:\d{2})~(\d{2}:\d{2})/;
+        const match = alarmContent.match(regex);
+
+        if (!match) {
+            console.error("날짜와 시간 정보를 찾을 수 없습니다.");
+            return;
+        }
+
+        const workDate = match[1];
+        const startTime = match[2];
+        const endTime = match[3];
+
+        setRemovingId(id);
+
         try {
-            const token = localStorage.getItem('accessToken');
-            if (!token) return;
-
-            setRemovingId(noti.alarmId);
-
-
-
-            if (noti.alarmType === 'SUBSTITUTION_REQUEST') {
-
-                // 알림 내용에서 날짜와 시간 추출
-                const contentMatch = noti.alarmContent.match(/(\d{4}-\d{2}-\d{2})\s(\d{2}:\d{2})~(\d{2}:\d{2})/);
-                if (!contentMatch) {
-                    console.error('날짜와 시간 정보를 찾을 수 없습니다.');
-                    return;
+            await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/substitute/reject-subRequest/${id}`,
+                null,
+                {
+                    params: {
+                        workDate: workDate,
+                        startTime: startTime,
+                        endTime: endTime,
+                    },
                 }
-
-                const [, workDate, startTime, endTime] = contentMatch;
-
-                const endpoint = isApproved ? 'approve-subRequest' : 'reject-subRequest';
-
-                console.log('요청 데이터:', {
-                    alarmId: noti.alarmId,
-                    workDate,
-                    startTime,
-                    endTime
-                });
-
-                await axios.post(
-                    // `http://localhost:8080/api/substitute/${endpoint}/${noti.alarmId}`,
-                    `https://i12b105.p.ssafy.io/api/substitute/${endpoint}/${noti.alarmId}`,
-                    null,
-                    {
-                        params: {
-                            workDate,
-                            startTime,
-                            endTime
-                        },
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    }
-                );
-            }
-
-            await fetchNotifications();
+            );
         } catch (err) {
-            console.error('요청 처리 실패:', err);
-            console.error('에러 세부 정보:', err.response?.data);
+            console.error("요청 처리 실패:", err);
+            console.error("에러 세부 정보:", err.response?.data);
         } finally {
             setTimeout(() => {
-                setRemovingId(null);
+                removeNotification(id);
             }, 300);
         }
     };
+
+    const handleNotificationAction = async (id, alarmContent) => {
+
+        // console.log("alarmContent", alarmContent);
+
+        // const regex = /(\d{4}-\d{2}-\d{2})일 (\d{2}:\d{2})~(\d{2}:\d{2})/;
+        // const match = alarmContent.match(regex);
+
+        // if (!match) {
+        //     console.error("날짜와 시간 정보를 찾을 수 없습니다.");
+        //     return;
+        // }
+
+        // const workDate = match[1];
+        // const startTime = match[2];
+        // const endTime = match[3];
+
+        setRemovingId(id);
+
+        try {
+            await axios.delete(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/substitute/alarms/${id}`
+            );
+        } catch (err) {
+            console.error("요청 처리 실패:", err);
+            console.error("에러 세부 정보:", err.response?.data);
+        } finally {
+            setTimeout(() => {
+                removeNotification(id);
+            }, 300);
+        }
+    };
+
+    const handleApproveNotificationAction = async (id, alarmContent) => {
+
+        const regex = /(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})~(\d{2}:\d{2})/;
+        const match = alarmContent.match(regex);
+
+        if (!match) {
+            console.error("날짜와 시간 정보를 찾을 수 없습니다.");
+            return;
+        }
+
+        const workDate = match[1];
+        const startTime = match[2];
+        const endTime = match[3];
+
+        setRemovingId(id);
+
+        try {
+            await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/substitute/approve-subRequest/${id}`,
+                null,
+                {
+                    params: {
+                        workDate: workDate,
+                        startTime: startTime,
+                        endTime: endTime,
+                    },
+                }
+            );
+        } catch (err) {
+            console.error("요청 처리 실패:", err);
+            console.error("에러 세부 정보:", err.response?.data);
+        } finally {
+            setTimeout(() => {
+                removeNotification(id);
+            }, 300);
+        }
+    };
+
 
     return (
         <div className="h-[230px] lg:h-full bg-white rounded-lg shadow-md p-4">
@@ -178,7 +232,7 @@ export default function Notifications() {
                                 {noti.alarmType === 'SUBSTITUTION_REQUEST' && (
                                     <>
                                         <button
-                                            onClick={() => handleNotificationAction(noti, true)}
+                                            onClick={() => handleApproveNotificationAction(noti.alarmId, noti.alarmContent)}
                                             className="h-9 w-9 bg-blue-500 text-white rounded-full
                                                 hover:bg-blue-600 transition-transform hover:scale-105
                                                 active:scale-95 duration-150 flex items-center justify-center shadow-md"
@@ -187,7 +241,7 @@ export default function Notifications() {
                                             <Check size={18} />
                                         </button>
                                         <button
-                                            onClick={() => handleNotificationAction(noti, false)}
+                                            onClick={() => denyNotification(noti.alarmId, noti.alarmContent)}
                                             className="h-9 w-9 border border-gray-300 rounded-full
                                                 hover:bg-gray-100 transition-transform hover:scale-105
                                                 active:scale-95 duration-150 flex items-center justify-center shadow-md"
@@ -199,7 +253,7 @@ export default function Notifications() {
                                 )}
                                 {noti.alarmType !== 'SUBSTITUTION_REQUEST' && (
                                     <button
-                                        onClick={() => handleNotificationAction(noti, null)}
+                                        onClick={() => handleNotificationAction(noti.alarmId, noti.alarmContent)}
                                         className="px-4 py-2 text-xs text-white bg-gray-500 hover:bg-gray-600
                                             transition-transform hover:scale-105 active:scale-95 rounded-full shadow-md"
                                     >

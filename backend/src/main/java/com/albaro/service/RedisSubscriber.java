@@ -15,19 +15,19 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RedisSubscriber implements MessageListener {
 
-    private final ObjectMapper objectMapper;
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final SimpMessageSendingOperations messagingTemplate;
+   private final ObjectMapper objectMapper;
+   private final RedisTemplate<String, Object> redisTemplate;
+   private final SimpMessageSendingOperations messagingTemplate;
 
-    @Override
-    public void onMessage(Message message, byte[] pattern) {
-        try {
-            String publishMessage = redisTemplate.getStringSerializer().deserialize(message.getBody());
-            ChatMessageDto chatMessage = objectMapper.readValue(publishMessage, ChatMessageDto.class);
+   @Override
+   public void onMessage(Message message, byte[] pattern) {
+       try {
+           String publishMessage = redisTemplate.getStringSerializer().deserialize(message.getBody());
+           ChatMessageDto chatMessage = objectMapper.readValue(publishMessage, ChatMessageDto.class);
 
-            messagingTemplate.convertAndSend("/sub/chat/store/" + chatMessage.getStoreId(), chatMessage);
-        } catch (Exception e) {
-            log.error("Error while parsing chat message: ", e);
-        }
-    }
+           messagingTemplate.convertAndSend("/sub/chat/store/" + chatMessage.getStoreId(), chatMessage);
+       } catch (Exception e) {
+           log.error("Error while parsing chat message: ", e);
+       }
+   }
 }

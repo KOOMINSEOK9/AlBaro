@@ -1,30 +1,30 @@
-// 변경 후
-import * as StompJs from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { Client } from '@stomp/stompjs';  // Stomp 대신 Client 임포트
 
-const SOCKET_URL = 'https://i12b105.p.ssafy.io/ws-stomp';
-  
+let stompClient = null;
+let subscription = null;
+
 export const connectWebSocket = (onMessageReceived, storeId) => {
-  if (!storeId) {
-    console.error('Store ID is required');
-    return;
+  if (stompClient) {
+    disconnectWebSocket();
   }
 
-  // 새로운 방식으로 Stomp 클라이언트 생성
-  const client = new StompJs.Client({
-    webSocketFactory: () => new SockJS(SOCKET_URL),
+  // STOMP Client 생성
+  stompClient = new Client({
+    webSocketFactory: () => new SockJS('https://i12b105.p.ssafy.io/ws-stomp'),
     debug: function (str) {
-      console.log(str);
+      console.log('STOMP: ' + str);
     },
     reconnectDelay: 5000,
     heartbeatIncoming: 4000,
-    heartbeatOutgoing: 4000,
+    heartbeatOutgoing: 4000
   });
 
   // 연결 성공시 콜백
-  client.onConnect = function () {
-    console.log('Connected to WebSocket');
-    client.subscribe(`/sub/chat/store/${storeId}`, function (message) {
+  stompClient.onConnect = function(frame) {
+    console.log('Connected:', frame);
+    
+    subscription = stompClient.subscribe(`/sub/chat/store/${storeId}`, message => {
       try {
         const receivedMessage = JSON.parse(message.body);
         onMessageReceived(receivedMessage);
@@ -34,45 +34,38 @@ export const connectWebSocket = (onMessageReceived, storeId) => {
     });
   };
 
-  // 에러 처리
-  client.onStompError = function (frame) {
-    console.error('Broker reported error: ' + frame.headers['message']);
-    console.error('Additional details: ' + frame.body);
+  // 에러 발생시 콜백
+  stompClient.onStompError = function (frame) {
+    console.error('STOMP error:', frame);
   };
 
-  // 연결 시도
-  client.activate();
-
-  return client; // 클라이언트 반환 (나중에 연결 해제를 위해)
+  // 연결
+  stompClient.activate();
 };
 
-// 메시지 전송 함수
-export const sendMessage = (client, messageData) => {
-  if (!client || !client.connected) {
-    console.error('WebSocket is not connected');
-    return false;
+export const sendMessage = (messageData) => {
+  if (!stompClient?.connected) {
+    throw new Error('WebSocket is not connected');
   }
 
-  try {
-    client.publish({
-      destination: "/pub/chat/message",
-      body: JSON.stringify(messageData)
-    });
-    return true;
-  } catch (error) {
-    console.error('Failed to send message:', error);
-    return false;
-  }
+  stompClient.publish({
+    destination: "/pub/chat/message",
+    body: JSON.stringify(messageData)
+  });
 };
 
-// 연결 해제 함수
-export const disconnectWebSocket = (client) => {
-  if (client) {
-    try {
-      client.deactivate();
-      console.log('WebSocket disconnected');
-    } catch (error) {
-      console.error('Failed to disconnect WebSocket:', error);
+export const disconnectWebSocket = () => {
+  if (stompClient) {
+    if (subscription) {
+      subscription.unsubscribe();
+      subscription = null;
     }
+    stompClient.deactivate();
+    stompClient = null;
   }
 };
+
+export const getConnectionStatus = () => ({
+  isConnected: stompClient?.connected ?? false,
+  isConnecting: stompClient?.active && !stompClient?.connected
+});

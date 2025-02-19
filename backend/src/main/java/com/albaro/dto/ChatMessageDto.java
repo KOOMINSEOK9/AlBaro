@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 public class ChatMessageDto {
     private Long id;
     private Long storeId;
-    private Long userId;
+    private Integer userId;  // Long -> Integer로 변경
     private String userName;
     private String content;
     private LocalDateTime sentTime;
@@ -14,7 +14,7 @@ public class ChatMessageDto {
     public ChatMessageDto() {
     }
 
-    public ChatMessageDto(Long id, Long storeId, Long userId, String userName, String content, LocalDateTime sentTime) {
+    public ChatMessageDto(Long id, Long storeId, Integer userId, String userName, String content, LocalDateTime sentTime) {
         this.id = id;
         this.storeId = storeId;
         this.userId = userId;
@@ -30,12 +30,12 @@ public class ChatMessageDto {
                 !content.trim().isEmpty();
     }
 
-    public static ChatMessageDto fromEntity(ChatRoom chatRoom, String userName) {
+    public static ChatMessageDto fromEntity(ChatRoom chatRoom) {
         return new ChatMessageDto(
                 chatRoom.getId(),
                 chatRoom.getStoreId(),
-                chatRoom.getUserId(),
-                userName,
+                chatRoom.getUserId().intValue(),  // Long -> Integer 변환
+                chatRoom.getUserName(),
                 chatRoom.getContent(),
                 chatRoom.getSentTime()
         );
@@ -58,11 +58,11 @@ public class ChatMessageDto {
         this.storeId = storeId;
     }
 
-    public Long getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 

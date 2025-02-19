@@ -1,3 +1,72 @@
+/* 메인 페이지 달력 이벤트 2줄로 출력 */
 .fc-daygrid-day-events {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  padding: 2px;
+}
+
+.fc-daygrid-event {
+  margin: 1px 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85em;
+}
+
+/* 하루 상세 스케줄 지점명 + 버튼 없애기 */
+.mainHeader {
+  /* display: none; */
+}
+
+/* 하루 상세 스케줄 타임테이블*/
+.fc-event .fc-event-main .text-black {
+  position: sticky;
+}
+
+.fc-daygrid-day-events::before {
+  display: none;
+}
+
+.fc-daygrid-event-harness {
+  width: 100%;
+}
+
+.fc-timegrid-slot {
+  height: 1.7rem !important; /* Increase this value to add more spacing */
+}
+
+.fc-timegrid-slot-label {
+  height: 1.7rem !important;
+  vertical-align: middle;
+}
+
+.fc-timegrid-slot-lane {
+  height: 1.7rem !important;
+}
+
+/* .fc .fc-header-toolbar .fc-toolbar-chunk .fc-button-group button {
+  color: black;
+  border: 0px;
+}
+
+.fc .fc-button-primary {
+  background-color: white;
+  :hover {
+    color: white;
+  }
+} */
+
+/* 헤더 툴바 */
+.fc .fc-header-toolbar {
+  margin-bottom: 1em !important;
+}
+
+.fc .fc-header-toolbar .fc-toolbar-chunk .fc-toolbar-title {
+  font-size: 1rem;
+}
+
+.fc .fc-button {
+  padding: 0 0 !important;
 }

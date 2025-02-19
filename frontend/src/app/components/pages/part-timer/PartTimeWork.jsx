@@ -26,7 +26,7 @@ export default function PartTimeWork() {
                 const userId = decoded.userId;
 
                 // const response = await axios.get(`http://localhost:8080/api/user-work/total-change-time/${userId}`, {
-                const response = await axios.get(`https://i12b105.p.ssafy.io/api/user-work/total-change-time/${userId}`, {
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/user-work/total-change-time/${userId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }

@@ -66,6 +66,7 @@ const TimeList = ({
     : null;
 
   const filteredTime = times.filter((time) => {
+    console.log(time);
     const timeStartTime = new Date(`${time.workDate}T${time.startTime}`);
     const timeEndTime = new Date(`${time.workDate}T${time.endTime}`);
 

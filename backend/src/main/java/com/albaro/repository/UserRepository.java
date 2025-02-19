@@ -16,6 +16,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Boolean existsByAccountId(int accountId);
 
 //    User findByAccountId(int accountId);
+    @Query("SELECT u.accountId FROM User u WHERE u.id = :userId")
+    Integer findAccountIdByUserID(@Param("userId") int userId);
 
     @Query("SELECT u.accountId FROM User u WHERE u.id = :userId")
     Integer findAccountIdByUserId(@Param("userId") int userId);

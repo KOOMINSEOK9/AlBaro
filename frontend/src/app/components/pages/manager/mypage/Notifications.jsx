@@ -21,7 +21,7 @@ export default function Notifications({ notificationList }) {
   }, []);
 
   const denyNotification = async (id, alarmContent) => {
-    const regex = /(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})~(\d{2}:\d{2})/;
+    const regex = /(\d{4}-\d{2}-\d{2})일 (\d{2}:\d{2})~(\d{2}:\d{2})/;
     const match = alarmContent.match(regex);
 
     if (!match) {
@@ -58,7 +58,24 @@ export default function Notifications({ notificationList }) {
   };
 
   const handleNotificationAction = async (id, alarmContent) => {
-    const regex = /(\d{4}-\d{2}-\d{2})일 (\d{2}:\d{2})~(\d{2}:\d{2})/;
+    setRemovingId(id);
+
+    try {
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/substitute/alarms/${id}`
+      );
+    } catch (err) {
+      console.error("요청 처리 실패:", err);
+      console.error("에러 세부 정보:", err.response?.data);
+    } finally {
+      setTimeout(() => {
+        removeNotification(id);
+      }, 300);
+    }
+  };
+
+  const handleApproveNotificationAction = async (id, alarmContent) => {
+    const regex = /(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})~(\d{2}:\d{2})/;
     const match = alarmContent.match(regex);
 
     if (!match) {
@@ -131,10 +148,11 @@ export default function Notifications({ notificationList }) {
             key={noti.alarmId}
             className={`bg-gray-50 rounded-lg p-3 relative group snap-start
                             transition-all duration-300 ease-in-out hover:shadow-sm
-                            ${removingId === noti.alarmId
-                ? "opacity-0 -translate-x-full"
-                : "opacity-100 translate-x-0"
-              }`}
+                            ${
+                              removingId === noti.alarmId
+                                ? "opacity-0 -translate-x-full"
+                                : "opacity-100 translate-x-0"
+                            }`}
           >
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 mt-1">
@@ -146,41 +164,46 @@ export default function Notifications({ notificationList }) {
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                {noti.alarmType === "SUBSTITUTION_REQUEST" && (
-                  <>
-                    <button
-                      onClick={() =>
-                        handleNotificationAction(noti.alarmId, noti.alarmContent)
-                      }
-                      className="h-9 w-9 bg-blue-500 text-white rounded-full
+                {noti.alarmType === "SUBSTITUTION_REQUEST" ||
+                  (noti.alarmType === "MANAGER_APPROVAL" && (
+                    <>
+                      <button
+                        onClick={() =>
+                          handleApproveNotificationAction(
+                            noti.alarmId,
+                            noti.alarmContent
+                          )
+                        }
+                        className="h-9 w-9 bg-blue-500 text-white rounded-full
                                                 hover:bg-blue-600 transition-transform hover:scale-105
                                                 active:scale-95 duration-150 flex items-center justify-center shadow-md"
-                      aria-label="수락"
-                    >
-                      <Check size={18} />
-                    </button>
-                    <button
-                      onClick={() =>
-                        denyNotification(noti.alarmId, noti.alarmContent)
-                      }
-                      className="h-9 w-9 border border-gray-300 rounded-full
+                        aria-label="수락"
+                      >
+                        <Check size={18} />
+                      </button>
+                      <button
+                        onClick={() =>
+                          denyNotification(noti.alarmId, noti.alarmContent)
+                        }
+                        className="h-9 w-9 border border-gray-300 rounded-full
                                                 hover:bg-gray-100 transition-transform hover:scale-105
                                                 active:scale-95 duration-150 flex items-center justify-center shadow-md"
-                      aria-label="거절"
-                    >
-                      <X size={18} />
-                    </button>
-                  </>
-                )}
-                {noti.alarmType !== "SUBSTITUTION_REQUEST" && (
-                  <button
-                    onClick={() => handleNotificationAction(noti.alarmId)}
-                    className="px-4 py-2 text-xs text-white bg-gray-500 hover:bg-gray-600
+                        aria-label="거절"
+                      >
+                        <X size={18} />
+                      </button>
+                    </>
+                  ))}
+                {noti.alarmType !== "SUBSTITUTION_REQUEST" &&
+                  noti.alarmType !== "MANAGER_APPROVAL" && (
+                    <button
+                      onClick={() => handleNotificationAction(noti.alarmId)}
+                      className="px-4 py-2 text-xs text-white bg-gray-500 hover:bg-gray-600
                                             transition-transform hover:scale-105 active:scale-95 rounded-full shadow-md"
-                  >
-                    확인
-                  </button>
-                )}
+                    >
+                      확인
+                    </button>
+                  )}
               </div>
             </div>
           </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { connectWebSocket, sendMessage, disconnectWebSocket } from '@/utils/socket';
+import { connectWebSocket, sendMessage, disconnectWebSocket, getConnectionStatus } from '@/utils/socket';
 import useChatStore from '@/store/chatStore';
 import { Users } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
@@ -19,6 +19,7 @@ const ChatRoom = () => {
 
     // 토큰에서 정보 추출
     const [userInfo, setUserInfo] = useState(null);
+    const [connectionStatus, setConnectionStatus] = useState({ isConnected: false, isConnecting: false });
 
     const {
         messages,
@@ -38,7 +39,7 @@ const ChatRoom = () => {
             const payload = JSON.parse(window.atob(base64));
             setUserInfo({
                 userId: payload.userId,
-                username: payload.username,
+                userName: payload.username,
                 storeId: payload.storeId,
                 role: payload.role
             });
@@ -49,21 +50,24 @@ const ChatRoom = () => {
         if (!userInfo?.storeId) return;
 
         try {
-            const response = await axios.get(`https://i12b105.p.ssafy.io/chat/store/${userInfo.storeId}`);
             // const response = await axios.get(`http://localhost:8080/chat/store/${userInfo.storeId}`);
+            const response = await axios.get(`https://i12b105.p.ssafy.io/chat/store/${userInfo.storeId}`);
             const history = response.data;
+
+            console.log('Chat history:', history);
 
             const formattedMessages = history.map(msg => ({
                 id: msg.id.toString(),
-                content: msg.content,
+                content: decodeURIComponent(msg.content),
                 userId: msg.userId,
-                username: msg.username,
+                userName: msg.userName,
                 timestamp: new Date(msg.sentTime).toLocaleTimeString('ko-KR', {
                     hour: 'numeric',
                     minute: '2-digit',
                     hour12: true
                 }),
-            }));
+            }))
+                .reverse();
 
             setMessages(formattedMessages);
             setError(null);
@@ -80,11 +84,13 @@ const ChatRoom = () => {
     }, [userInfo?.storeId, setMessages]);
 
     const handleMessageReceived = useCallback((message) => {
+        console.log('Received message:', message);
+
         const formattedMessage = {
             id: Date.now().toString(),
-            content: message.content,
+            content: decodeURIComponent(message.content),
             userId: message.userId,
-            username: message.username,
+            userName: message.userName,
             timestamp: new Date().toLocaleTimeString('ko-KR', {
                 hour: 'numeric',
                 minute: '2-digit',
@@ -98,17 +104,27 @@ const ChatRoom = () => {
         let mounted = true;
 
         const setupWebSocket = async () => {
-            if (mounted && userInfo?.storeId) {
-                try {
-                    await fetchChatHistory();
-                    connectWebSocket(handleMessageReceived, userInfo.storeId);
-                    setConnected(true);
-                    setError(null);
-                } catch (err) {
-                    console.error('WebSocket connection failed:', err);
-                    setError('채팅 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
-                    setConnected(false);
-                }
+            if (!userInfo?.storeId) return;
+
+            try {
+                await fetchChatHistory();
+                
+                connectWebSocket(
+                    handleMessageReceived,
+                    userInfo.storeId
+                );
+                
+                // 주기적으로 연결 상태 확인
+                const statusInterval = setInterval(() => {
+                    if (mounted) {
+                        setConnectionStatus(getConnectionStatus());
+                    }
+                }, 1000);
+
+                return () => clearInterval(statusInterval);
+            } catch (err) {
+                console.error('WebSocket setup failed:', err);
+                setError('채팅 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
             }
         };
 
@@ -117,10 +133,8 @@ const ChatRoom = () => {
         return () => {
             mounted = false;
             disconnectWebSocket();
-            setConnected(false);
-            clearMessages();
         };
-    }, [userInfo?.storeId, handleMessageReceived, setConnected, clearMessages, fetchChatHistory]);
+    }, [userInfo?.storeId]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -151,29 +165,25 @@ const ChatRoom = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!inputMessage.trim() || !isConnected || !userInfo) {
+        if (!inputMessage.trim() || !connectionStatus.isConnected || !userInfo) {
             return;
         }
 
         const messageData = {
-            content: inputMessage.trim(),
-            userId: userInfo.userId,
-            username: userInfo.username,
+            content: encodeURIComponent(inputMessage.trim()),
+            userId: parseInt(userInfo.userId),
+            userName: userInfo.userName,
             storeId: userInfo.storeId,
             sentTime: new Date().toISOString()
         };
 
         try {
-            const sent = await sendMessage(messageData);
-            if (sent) {
-                setInputMessage('');
-                setError(null);
-            } else {
-                setError('메시지 전송에 실패했습니다. 다시 시도해주세요.');
-            }
+            await sendMessage(messageData);
+            setInputMessage('');
+            setError(null);
         } catch (error) {
             console.error('Failed to send message:', error);
-            setError('메시지 전송 중 오류가 발생했습니다.');
+            setError('메시지 전송에 실패했습니다. 다시 시도해주세요.');
         }
     };
 
@@ -208,9 +218,9 @@ const ChatRoom = () => {
                     <div>
                         <h2 className="text-lg font-semibold text-gray-900">단체 채팅방</h2>
                         <div className="flex items-center gap-2 mt-0.5">
-                            <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-green-500' : 'bg-gray-400'}`} />
+                            <span className={`w-1.5 h-1.5 rounded-full ${connectionStatus.isConnected ? 'bg-green-500' : 'bg-gray-400'}`} />
                             <span className="text-sm text-gray-500">
-                                {isConnected ? '접속 중' : '연결 끊김'}
+                                {connectionStatus.isConnected ? '접속 중' : '연결 끊김'}
                             </span>
                         </div>
                     </div>
@@ -254,8 +264,8 @@ const ChatRoom = () => {
                             type="text"
                             value={inputMessage}
                             onChange={(e) => setInputMessage(e.target.value)}
-                            placeholder={isConnected ? "메시지를 입력하세요..." : "연결 대기중..."}
-                            disabled={!isConnected}
+                            placeholder={connectionStatus.isConnected ? "메시지를 입력하세요..." : "연결 대기중..."}
+                            disabled={!connectionStatus.isConnected}
                             className="flex-1 px-4 py-3 bg-transparent focus:outline-none text-sm disabled:cursor-not-allowed disabled:opacity-50"
                         />
                         <div className="relative" ref={emojiPickerRef}>
@@ -263,7 +273,7 @@ const ChatRoom = () => {
                                 type="button"
                                 className="p-2 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
                                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                                disabled={!isConnected}
+                                disabled={!connectionStatus.isConnected}
                             >
                                 <span className="text-xl">😊</span>
                             </button>
@@ -280,7 +290,7 @@ const ChatRoom = () => {
                     </div>
                     <button
                         type="submit"
-                        disabled={!isConnected || !inputMessage.trim()}
+                        disabled={!connectionStatus.isConnected || !inputMessage.trim()}
                         className="px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         전송
