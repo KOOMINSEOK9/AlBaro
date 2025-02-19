@@ -53,8 +53,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      # - /etc/letsencrypt:/etc/letsencrypt:ro
-      - /var/jenkins_home/certs:/etc/letsencrypt:ro  # Jenkins 내부 경로 사용
+      - /etc/letsencrypt:/etc/letsencrypt:ro
       - ./nginx/conf.d:/etc/nginx/conf.d
     networks:
       - app-network      
@@ -65,8 +64,7 @@ services:
   certbot:
     image: certbot/certbot
     volumes:
-      - /var/jenkins_home/certs:/etc/letsencrypt  # Jenkins 내부 경로 사용
-      # - /etc/letsencrypt:/etc/letsencrypt  # 호스트 머신의 인증서 마운트
+      - /etc/letsencrypt:/etc/letsencrypt  # 호스트 머신의 인증서 마운트
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew && nginx -s reload; sleep 12h & wait $${!}; done;'"
     networks:
       - app-network
