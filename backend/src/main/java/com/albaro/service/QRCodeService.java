@@ -38,7 +38,7 @@ public class QRCodeService {
     //QR 생성 메서드
     public byte[] generateUserQR(Integer userId){
 
-        
+
         try{
             Instant now = Instant.now();
 
