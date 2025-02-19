@@ -13,7 +13,7 @@ public class UserProfileImage {
     private Integer userProfileImageId;
 
     // user 테이블과의 관계 (userId 참조)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false, foreignKey = @ForeignKey(name = "FK_userProfileImage_user"))
     private User user;
 
