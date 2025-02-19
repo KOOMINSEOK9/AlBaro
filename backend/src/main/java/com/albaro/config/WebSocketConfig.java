@@ -11,14 +11,20 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    // @Override
+    // public void registerStompEndpoints(StompEndpointRegistry registry) {
+    //     registry.addEndpoint("/ws-stomp")
+    //             .setAllowedOriginPatterns("*")  // 개발 중에는 모든 origin 허용
+    //             .withSockJS()
+    //             .setClientLibraryUrl("https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js")
+    //             .setWebSocketEnabled(true)
+    //             .setSessionCookieNeeded(false);
+    // }
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-stomp")
-                .setAllowedOriginPatterns("*")  // 개발 중에는 모든 origin 허용
-                .withSockJS()
-                .setClientLibraryUrl("https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js")
-                .setWebSocketEnabled(true)
-                .setSessionCookieNeeded(false);
+                .setAllowedOrigins("https://i12b105.p.ssafy.io")
+                .withSockJS();
     }
 
     @Override
