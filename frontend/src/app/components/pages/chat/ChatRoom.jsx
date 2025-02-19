@@ -53,10 +53,12 @@ const ChatRoom = () => {
     if (!userInfo?.storeId) return;
 
     try {
-      // const response = await axios.get(`http://localhost:8080/chat/store/${userInfo.storeId}`);
       const response = await axios.get(
-        `https://i12b105.p.ssafy.io/chat/store/${userInfo.storeId}`
+        `http://localhost:8080/chat/store/${userInfo.storeId}`
       );
+      //   const response = await axios.get(
+      //     `https://i12b105.p.ssafy.io/chat/store/${userInfo.storeId}`
+      //   );
       const history = response.data;
 
       console.log("Chat history:", history);

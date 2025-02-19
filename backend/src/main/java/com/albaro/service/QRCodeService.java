@@ -17,6 +17,8 @@ import java.security.Key;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +38,9 @@ public class QRCodeService {
     //QR 생성 메서드
     public byte[] generateUserQR(Integer userId){
 
+        
         try{
+            Instant now = Instant.now();
 
             //직원 정보를 포함한 데이터(Map) 생성
             Map<String, Object> payload = new HashMap<>();
@@ -45,7 +49,9 @@ public class QRCodeService {
 
             //JWT 토큰 생성 -> 직원 정보를 암호화
 //            String token = Jwts.builder().setClaims(payload).signWith(SignatureAlgorithm.HS256,secretKey.getBytes()).compact();
-            String token = Jwts.builder().setClaims(payload).signWith(key).compact();
+            String token = Jwts.builder().setClaims(payload)
+                    .setIssuedAt(Date.from(now))
+                    .setExpiration(Date.from(now.plus(12, ChronoUnit.HOURS))) .signWith(key).compact();
 
             // 디버깅용
             System.out.println("Generated token payload: " + payload);
@@ -92,18 +98,18 @@ public class QRCodeService {
             LocalDate today = LocalDate.now();
             LocalTime currentTime = LocalTime.now();
 
-        System.out.println("여기 지나갔나요?");
+//        System.out.println("여기 지나갔나요?");
 
             //디버깅
             System.out.println("Updating attendance for userId: " + userId + ", storeId: " + storeId);
             System.out.println("Current time: " + currentTime);
 
             User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("해당하는 사용자가 없습니다."));
+                    .orElseThrow(() -> new RuntimeException("no user 해당하는 사용자가 없습니다."));
             Integer accountId = user.getAccountId(); //사원 번호
 
             WorkInformation workInfo = workInformationRepository.findWorkInformation(accountId, today, storeId)
-                    .orElseThrow(() -> new RuntimeException("해당 직원의 근무 정보가 없습니다."));
+                    .orElseThrow(() -> new RuntimeException("no work info 해당 직원의 근무 정보가 없습니다."));
 
         System.out.println("Found work info: " + workInfo);
             // 출근/퇴근 여부 확인
