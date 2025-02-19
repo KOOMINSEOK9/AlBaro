@@ -11,6 +11,7 @@ services:
       - ./jenkins-data:/var/jenkins_home
       - /home/ubuntu/S12P11B105/nginx/conf.d:/var/jenkins_home/workspace/jenkinsTest/nginx/conf.d
       - /etc/letsencrypt:/etc/letsencrypt:ro  # 호스트 머신의 인증서 마운트
+      - /etc/letsencrypt:/var/jenkins_home/certs:ro  # 경로 변경
     environment:
       - JAVA_OPTS=-Djava.awt.headless=true
     privileged: true
