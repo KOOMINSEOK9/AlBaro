@@ -68,6 +68,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Alarm> alarms;
 
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private UserProfileImage userProfileImage;
+
     public Integer getUserId() {
         return userId;
     }
@@ -170,6 +173,14 @@ public class User {
 
     public void setAlarms(List<Alarm> alarms) {
         this.alarms = alarms;
+    }
+
+    public UserProfileImage getUserProfileImage() {
+        return userProfileImage;
+    }
+
+    public void setUserProfileImage(UserProfileImage userProfileImage) {
+        this.userProfileImage = userProfileImage;
     }
 }
 
