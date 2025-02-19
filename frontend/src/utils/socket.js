@@ -12,7 +12,8 @@ export const connectWebSocket = (onMessageReceived, storeId) => {
   // STOMP Client 생성
   stompClient = new Client({
     // webSocketFactory: () => new SockJS('https://i12b105.p.ssafy.io/ws-stomp'),
-    webSocketFactory: () => new SockJS('https://i12b105.p.ssafy.io/ws-stomp'),
+    // webSocketFactory: () => new SockJS('https://i12b105.p.ssafy.io/ws-stomp'),
+    webSocketFactory: () => new SockJS('/ws-stomp'),
     debug: function (str) {
       console.log('STOMP: ' + str);
     },
