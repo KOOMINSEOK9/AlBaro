@@ -12,8 +12,8 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: "/ws-stomp/:path*",
-        destination: "https://i12b105.p.ssafy.io/ws-stomp/:path*", // 배포 환경
+        source: "/ws/:path*",
+        destination: "https://i12b105.p.ssafy.io/ws/:path*", // 배포 환경
       },
     ];
   },
