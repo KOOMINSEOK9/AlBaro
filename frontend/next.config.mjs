@@ -9,12 +9,15 @@ const nextConfig = {
     ],
   },
   reactStrictMode: true,
-  async rewrites() {
+  // 웹소켓 요청을 Next.js가 처리하지 않도록 설정
+  async headers() {
     return [
       {
         source: "/ws/:path*",
-        // destination: "http://localhost:8080/ws/:path*", // 개발 환경
-        destination: "http://backend:8080/ws/:path*", // 배포 환경 - Docker 내부 네트워크 사용
+        headers: [
+          { key: "Connection", value: "upgrade" },
+          { key: "Upgrade", value: "websocket" }
+        ],
       },
     ];
   },
