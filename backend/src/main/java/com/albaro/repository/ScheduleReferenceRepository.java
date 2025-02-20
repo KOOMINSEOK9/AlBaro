@@ -71,9 +71,9 @@ public interface ScheduleReferenceRepository extends JpaRepository<ScheduleRefer
             "(SELECT upi.filePath FROM UserProfileImage upi WHERE upi.user = sr.user ORDER BY upi.userProfileImageId DESC LIMIT 1)) " +
             "FROM ScheduleReference sr " +
             "WHERE sr.store.storeId IN :storeIdList " +
+            "AND sr.store.storeId != :userStoreId " +
             "AND sr.user.userId != :excludeUserId")
-    List<UserDto> findWorkersInExternalStore(@Param("storeIdList") List<Integer> storeIdList, @Param("excludeUserId") Integer excludeUserId);
-
+    List<UserDto> findWorkersInExternalStore(@Param("storeIdList") List<Integer> storeIdList, @Param("excludeUserId") Integer excludeUserId, @Param("userStoreId") Integer userStoreId);
 
 
 }
