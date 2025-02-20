@@ -87,6 +87,7 @@ public class StoreService {
 
         // 사용자의 storeId 조회
         Integer userStoreId = userRepository.findStoreIdByUserId(userId);
+        System.out.println("userstoreId" + userStoreId);
         if (userStoreId == null) {
             throw new RuntimeException("사용자의 지점이 조회되지 않습니다.");
         }
@@ -120,8 +121,11 @@ public class StoreService {
                 userStoreEntity.getLongitude(),
                 searchRadius);
 
+        System.out.println("-----------------------------");
+        System.out.println(nearbyStoreIds);
+
         //만약 그 리스트 안에 storeId가 있다면 그 사람의 id와 Name 리스트로 출력
-        List<UserDto> externalWorkerList = scheduleReferenceRepository.findWorkersInExternalStore(nearbyStoreIds, userId);
+        List<UserDto> externalWorkerList = scheduleReferenceRepository.findWorkersInExternalStore(nearbyStoreIds, userId, userStoreId);
 
         return externalWorkerList;
     }
