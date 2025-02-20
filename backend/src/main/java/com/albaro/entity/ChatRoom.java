@@ -3,6 +3,7 @@ package com.albaro.entity;
 import jakarta.persistence.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "chatroom")
@@ -34,7 +35,7 @@ public class ChatRoom {
 
     @PrePersist
     public void prePersist() {
-        this.sentTime = LocalDateTime.now();
+        this.sentTime = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
 
     public static ChatRoom createMessage(Long storeId, Integer userId, String content, String userName) {

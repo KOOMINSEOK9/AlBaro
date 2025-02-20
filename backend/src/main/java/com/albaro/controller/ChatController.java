@@ -35,11 +35,14 @@ public class ChatController {
     }
 
     @GetMapping("/api/chat/store/{storeId}")
-    @ResponseBody  // 이 어노테이션 추가
+    @ResponseBody
     public List<ChatMessageDto> getChatHistory(
-            @PathVariable Long storeId,
-            @RequestParam(defaultValue = "50") int limit) {
-        logger.info("Fetching chat history for store: {}, limit: {}", storeId, limit);
-        return chatService.getRecentChatHistory(storeId, limit);
+        @PathVariable Long storeId,
+        @RequestParam(defaultValue = "50") int limit,
+        @RequestParam(required = false) Long lastMessageId  // 마지막으로 받은 메시지 ID
+    ) {
+        logger.info("Fetching chat history for store: {}, limit: {}, lastMessageId: {}", 
+            storeId, limit, lastMessageId);
+        return chatService.getRecentChatHistory(storeId, limit, lastMessageId);
     }
 }

@@ -17,6 +17,8 @@ const ChatRoom = () => {
   const [error, setError] = useState(null);
   const emojiPickerRef = useRef(null);
   const chatContainerRef = useRef(null);
+  const [lastMessageId, setLastMessageId] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
 
   // 토큰에서 정보 추출
   const [userInfo, setUserInfo] = useState(null);
@@ -47,37 +49,54 @@ const ChatRoom = () => {
   }, []);
 
   // 채팅 히스토리 가져오기
-  const fetchChatHistory = useCallback(async () => {
-    if (!userInfo?.storeId) return;
+  const fetchChatHistory = useCallback(async (messageId = null) => {
+    if (!userInfo?.storeId || (messageId && !hasMore)) return;
 
     try {
       setIsLoading(true);
-      const response = await axios.get(`/api/chat/store/${userInfo.storeId}`);
+      const response = await axios.get(`/api/chat/store/${userInfo.storeId}`, {
+        params: {
+          limit: 50,
+          lastMessageId: messageId
+        }
+      });
       const history = response.data;
 
-      console.log('Chat history:', history);
+      const formatTime = (dateStr) => {
+        return new Date(dateStr).toLocaleTimeString('ko-KR', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true,
+          timeZone: 'Asia/Seoul'
+        });
+      };
 
       const formattedMessages = history.map(msg => ({
         id: msg.id.toString(),
-        content: decodeURIComponent(msg.content), // URL 디코딩
+        content: decodeURIComponent(msg.content),
         userId: msg.userId,
         userName: msg.userName,
-        timestamp: new Date(msg.sentTime).toLocaleTimeString('ko-KR', {
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true
-        }),
+        timestamp: formatTime(msg.sentTime)
       }));
 
-      setMessages(formattedMessages);
-      setError(null);
+      if (messageId) {
+        // 이전 메시지 추가
+        setMessages(prev => [...formattedMessages, ...prev]);
+      } else {
+        setMessages(formattedMessages);
+      }
+
+      setHasMore(history.length === 50);
+      if (history.length > 0) {
+        setLastMessageId(history[history.length - 1].id);
+      }
     } catch (error) {
       console.error('Failed to fetch chat history:', error);
       setError('채팅 내역을 불러오는데 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
-  }, [userInfo?.storeId, setMessages]);
+  }, [userInfo?.storeId, hasMore]);
 
   // 컴포넌트 마운트 시 채팅 히스토리 로드
   useEffect(() => {
@@ -139,6 +158,22 @@ const ChatRoom = () => {
       scrollToBottom();
     }
   }, [messages]);
+
+  // 스크롤 이벤트 핸들러
+  const handleScroll = useCallback((e) => {
+    const element = e.target;
+    if (element.scrollTop === 0 && !isLoading && hasMore) {
+      fetchChatHistory(lastMessageId);
+    }
+  }, [fetchChatHistory, isLoading, hasMore, lastMessageId]);
+
+  useEffect(() => {
+    const chatContainer = chatContainerRef.current;
+    if (chatContainer) {
+      chatContainer.addEventListener('scroll', handleScroll);
+      return () => chatContainer.removeEventListener('scroll', handleScroll);
+    }
+  }, [handleScroll]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -254,6 +289,9 @@ const ChatRoom = () => {
           ref={chatContainerRef}
           className={`flex-1 overflow-y-auto px-6 py-4 bg-gray-50 ${styles.customScrollbar}`}
         >
+          {isLoading && !lastMessageId && (
+            <div className="text-center py-2">로딩 중...</div>
+          )}
           <div className="flex flex-col justify-end min-h-full">
             <div className="space-y-2">
               {processMessages(messages)}

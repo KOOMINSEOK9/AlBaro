@@ -29,4 +29,12 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     // 메시지 개수 조회
     @Query("SELECT COUNT(c) FROM ChatRoom c WHERE c.storeId = :storeId")
     Long countByStoreId(@Param("storeId") Long storeId);
+
+    // 이전 메시지 로드용 (특정 ID보다 이전 메시지)
+    @Query("SELECT c FROM ChatRoom c WHERE c.storeId = :storeId AND c.id < :lastMessageId ORDER BY c.sentTime DESC")
+    List<ChatRoom> findByStoreIdAndIdLessThanOrderBySentTimeDesc(
+        @Param("storeId") Long storeId,
+        @Param("lastMessageId") Long lastMessageId,
+        Pageable pageable
+    );
 }

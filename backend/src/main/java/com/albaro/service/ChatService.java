@@ -72,23 +72,27 @@ public class ChatService {
     }
 
     @Transactional(readOnly = true)
-    public List<ChatMessageDto> getRecentChatHistory(Long storeId, int limit) {
+    public List<ChatMessageDto> getRecentChatHistory(Long storeId, int limit, Long lastMessageId) {
         validateStoreId(storeId);
-        List<ChatRoom> chatRooms = chatRoomRepository.findByStoreIdOrderBySentTimeDesc(
+        
+        List<ChatRoom> chatRooms;
+        if (lastMessageId == null) {
+            // 첫 로드
+            chatRooms = chatRoomRepository.findByStoreIdOrderBySentTimeDesc(
                 storeId,
                 PageRequest.of(0, limit)
-        );
+            );
+        } else {
+            // 이전 메시지 로드
+            chatRooms = chatRoomRepository.findByStoreIdAndIdLessThanOrderBySentTimeDesc(
+                storeId,
+                lastMessageId,
+                PageRequest.of(0, limit)
+            );
+        }
 
         return chatRooms.stream()
-                .map(chatRoom -> {
-                    ChatMessageDto dto = ChatMessageDto.fromEntity(chatRoom);
-                    userRepository.findById(chatRoom.getUserId())
-                            .ifPresent(user -> {
-                                String userName = new String(user.getUserName().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
-                                dto.setUserName(userName);
-                            });
-                    return dto;
-                })
+                .map(ChatMessageDto::fromEntity)
                 .collect(Collectors.toList());
     }
 
@@ -97,4 +101,5 @@ public class ChatService {
             throw new IllegalArgumentException("Store ID cannot be null");
         }
     }
+}
 }
