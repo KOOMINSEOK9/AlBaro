@@ -13,7 +13,7 @@ const ChatRoom = () => {
   const messagesEndRef = useRef(null);
   const [inputMessage, setInputMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const emojiPickerRef = useRef(null);
   const chatContainerRef = useRef(null);
@@ -51,59 +51,35 @@ const ChatRoom = () => {
   }, []);
 
   // 채팅 히스토리 가져오기
-  const fetchChatHistory = useCallback(async (messageId = null) => {
-    if (!userInfo?.storeId || (messageId && !hasMore) || isLoadingMore) return;
+  const fetchChatHistory = useCallback(async () => {
+    if (!userInfo?.storeId) return;
 
     try {
-      if (messageId) {
-        setIsLoadingMore(true);
-      } else {
-        setIsLoading(true);
-      }
-
-      const response = await axios.get(`/api/chat/store/${userInfo.storeId}`, {
-        params: {
-          limit: 50,
-          lastMessageId: messageId
-        }
-      });
+      setIsLoading(true);
+      const response = await axios.get(`/api/chat/store/${userInfo.storeId}`);
       const history = response.data;
-
-      const formatTime = (dateStr) => {
-        return new Date(dateStr).toLocaleTimeString('ko-KR', {
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true,
-          timeZone: 'Asia/Seoul'
-        });
-      };
 
       const formattedMessages = history.map(msg => ({
         id: msg.id.toString(),
         content: decodeURIComponent(msg.content),
         userId: msg.userId,
         userName: msg.userName,
-        timestamp: formatTime(msg.sentTime)
+        timestamp: new Date(msg.sentTime).toLocaleTimeString('ko-KR', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        })
       }));
 
-      if (messageId) {
-        setMessages(prev => [...formattedMessages, ...prev]);
-      } else {
-        setMessages(formattedMessages);
-      }
-
-      setHasMore(history.length === 50);
-      if (history.length > 0) {
-        setLastMessageId(history[0].id);
-      }
+      setMessages(formattedMessages);
+      setError(null);
     } catch (error) {
       console.error('Failed to fetch chat history:', error);
       setError('채팅 내역을 불러오는데 실패했습니다.');
     } finally {
-      setIsLoadingMore(false);
       setIsLoading(false);
     }
-  }, [userInfo?.storeId, hasMore, isLoadingMore]);
+  }, [userInfo?.storeId]);
 
   // 컴포넌트 마운트 시 채팅 히스토리 로드
   useEffect(() => {
@@ -112,17 +88,9 @@ const ChatRoom = () => {
     }
   }, [userInfo, fetchChatHistory]);
 
-  // WebSocket 연결 상태 관리 추가
-  const [wsConnected, setWsConnected] = useState(false);
-  const reconnectAttempts = useRef(0);
-  const maxReconnectAttempts = 5;
-  const wsRef = useRef(null);  // WebSocket 인스턴스 참조 저장
-
-  // WebSocket 연결 관리
-  const connectWebSocketWithRetry = useCallback(() => {
-    if (!userInfo?.storeId || wsConnected || reconnectAttempts.current >= maxReconnectAttempts) return;
-
-    try {
+  // WebSocket 연결
+  useEffect(() => {
+    if (userInfo?.storeId) {
       const handleMessage = (message) => {
         const formattedMessage = {
           id: Date.now().toString(),
@@ -135,68 +103,16 @@ const ChatRoom = () => {
             hour12: true
           })
         };
-        addMessage(formattedMessage);
+        setMessages(prev => [...prev, formattedMessage]);
       };
 
-      // 기존 연결이 있다면 정리
-      if (wsRef.current) {
+      connectWebSocket(handleMessage, userInfo.storeId);
+
+      return () => {
         disconnectWebSocket();
-      }
-
-      // 새로운 연결 생성
-      wsRef.current = connectWebSocket(handleMessage, userInfo.storeId);
-      setWsConnected(true);
-      reconnectAttempts.current = 0;  // 연결 성공시 카운트 리셋
-
-    } catch (error) {
-      console.error('WebSocket connection failed:', error);
-      reconnectAttempts.current += 1;
-      
-      // 지수 백오프로 재시도 (1초, 2초, 4초, 8초, 16초)
-      if (reconnectAttempts.current < maxReconnectAttempts) {
-        const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 16000);
-        setTimeout(connectWebSocketWithRetry, delay);
-      }
+      };
     }
-  }, [userInfo?.storeId, wsConnected, addMessage]);
-
-  // 컴포넌트 마운트/언마운트 처리
-  useEffect(() => {
-    connectWebSocketWithRetry();
-
-    return () => {
-      if (wsRef.current) {
-        disconnectWebSocket();
-        wsRef.current = null;
-      }
-      setWsConnected(false);
-      reconnectAttempts.current = 0;
-    };
-  }, [connectWebSocketWithRetry]);
-
-  // 연결 상태 모니터링
-  useEffect(() => {
-    const handleOnline = () => {
-      reconnectAttempts.current = 0;  // 온라인 상태가 되면 카운트 리셋
-      connectWebSocketWithRetry();
-    };
-
-    const handleOffline = () => {
-      setWsConnected(false);
-      if (wsRef.current) {
-        disconnectWebSocket();
-        wsRef.current = null;
-      }
-    };
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, [connectWebSocketWithRetry]);
+  }, [userInfo]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
