@@ -3,6 +3,7 @@ package com.albaro.config;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
@@ -12,6 +13,8 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.TaskScheduler;
 
 import java.util.List;
 
@@ -19,6 +22,15 @@ import java.util.List;
 @EnableWebSocketMessageBroker
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    @Bean
+    public TaskScheduler messageBrokerTaskScheduler() {
+        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(1);
+        scheduler.setThreadNamePrefix("wss-heartbeat-thread-");
+        scheduler.setDaemon(true);
+        return scheduler;
+    }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -36,7 +48,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/sub")
-              .setHeartbeatValue(new long[]{10000, 10000}); // 브로커 하트비트 설정
+              .setHeartbeatValue(new long[]{10000, 10000})
+              .setTaskScheduler(messageBrokerTaskScheduler()); // TaskScheduler 설정 추가
         config.setApplicationDestinationPrefixes("/pub");
     }
 
@@ -48,5 +61,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setTimeToFirstMessage(30000);   // 첫 메시지 대기 시간 설정
     }
 
+
+    
     // ... 나머지 코드는 동일 ...
 }
