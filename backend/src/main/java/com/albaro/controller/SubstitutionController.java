@@ -107,7 +107,7 @@ public class SubstitutionController {
 
     //1. 지점 별 근무 가능한 알바생 조회
     @GetMapping("/available-workers")
-    public ResponseEntity<?> findNearbyStoresAndWorkers(@RequestParam int storeId) {
+    public ResponseEntity<?> findNearbyStoresAndWorkers(@RequestParam Integer storeId) {
 
         List<UserDto> availableWorkers = storeService.findWorkersInStores(storeId);
 

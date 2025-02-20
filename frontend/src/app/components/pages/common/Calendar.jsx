@@ -166,7 +166,7 @@ const MyCalendar = () => {
   };
 
   const handleEventHover = (selectInfo) => {
-    if (loginUserRole === "STAFF" &&
+    if (loginUserRole === "staff" &&
       selectInfo.event.extendedProps.realTimeWorker !== loginUserAccountId) {
       return;
     }
@@ -183,14 +183,14 @@ const MyCalendar = () => {
     const button = document.createElement("button");
     button.className = "z-10 bg-white hover:bg-gray-100 text-[#1E2A3B] px-4 py-2 rounded-lg transition-colors";
 
-    if (loginUserRole === "MANAGER" && !selectInfo.event.extendedProps.isVacant) {
+    if (loginUserRole === "manager" && !selectInfo.event.extendedProps.isVacant) {
       button.innerText = "공석 만들기";
     } else {
       button.innerText = "대타 구하기";
     }
 
     button.addEventListener("click", () => {
-      if (loginUserRole === "MANAGER") {
+      if (loginUserRole === "manager") {
         if (selectInfo.event.extendedProps.isVacant) {
           gotoDeta(selectInfo);
         } else {
@@ -464,10 +464,10 @@ const MyCalendar = () => {
           </Link>
           <button
             onClick={() => {
-              if (loginUserRole === "STAFF") {
+              if (loginUserRole === "staff") {
                 openQRModal(); // admin 역할에 해당하는 함수 호출
               }
-              if (loginUserRole === "MANAGER") {
+              if (loginUserRole === "manager") {
                 openFaceRecognition(); // 일반 사용자 역할에 해당하는 함수 호출
               }
             }}
