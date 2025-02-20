@@ -49,8 +49,7 @@ const ChatRoom = () => {
     if (!userInfo?.storeId) return;
 
     try {
-      // const response = await axios.get(`http://localhost:8080/chat/store/${userInfo.storeId}`);
-      const response = await axios.get(`https://i12b105.p.ssafy.io/chat/store/${userInfo.storeId}`);
+      /* const response = await axios.get(`https://i12b105.p.ssafy.io/chat/store/${userInfo.storeId}`);
       const history = response.data;
 
       console.log('Chat history:', history);
@@ -69,7 +68,8 @@ const ChatRoom = () => {
         .reverse();
 
       setMessages(formattedMessages);
-      setError(null);
+      setError(null); */
+      setMessages([]);  // 임시로 빈 배열 설정
     } catch (error) {
       console.error('Failed to fetch chat history:', error);
       if (error.response) {
