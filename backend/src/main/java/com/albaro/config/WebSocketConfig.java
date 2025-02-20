@@ -27,16 +27,19 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*")
+                .setAllowedOrigins("https://i12b105.p.ssafy.io")
                 .withSockJS()
-                .setWebSocketEnabled(true);
+                .setWebSocketEnabled(true)
+                .setDisconnectDelay(30 * 1000)
+                .setClientLibraryUrl("https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js");
     }
 
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
         registration.setMessageSizeLimit(64 * 1024)  // 64KB
                 .setSendBufferSizeLimit(512 * 1024)  // 512KB
-                .setSendTimeLimit(20000);  // 20초
+                .setSendTimeLimit(20000)  // 20초
+                .setTimeToFirstMessage(30000);  // 첫 메시지 대기 시간 30초
     }
 
     @Override
@@ -47,8 +50,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         converter.setObjectMapper(objectMapper);
         messageConverters.add(converter);
-        return false;
-
-
+        return true;
     }
 }
