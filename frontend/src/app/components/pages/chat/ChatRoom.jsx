@@ -112,33 +112,56 @@ const ChatRoom = () => {
     }
   }, [userInfo, fetchChatHistory]);
 
-  // WebSocket 연결
+  // WebSocket 연결 상태 관리 추가
+  const [wsConnected, setWsConnected] = useState(false);
+
+  // WebSocket 재연결 로직
   useEffect(() => {
-    if (userInfo?.storeId) {
-      const handleMessage = (message) => {
-        const formattedMessage = {
-          id: Date.now().toString(),
-          content: decodeURIComponent(message.content),
-          userId: message.userId,
-          userName: message.userName,
-          timestamp: new Date().toLocaleTimeString('ko-KR', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-          }),
+    const reconnectWebSocket = () => {
+      if (!wsConnected && userInfo?.storeId) {
+        const handleMessage = (message) => {
+          const formattedMessage = {
+            id: Date.now().toString(),
+            content: decodeURIComponent(message.content),
+            userId: message.userId,
+            userName: message.userName,
+            timestamp: new Date().toLocaleTimeString('ko-KR', {
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true
+            }),
+          };
+          addMessage(formattedMessage);
         };
-        addMessage(formattedMessage);
-      };
 
-      connectWebSocket(handleMessage, userInfo.storeId);
-      setConnected(true);
+        try {
+          connectWebSocket(handleMessage, userInfo.storeId);
+          setWsConnected(true);
+        } catch (error) {
+          console.error('WebSocket connection failed:', error);
+          // 3초 후 재시도
+          setTimeout(reconnectWebSocket, 3000);
+        }
+      }
+    };
 
-      return () => {
-        disconnectWebSocket();
-        setConnected(false);
-      };
-    }
-  }, [userInfo, addMessage, setConnected]);
+    reconnectWebSocket();
+
+    return () => {
+      disconnectWebSocket();
+      setWsConnected(false);
+    };
+  }, [userInfo, wsConnected]);
+
+  // 연결 상태 모니터링
+  useEffect(() => {
+    const handleConnectionError = () => {
+      setWsConnected(false);
+    };
+
+    window.addEventListener('offline', handleConnectionError);
+    return () => window.removeEventListener('offline', handleConnectionError);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
