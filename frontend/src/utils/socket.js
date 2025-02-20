@@ -3,7 +3,7 @@ import { Stomp } from '@stomp/stompjs';
 
 const SOCKET_URL = process.env.NODE_ENV === 'production'
   // ? 'https://i12b105.p.ssafy.io/ws-stomp'
-  ? 'https://i12b105.p.ssafy.io'
+  ? 'http://i12b105.p.ssafy.io/ws-stomp'
   : 'http://localhost:8080/ws-stomp';
 
 let stompClient = null;
