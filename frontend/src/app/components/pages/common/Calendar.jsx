@@ -18,6 +18,8 @@ import DatePicker from "react-datepicker";
 import AlbaCard from "../part-timer/AlbaCard";
 import "./Calendar.css";
 import { QrCode, UserRoundSearch, Calendar, Clock } from 'lucide-react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // FullCalendar는 클라이언트에서만 렌더링되므로 dynamic import 사용
 const FullCalendar = dynamic(() => import("@fullcalendar/react"), {
@@ -82,24 +84,36 @@ const MyCalendar = () => {
             let backgroundColor = '';
             let textColor = '';
             let displayName = event.userName;
+            let borderColor = 'transparent';  // 기본적으로 테두리 없음
 
             if (event.vacant || event.accountId !== event.realTimeWorker) {
-              backgroundColor = '#F1F5F9'; // 공석 - 더 부드러운 회색
-              textColor = '#64748B';       // 세련된 슬레이트 그레이
+              backgroundColor = '#FFFFFF';
+              textColor = '#64748B';       // 공석만 회색 텍스트
+              borderColor = '#E2E8F0';     // 공석 테두리
               displayName = event.vacant ? "공석" : event.userName.split(' ')[0];
-            } else if (new Date(`${event.workDate}T${event.startTime}`) > new Date()) {
-              backgroundColor = '#60A5FA'; // 출근 예정 - 부드러운 스카이블루
-              textColor = '#FFFFFF';
+            }
+            // 2. 출근 예정
+            else if (new Date(`${event.workDate}T${event.startTime}`) > new Date()) {
+              backgroundColor = '#60A5FA';  // 블루
+              textColor = '#FFFFFF';       // 흰색으로 변경
               displayName = event.userName.split(' ')[0];
-            } else if (!event.checkInTime ||
-              event.checkInTime > event.startTime ||
-              event.checkOutTime < event.endTime) {
-              backgroundColor = '#FB7185'; // 결근 + 지각 - 로즈 핑크
-              textColor = '#FFFFFF';
+            }
+            // 3. 결근 + 지각
+            else if (!event.checkInTime || event.checkInTime > event.startTime) {
+              backgroundColor = '#F43F5E';  // 레드
+              textColor = '#FFFFFF';       // 흰색으로 변경
               displayName = event.userName.split(' ')[0];
-            } else {
-              backgroundColor = '#34D399'; // 출근 중 - 민트 그린
-              textColor = '#FFFFFF';
+            }
+            // 4. 출근 중
+            else if (event.checkInTime && !event.checkOutTime) {
+              backgroundColor = '#34D399';  // 그린
+              textColor = '#FFFFFF';       // 흰색으로 변경
+              displayName = event.userName.split(' ')[0];
+            }
+            // 5. 퇴근 완료
+            else if (event.checkInTime && event.checkOutTime) {
+              backgroundColor = '#9CA3AF';  // 그레이
+              textColor = '#FFFFFF';       // 흰색으로 변경
               displayName = event.userName.split(' ')[0];
             }
 
@@ -109,7 +123,7 @@ const MyCalendar = () => {
               end: `${event.workDate}T${event.endTime}`,
               backgroundColor: backgroundColor,
               textColor: textColor,
-              borderColor: 'transparent',
+              borderColor: borderColor,  // 테두리 색상 적용
               classNames: [
                 'text-center',
                 'font-medium',
@@ -121,8 +135,10 @@ const MyCalendar = () => {
                 'hover:shadow-lg',
                 'hover:scale-[1.02]',
                 'border',
-                'border-transparent',
-                'hover:border-gray-200'
+                'border-[2px]',
+                'hover:border-gray-200',
+                'w-[calc(100%+8px)]',
+                'mx-[-4px]',
               ],
               extendedProps: {
                 accountId: event.accountId,
@@ -453,25 +469,69 @@ const MyCalendar = () => {
     setCurrentDate(arg.view.currentStart);
   };
 
+  useEffect(() => {
+    if (!loginUserUserId) return;
+
+    // WebSocket 연결
+    const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}/ws/notifications/${loginUserUserId}`);
+
+    ws.onmessage = (event) => {
+      const notification = JSON.parse(event.data);
+
+      // 알림 종류에 따라 다른 스타일 적용
+      switch (notification.type) {
+        case 'SUBSTITUTE_REQUEST':
+          toast.info('새로운 대타 요청이 있습니다!', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+          break;
+        case 'SCHEDULE_CHANGE':
+          toast.success('근무 일정이 변경되었습니다.', {
+            position: "top-right",
+            autoClose: 5000,
+          });
+          break;
+        case 'ATTENDANCE':
+          toast.warning('출근 시간이 임박했습니다!', {
+            position: "top-right",
+            autoClose: 5000,
+          });
+          break;
+        default:
+          toast(notification.message);
+      }
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [loginUserUserId]);
+
   return (
     <div className="App h-full">
-      <div className="flex justify-between items-center mb-5">
+      <ToastContainer />
+      <div className="flex justify-between items-center mb-1.5">
         <h1 className="text-4xl font-bold text-[#1E2A3B] store-title">MEGASSAFY 강남R점</h1>
         <div className="flex gap-3 -mt-4">
-          <Link href="/map" className={commonButtonStyle}>
+          <Link href="/map" className="bg-white hover:bg-[#FF6B6B] text-[#FF6B6B] hover:text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg active:shadow-sm px-6 py-3 flex items-center gap-2 font-semibold text-base transform hover:-translate-y-0.5 active:translate-y-0">
             <UserRoundSearch className="w-5 h-5" />
             대타 찾기
           </Link>
           <button
             onClick={() => {
               if (loginUserRole === "staff") {
-                openQRModal(); // admin 역할에 해당하는 함수 호출
+                openQRModal();
               }
               if (loginUserRole === "manager") {
-                openFaceRecognition(); // 일반 사용자 역할에 해당하는 함수 호출
+                openFaceRecognition();
               }
             }}
-            className="bg-gray-400 text-black rounded-md px-4 py-2 flex items-center"
+            className="bg-white hover:bg-[#3867E2] text-[#3867E2] hover:text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg active:shadow-sm px-6 py-3 flex items-center gap-2 font-semibold text-base transform hover:-translate-y-0.5 active:translate-y-0"
           >
             <QrCode className="w-5 h-5" />
             출석체크
@@ -479,7 +539,7 @@ const MyCalendar = () => {
         </div>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-0.5">
         <div className="calendar-title">
           <div className="digit-container">{currentDate.getFullYear().toString()[0]}</div>
           <div className="digit-container">{currentDate.getFullYear().toString()[1]}</div>
@@ -491,47 +551,97 @@ const MyCalendar = () => {
         </div>
       </div>
 
-      <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        initialView="dayGridMonth"
-        locale="ko"
-        contentHeight="450px"
-        fixedWeekCount={false}
-        headerToolbar={{
-          start: '',
-          right: "timeGridDay,dayGridMonth prev,next",
-        }}
-        datesSet={handleDatesSet}
-        selectable={true}
-        select={handleDateSelect}
-        events={events}
-        dayCellContent={(arg) => {
-          if (arg.view.type === 'dayGridMonth') {
-            return arg.date.getDate();
-          }
-          return '';
-        }}
-        eventDisplay="block"
-        eventContent={(info) => (
-          <div className="text-black">{info.event.title}</div>
-        )}
-        slotEventOverlap={false}
-        views={{
-          dayGridMonth: {
-            dayMaxEvents: 3,
-          },
-          timeGridDay: {
-            allDaySlot: false,
-            nowIndicator: false,
-            slotMinTime: "09:00:00",
-            slotMaxTime: "24:00:00",
-            slotDuration: "01:00:00",
-            height: 'auto',
-            dayHeaderFormat: { weekday: 'long' },
-            eventMouseEnter: handleEventHover  // 호버 이벤트 핸들러 복구
-          }
-        }}
-      />
+      <div className="relative">
+        <FullCalendar
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          initialView="dayGridMonth"
+          locale="ko"
+          contentHeight="395px"
+          fixedWeekCount={false}
+          dayMaxEventRows={3}
+          headerToolbar={{
+            start: '',
+            right: "timeGridDay,dayGridMonth prev,next",
+          }}
+          datesSet={handleDatesSet}
+          selectable={true}
+          select={handleDateSelect}
+          events={events}
+          eventDisplay="block"
+          eventContent={(info) => (
+            <div className="text-black">{info.event.title}</div>
+          )}
+          slotEventOverlap={false}
+          views={{
+            dayGridMonth: {
+              dayMaxEvents: 3,
+              dayCellHeight: 75,
+              dayCellContent: (arg) => {
+                // 오늘 날짜 가져오기
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                // 해당 날짜가 오늘 이후인 경우에만 공석 체크
+                if (arg.date >= today) {
+                  // 해당 날짜에 공석이 있는지 확인
+                  const hasVacant = events.some(event => {
+                    const eventDate = new Date(event.start);
+                    return event.extendedProps.isVacant &&
+                      eventDate.toDateString() === arg.date.toDateString();
+                  });
+
+                  return (
+                    <div className="relative">
+                      {arg.dayNumberText.replace('일', '')}
+                      {hasVacant && (
+                        <span className="absolute top-1.5 right-4 text-lg animate-fadeIn">
+                          ★
+                        </span>
+                      )}
+                    </div>
+                  );
+                }
+
+                return arg.dayNumberText.replace('일', '');
+              }
+            },
+            timeGridDay: {
+              allDaySlot: false,
+              nowIndicator: false,
+              slotMinTime: "09:00:00",
+              slotMaxTime: "24:00:00",
+              slotDuration: "01:00:00",
+              height: 'auto',
+              dayHeaderFormat: { weekday: 'long' },
+              eventMouseEnter: handleEventHover
+            }
+          }}
+          moreLinkContent={(args) => `+${args.num} more`}
+        />
+
+        <div className="absolute bottom-[-2rem] right-[-0.5rem] flex items-center justify-end gap-2 px-2 text-xs">
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded border border-[#E2E8F0] bg-white"></div>
+            <span className="text-gray-600">공석</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded bg-[#F43F5E]"></div>
+            <span className="text-gray-600">결근/지각</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded bg-[#60A5FA]"></div>
+            <span className="text-gray-600">출근 예정</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded bg-[#34D399]"></div>
+            <span className="text-gray-600">출근 중</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded bg-[#9CA3AF]"></div>
+            <span className="text-gray-600">퇴근</span>
+          </div>
+        </div>
+      </div>
 
       {/* 알바 리스트 모달 */}
       {isModalOpen && eventInfo && (
@@ -626,46 +736,12 @@ const MyCalendar = () => {
       {isQRModalOpen && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-96 relative">
-            <button
-              onClick={() => setIsQRModalOpen(false)}
-              className={modalCloseButtonStyle}
-            >
-              ×
-            </button>
+            <button onClick={() => setIsQRModalOpen(false)} className={modalCloseButtonStyle}>×</button>
             <div className="flex justify-center items-center mt-4">
               {qrCode ? (
-                <img
-                  src={qrCode}
-                  alt="QR Code"
-                  className="w-64 h-64 object-contain"
-                />
+                <img src={qrCode} alt="QR Code" className="w-64 h-64 object-contain" />
               ) : (
                 <p className="text-gray-500">QR 코드 생성 중...</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 큐알 모달 */}
-      {isQRModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 max-w-full relative">
-            <button
-              onClick={() => setIsQRModalOpen(false)}
-              className="absolute top-2 right-2 bg-gray-300 text-gray-800 rounded-full p-2 hover:bg-gray-400 transition-all"
-            >
-              X
-            </button>
-            <div className="flex justify-center items-center">
-              {qrCode ? (
-                <img
-                  src={qrCode}
-                  alt="QR Code"
-                  className="w-64 h-64 object-contain"
-                />
-              ) : (
-                <p>QR 코드 생성 중...</p>
               )}
             </div>
           </div>

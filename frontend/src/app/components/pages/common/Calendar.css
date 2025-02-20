@@ -5,17 +5,23 @@
   grid-template-columns: 1fr 1fr;
   gap: 2px;
   padding: 2px;
-  max-height: 50px !important;
-  overflow: hidden !important;
+  min-height: 35px !important;
+  max-height: 45px !important;
+  overflow: visible !important;
 }
 
 .fc-daygrid-event {
-  margin: 1px 0;
-  max-width: 100%;
+  margin: 1px 0 !important;
+  width: 95% !important;
+  height: 20px !important;
+  min-height: 20px !important;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 0.85em;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 /* 하루 상세 스케줄 타임테이블*/
@@ -30,7 +36,9 @@
 .fc-daygrid-event-harness {
   margin: 0 !important;
   display: flex !important;
-  align-items: stretch !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 20px !important;
 }
 
 .fc-timegrid-slot {
@@ -49,6 +57,7 @@
 /* 헤더 툴바 */
 .fc .fc-header-toolbar {
   margin-bottom: 1em !important;
+  margin-top: 0.5rem !important;
 }
 
 .fc .fc-header-toolbar .fc-toolbar-chunk .fc-toolbar-title {
@@ -59,83 +68,71 @@
   padding: 0 0 !important;
 }
 
-/* day 버튼과 month 버튼 공통 스타일 */
+/* day/month 버튼 공통 스타일 */
 .fc .fc-timeGridDay-button,
 .fc .fc-dayGridMonth-button {
   width: 80px;
   height: 35px;
-  border-radius: 4px;
-  transition: all 0.3s ease;
+  border-radius: 8px;
+  transition: all 0.2s ease;
   margin-right: 5px;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-/* 기본 day 버튼 스타일 */
-.fc .fc-timeGridDay-button {
-  background-color: #FFFFFF;
-  color: #1E2A3B;
-  border: 1px solid #E2E8F0;
+/* 버튼 호버 효과 */
+.fc .fc-timeGridDay-button:hover,
+.fc .fc-dayGridMonth-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
-/* 기본 month 버튼 스타일 */
-.fc .fc-dayGridMonth-button {
-  background-color: #1E2A3B;
-  color: #FFFFFF;
-  border: 1px solid #1E2A3B;
+/* 활성화된 버튼 스타일 */
+.fc .fc-button-active {
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
 }
 
-/* 활성화된 day 버튼 스타일 */
-.fc .fc-timeGridDay-button.fc-button-active {
-  background-color: #1E2A3B;
-  color: #FFFFFF;
-  border-color: #1E2A3B;
-}
-
-/* day 버튼이 활성화되었을 때 month 버튼 스타일 */
-.fc .fc-timeGridDay-button.fc-button-active+.fc-dayGridMonth-button {
-  background-color: #FFFFFF;
-  color: #1E2A3B;
-  border-color: #E2E8F0;
-}
-
-/* 활성화된 month 버튼 스타일 */
-.fc .fc-dayGridMonth-button.fc-button-active {
-  background-color: #1E2A3B;
-  color: #FFFFFF;
-  border-color: #1E2A3B;
-}
-
-/* month 버튼이 활성화되었을 때 day 버튼 스타일 */
-.fc .fc-dayGridMonth-button.fc-button-active+.fc-timeGridDay-button {
-  background-color: #FFFFFF;
-  color: #1E2A3B;
-  border-color: #E2E8F0;
-}
-
-/* prev/next 버튼 스타일링 */
+/* 방향 버튼 스타일링 */
 .fc .fc-prev-button,
 .fc .fc-next-button {
-  background-color: #F8FAFC !important;
-  border-color: #E2E8F0 !important;
-  color: #1E2A3B !important;
-  padding: 0.5rem !important;
+  width: 32px !important;
+  height: 32px !important;
   border-radius: 6px !important;
+  background-color: #F8FAFC !important;
+  border: 1px solid #E2E8F0 !important;
+  color: #64748B !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
 }
 
+/* 방향 버튼 호버 효과 */
 .fc .fc-prev-button:hover,
 .fc .fc-next-button:hover {
   background-color: #F1F5F9 !important;
+  border-color: #CBD5E1 !important;
+  color: #1E293B !important;
 }
 
-/* 호버 효과 */
-.fc .fc-button:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-  transition: all 0.2s ease;
+/* 방향 버튼 클릭 효과 */
+.fc .fc-prev-button:active,
+.fc .fc-next-button:active {
+  background-color: #E2E8F0 !important;
+  transform: translateY(1px);
 }
 
-/* 클릭 효과 */
-.fc .fc-button:active {
-  transform: translateY(0);
+/* 버튼 그룹 스타일링 */
+.fc .fc-button-group {
+  background-color: #F8FAFC;
+  padding: 3px;
+  border-radius: 10px;
+  margin-right: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* 폰트 정의 및 적용 */
@@ -161,7 +158,6 @@
 .event-title-text,
 .fc-event-title,
 .fc-event-time,
-.fc-daygrid-event,
 .fc-timegrid-event,
 .fc-list-event-title,
 .fc-list-event-time,
@@ -184,7 +180,7 @@
   gap: 2px;
   justify-content: flex-start;
   position: absolute;
-  top: 160px;
+  top: 165px;
   left: 40px;
   z-index: 1;
 }
@@ -226,14 +222,20 @@
 
 /* 날짜 셀의 높이 고정 */
 .fc .fc-daygrid-day {
-  height: 70px !important;
-  max-height: 70px !important;
+  min-height: 75px !important;
+  height: 75px !important;
+  max-height: 75px !important;
+}
+
+.fc-daygrid-day-frame {
+  height: 75px !important;
+  min-height: 75px !important;
 }
 
 /* 타임그리드 이벤트 스타일링 */
 .fc-timegrid-event {
-  margin: 0 8px !important;
-  width: calc(100% - 16px) !important;
+  margin: 0 !important;
+  width: 95% !important;
   border-radius: 25px !important;
 }
 
@@ -281,43 +283,125 @@
 
 /* 스크롤바 숨기기 */
 .fc-scroller {
-  overflow: hidden !important;
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 transparent;
+}
+
+.fc-scroller::-webkit-scrollbar {
+  width: 4px;
+}
+
+.fc-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.fc-scroller::-webkit-scrollbar-thumb {
+  background-color: #E2E8F0;
+  border-radius: 20px;
+}
+
+.fc-scroller::-webkit-scrollbar-thumb:hover {
+  background-color: #CBD5E1;
 }
 
 /* 타임그리드 전체 컨테이너 높이 설정 */
 .fc-timegrid-body {
   height: 392px !important;
+  margin-bottom: 0 !important;
   /* 14시간(9시~22시) * 28px = 392px */
 }
 
 /* more 링크 스타일링 */
 .fc-daygrid-more-link {
-  position: absolute;
-  bottom: 2px;
-  right: 2px;
-  font-size: 0.85em;
-  color: #6B7280;
-  text-decoration: none;
-  padding: 2px 4px;
-  background-color: white;
-  z-index: 1;
+  font-size: 0.85em !important;
+  color: #4B5563 !important;
+  background: transparent !important;
+  padding: 2px 4px !important;
+  margin-top: 2px !important;
+  display: inline-block !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  position: relative !important;
+  transition: all 0.2s ease !important;
 }
 
+/* more 링크 호버 효과 */
 .fc-daygrid-more-link:hover {
-  color: #374151;
-  background-color: #F3F4F6;
-  border-radius: 4px;
+  color: #1E2A3B !important;
+  transform: translateY(-1px) !important;
+}
+
+/* more 링크 밑줄 애니메이션 */
+.fc-daygrid-more-link::after {
+  content: '' !important;
+  position: absolute !important;
+  width: 0 !important;
+  height: 1px !important;
+  bottom: 0 !important;
+  left: 50% !important;
+  background-color: #1E2A3B !important;
+  transition: all 0.3s ease !important;
+  transform: translateX(-50%) !important;
+}
+
+.fc-daygrid-more-link:hover::after {
+  width: 100% !important;
+}
+
+/* more 팝오버 스타일링 */
+.fc-more-popover {
+  max-height: 300px !important;
+  overflow-y: auto !important;
+  border-radius: 25px !important;
+}
+
+/* 팝오버 헤더 스타일링 */
+.fc-more-popover .fc-popover-header {
+  border-radius: 25px 25px 0 0 !important;
+  text-align: center !important;
+  padding: 12px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  position: relative !important;
+}
+
+/* 팝오버 타이틀(날짜) 스타일링 */
+.fc-more-popover .fc-popover-title {
+  flex: 1 !important;
+  text-align: center !important;
+  font-size: 1rem !important;
+}
+
+/* 중복된 날짜 숫자와 관련 요소 완전히 제거 */
+.fc-more-popover .fc-daygrid-day-top,
+.fc-more-popover .fc-daygrid-day-number {
+  display: none !important;
+}
+
+/* 팝오버 내용 영역 */
+.fc-more-popover .fc-popover-body {
+  padding: 8px !important;
+}
+
+/* 팝오버 내 이벤트들 스타일링 */
+.fc-more-popover .fc-daygrid-event {
+  border-radius: 25px !important;
+  margin: 4px 0 !important;
 }
 
 /* 캘린더 전체 컨테이너 크기 조정 */
 .fc {
   position: relative;
-  height: 530px !important;
+  height: 520px !important;
+  margin-top: 0.5rem !important;
+  /* 아주 살짝 마진 추가 */
 }
 
 /* 타임그리드 전체 컨테이너 높이 설정 */
 .fc-timegrid-body {
   height: 392px !important;
+  margin-bottom: 0 !important;
   /* 14시간(9시~22시) * 28px = 392px */
 }
 
@@ -333,4 +417,128 @@
 
 .fc-timegrid-slot-lane {
   height: 2rem !important;
+}
+
+/* 이벤트 타이틀 텍스트 중앙 정렬 */
+.fc-event-title {
+  text-align: center !important;
+  width: 100% !important;
+}
+
+/* 공석이 있는 날짜 강조 효과 */
+.fc-day-has-vacant .fc-daygrid-day-number {
+  position: relative !important;
+  color: #1E2A3B !important;
+}
+
+/* 공석 표시 뱃지 */
+.fc-day-has-vacant .fc-daygrid-day-number::after {
+  content: '⭐' !important;
+  position: absolute !important;
+  top: -8px !important;
+  right: -4px !important;
+  font-size: 0.9em !important;
+  animation: fadeInScale 0.3s ease-out !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 뱃지 애니메이션 */
+@keyframes fadeInScale {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes twinkle {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    color: #EF4444;
+    /* 선명한 레드 */
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: scale(0.9);
+    color: #FCA5A5;
+    /* 밝은 레드 */
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    color: #EF4444;
+    /* 선명한 레드 */
+  }
+}
+
+.animate-fadeIn {
+  position: absolute;
+  top: -3.5px;
+  right: 22px;
+  animation: twinkle 1s ease-in-out infinite;
+  color: #EF4444;
+}
+
+/* 또는 버튼 그룹에 직접 마진 추가 */
+.fc .fc-button-group {
+  margin-top: 0.5rem !important;
+}
+
+/* 캘린더 바디 여백 제거 */
+.fc .fc-view-harness {
+  margin-bottom: 0 !important;
+}
+
+/* 데이그리드 바디 여백 제거 */
+.fc-daygrid-body {
+  margin-bottom: 0 !important;
+}
+
+/* 기본 day 버튼 스타일 */
+.fc .fc-timeGridDay-button {
+  background-color: #FFFFFF;
+  color: #1E2A3B;
+  border: 1px solid #E2E8F0;
+}
+
+/* 기본 month 버튼 스타일 */
+.fc .fc-dayGridMonth-button {
+  background-color: #1E2A3B;
+  color: #FFFFFF;
+  border: 1px solid #1E2A3B;
+}
+
+/* 활성화된 day 버튼 스타일 */
+.fc .fc-timeGridDay-button.fc-button-active {
+  background-color: #1E2A3B;
+  color: #FFFFFF;
+  border-color: #1E2A3B;
+}
+
+/* day 버튼이 활성화되었을 때 month 버튼 스타일 */
+.fc .fc-timeGridDay-button.fc-button-active+.fc-dayGridMonth-button {
+  background-color: #FFFFFF;
+  color: #1E2A3B;
+  border-color: #E2E8F0;
+}
+
+/* 활성화된 month 버튼 스타일 */
+.fc .fc-dayGridMonth-button.fc-button-active {
+  background-color: #1E2A3B;
+  color: #FFFFFF;
+  border-color: #1E2A3B;
+}
+
+/* month 버튼이 활성화되었을 때 day 버튼 스타일 */
+.fc .fc-dayGridMonth-button.fc-button-active+.fc-timeGridDay-button {
+  background-color: #FFFFFF;
+  color: #1E2A3B;
+  border-color: #E2E8F0;
 }

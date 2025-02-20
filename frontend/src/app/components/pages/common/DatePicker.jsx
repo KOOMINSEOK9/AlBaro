@@ -58,7 +58,6 @@ const DatePickerModule = ({
           onChange={(time) => {
             if (selectedDate) {
               console.log("datepicker1", time);
-              // 날짜 정보 + 선택한 시간 결합
               const newDateTime = new Date(selectedDate);
               newDateTime.setHours(time.getHours(), time.getMinutes(), 0, 0);
               setStartTime(newDateTime);
@@ -69,14 +68,13 @@ const DatePickerModule = ({
           timeIntervals={30}
           timeCaption="Start Time"
           dateFormat="aa hh:mm"
-          className="border-b-2 pl-1  w-20"
+          className="border-b-2 pl-1 w-24"
         />
         <span className="text-center align-middle mx-2">-</span>
         <DatePicker
           selected={endTime}
           onChange={(time) => {
             if (selectedDate) {
-              // 날짜 정보 + 선택한 시간 결합
               const newDateTime = new Date(selectedDate);
               newDateTime.setHours(time.getHours(), time.getMinutes(), 0, 0);
               setEndTime(newDateTime);
@@ -87,7 +85,7 @@ const DatePickerModule = ({
           timeIntervals={30}
           timeCaption="End Time"
           dateFormat="aa hh:mm"
-          className="border-b-2 pl-1   ml-1 w-20"
+          className="border-b-2 pl-1 ml-1 w-24"
         />
       </div>
     </div>

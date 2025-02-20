@@ -8,15 +8,14 @@ const StoreCard = ({ stores, onSelectStore, selectedStore }) => {
           <div
             key={index}
             className={`p-4 rounded-lg shadow cursor-pointer transition
-           ${
-             selectedStore?.storeName === store.storeName
-               ? "border-2 border-black shadow-xl"
-               : "bg-white hover:bg-gray-200"
-           }`}
+           ${selectedStore?.storeName === store.storeName
+                ? "border-2 border-black shadow-xl"
+                : "bg-white hover:bg-gray-200"
+              }`}
             onClick={() => onSelectStore(store)}
           >
             <h3 className="text-lg font-semibold">{store.storeName}</h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-xs text-gray-600">
               {store.roadAddress} {store.detailedAddress}
             </p>
           </div>

@@ -7,6 +7,7 @@ import { Users } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 import ChatMessage from './ChatMessage';
 import axios from 'axios';
+import styles from '@/styles/scrollbar.module.css';
 
 const ChatRoom = () => {
   const messagesEndRef = useRef(null);
@@ -262,7 +263,7 @@ const ChatRoom = () => {
 
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto px-6 py-4 bg-gray-50"
+        className={`flex-1 overflow-y-auto px-6 py-4 bg-gray-50 ${styles.customScrollbar}`}
       >
         <div className="flex flex-col justify-end min-h-full">
           <div className="space-y-2">
@@ -306,7 +307,7 @@ const ChatRoom = () => {
           <button
             type="submit"
             disabled={!isConnected || !inputMessage.trim()}
-            className="px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-1"
           >
             전송
           </button>

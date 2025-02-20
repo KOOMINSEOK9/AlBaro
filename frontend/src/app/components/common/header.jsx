@@ -60,8 +60,8 @@ const Header = () => {
 
   return (
     <header className="bg-[#1a2236] text-white py-2 px-6 flex justify-between items-center relative border-b border-gray-700 shadow-sm">
-      <Link href="/main" className="text-2xl font-bold">
-        AlBaro
+      <Link href="/" className="flex items-center">
+        <span className="font-['Freesentation-9Black'] text-2xl">AlBaro</span>
       </Link>
 
       <div className="relative dropdown-container">
@@ -78,7 +78,7 @@ const Header = () => {
               : 'bg-sky-500/20 text-sky-300 border border-sky-500/20'
               }`}
           >
-            {userInfo.role === 'manager' ? '점장' : '스태프'}
+            {userInfo.role === 'manager' ? '점장' : '직원'}
           </span>
         </button>
         <DropDownMenu isOpen={isDropdownOpen} />
