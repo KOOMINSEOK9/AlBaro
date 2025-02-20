@@ -8,8 +8,10 @@ export const connectWebSocket = (onMessageReceived, storeId) => {
     disconnectWebSocket();
   }
 
-  // const socket = new SockJS('https://i12b105.p.ssafy.io/ws');
-  const socket = new SockJS('https://i12b105.p.ssafy.io/ws');
+  const socket = new SockJS('https://i12b105.p.ssafy.io/ws', null, {
+    transports: ['websocket', 'xhr-streaming', 'xhr-polling'],
+    timeout: 10000, // 10초
+  });
   
   stompClient = new Client({
     webSocketFactory: () => socket,
@@ -18,22 +20,40 @@ export const connectWebSocket = (onMessageReceived, storeId) => {
     },
     reconnectDelay: 5000,
     heartbeatIncoming: 4000,
-    heartbeatOutgoing: 4000
+    heartbeatOutgoing: 4000,
+    connectionTimeout: 10000,
+    onStompError: (frame) => {
+      console.error('STOMP error:', frame);
+    },
+    onWebSocketError: (event) => {
+      console.error('WebSocket error:', event);
+    },
+    onWebSocketClose: (event) => {
+      console.log('WebSocket closed:', event);
+    }
   });
 
-  stompClient.onConnect = () => {
-    console.log('Connected to WebSocket');
-    stompClient.subscribe(`/sub/chat/room/${storeId}`, (message) => {
-      const receivedMessage = JSON.parse(message.body);
-      onMessageReceived(receivedMessage);
-    });
+  stompClient.onConnect = (frame) => {
+    console.log('Connected to WebSocket', frame);
+    try {
+      stompClient.subscribe(`/sub/chat/room/${storeId}`, (message) => {
+        try {
+          const receivedMessage = JSON.parse(message.body);
+          onMessageReceived(receivedMessage);
+        } catch (error) {
+          console.error('Error parsing message:', error);
+        }
+      });
+    } catch (error) {
+      console.error('Error subscribing to topic:', error);
+    }
   };
 
-  stompClient.onStompError = (frame) => {
-    console.error('STOMP error:', frame);
-  };
-
-  stompClient.activate();
+  try {
+    stompClient.activate();
+  } catch (error) {
+    console.error('Error activating STOMP client:', error);
+  }
 };
 
 export const sendMessage = async (messageData) => {
@@ -45,7 +65,8 @@ export const sendMessage = async (messageData) => {
   try {
     await stompClient.publish({
       destination: '/pub/chat/message',
-      body: JSON.stringify(messageData)
+      body: JSON.stringify(messageData),
+      headers: { 'content-type': 'application/json' }
     });
     return true;
   } catch (error) {
@@ -56,9 +77,14 @@ export const sendMessage = async (messageData) => {
 
 export const disconnectWebSocket = () => {
   if (stompClient) {
-    if (stompClient.connected) {
-      stompClient.deactivate();
+    try {
+      if (stompClient.connected) {
+        stompClient.deactivate();
+      }
+    } catch (error) {
+      console.error('Error disconnecting:', error);
+    } finally {
+      stompClient = null;
     }
-    stompClient = null;
   }
 };
