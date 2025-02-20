@@ -148,11 +148,10 @@ export default function Notifications({ notificationList }) {
             key={noti.alarmId}
             className={`bg-gray-50 rounded-lg p-3 relative group snap-start
                             transition-all duration-300 ease-in-out hover:shadow-sm
-                            ${
-                              removingId === noti.alarmId
-                                ? "opacity-0 -translate-x-full"
-                                : "opacity-100 translate-x-0"
-                            }`}
+                            ${removingId === noti.alarmId
+                ? "opacity-0 -translate-x-full"
+                : "opacity-100 translate-x-0"
+              }`}
           >
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 mt-1">
