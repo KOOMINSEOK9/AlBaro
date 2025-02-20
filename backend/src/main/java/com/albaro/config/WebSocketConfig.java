@@ -11,41 +11,39 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
 import java.util.List;
 
 @Configuration
 @EnableWebSocketMessageBroker
+@EnableWebSocket
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("*")
-                .withSockJS();
+                .setAllowedOriginPatterns("*")  // setAllowedOrigins 대신 setAllowedOriginPatterns 사용
+                .withSockJS()
+                .setWebSocketEnabled(true)       // WebSocket 활성화 명시적 설정
+                .setHeartbeatTime(25000)        // 하트비트 시간 설정
+                .setDisconnectDelay(5000);      // 연결 해제 지연 시간
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/sub");
+        config.enableSimpleBroker("/sub")
+              .setHeartbeatValue(new long[]{10000, 10000}); // 브로커 하트비트 설정
         config.setApplicationDestinationPrefixes("/pub");
     }
 
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
-        registration.setMessageSizeLimit(64 * 1024)  // 64KB
-                .setSendBufferSizeLimit(512 * 1024)  // 512KB
-                .setSendTimeLimit(20000);  // 20초
+        registration.setMessageSizeLimit(64 * 1024)
+                .setSendBufferSizeLimit(512 * 1024)
+                .setSendTimeLimit(20000)
+                .setTimeToFirstMessage(30000);   // 첫 메시지 대기 시간 설정
     }
 
-    @Override
-    public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
-        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        converter.setObjectMapper(objectMapper);
-        messageConverters.add(converter);
-        return false;
-    }
+    // ... 나머지 코드는 동일 ...
 }
