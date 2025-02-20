@@ -1,9 +1,12 @@
+/* Calendar.css */
 /* 메인 페이지 달력 이벤트 2줄로 출력 */
 .fc-daygrid-day-events {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2px;
   padding: 2px;
+  max-height: 50px !important;
+  overflow: hidden !important;
 }
 
 .fc-daygrid-event {
@@ -13,11 +16,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 0.85em;
-}
-
-/* 하루 상세 스케줄 지점명 + 버튼 없애기 */
-.mainHeader {
-  /* display: none; */
 }
 
 /* 하루 상세 스케줄 타임테이블*/
@@ -30,33 +28,23 @@
 }
 
 .fc-daygrid-event-harness {
-  width: 100%;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: stretch !important;
 }
 
 .fc-timegrid-slot {
-  height: 1.7rem !important; /* Increase this value to add more spacing */
+  height: 2rem !important;
 }
 
 .fc-timegrid-slot-label {
-  height: 1.7rem !important;
+  height: 2rem !important;
   vertical-align: middle;
 }
 
 .fc-timegrid-slot-lane {
-  height: 1.7rem !important;
+  height: 2rem !important;
 }
-
-/* .fc .fc-header-toolbar .fc-toolbar-chunk .fc-button-group button {
-  color: black;
-  border: 0px;
-}
-
-.fc .fc-button-primary {
-  background-color: white;
-  :hover {
-    color: white;
-  }
-} */
 
 /* 헤더 툴바 */
 .fc .fc-header-toolbar {
@@ -69,4 +57,280 @@
 
 .fc .fc-button {
   padding: 0 0 !important;
+}
+
+/* day 버튼과 month 버튼 공통 스타일 */
+.fc .fc-timeGridDay-button,
+.fc .fc-dayGridMonth-button {
+  width: 80px;
+  height: 35px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  margin-right: 5px;
+}
+
+/* 기본 day 버튼 스타일 */
+.fc .fc-timeGridDay-button {
+  background-color: #FFFFFF;
+  color: #1E2A3B;
+  border: 1px solid #E2E8F0;
+}
+
+/* 기본 month 버튼 스타일 */
+.fc .fc-dayGridMonth-button {
+  background-color: #1E2A3B;
+  color: #FFFFFF;
+  border: 1px solid #1E2A3B;
+}
+
+/* 활성화된 day 버튼 스타일 */
+.fc .fc-timeGridDay-button.fc-button-active {
+  background-color: #1E2A3B;
+  color: #FFFFFF;
+  border-color: #1E2A3B;
+}
+
+/* day 버튼이 활성화되었을 때 month 버튼 스타일 */
+.fc .fc-timeGridDay-button.fc-button-active+.fc-dayGridMonth-button {
+  background-color: #FFFFFF;
+  color: #1E2A3B;
+  border-color: #E2E8F0;
+}
+
+/* 활성화된 month 버튼 스타일 */
+.fc .fc-dayGridMonth-button.fc-button-active {
+  background-color: #1E2A3B;
+  color: #FFFFFF;
+  border-color: #1E2A3B;
+}
+
+/* month 버튼이 활성화되었을 때 day 버튼 스타일 */
+.fc .fc-dayGridMonth-button.fc-button-active+.fc-timeGridDay-button {
+  background-color: #FFFFFF;
+  color: #1E2A3B;
+  border-color: #E2E8F0;
+}
+
+/* prev/next 버튼 스타일링 */
+.fc .fc-prev-button,
+.fc .fc-next-button {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+  color: #1E2A3B !important;
+  padding: 0.5rem !important;
+  border-radius: 6px !important;
+}
+
+.fc .fc-prev-button:hover,
+.fc .fc-next-button:hover {
+  background-color: #F1F5F9 !important;
+}
+
+/* 호버 효과 */
+.fc .fc-button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* 클릭 효과 */
+.fc .fc-button:active {
+  transform: translateY(0);
+}
+
+/* 폰트 정의 및 적용 */
+@font-face {
+  font-family: 'Tenada';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2210-2@1.0/Tenada.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'BMJUA';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* 캘린더 전체 폰트 적용 */
+.fc-daygrid-day-number,
+.fc-daygrid-day-top,
+.fc-timegrid-slot-label,
+.fc-timegrid-axis,
+.event-title-text,
+.fc-event-title,
+.fc-event-time,
+.fc-daygrid-event,
+.fc-timegrid-event,
+.fc-list-event-title,
+.fc-list-event-time,
+.fc-more-link,
+.fc .fc-toolbar-title,
+.fc .fc-button {
+  font-family: 'BMJUA' !important;
+  font-weight: normal !important;
+}
+
+/* 지점명 폰트 */
+.store-title {
+  font-family: 'Tenada', sans-serif !important;
+}
+
+/* 캘린더 타이틀 관련 스타일 */
+.calendar-title {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  justify-content: flex-start;
+  position: absolute;
+  top: 160px;
+  left: 40px;
+  z-index: 1;
+}
+
+.digit-container {
+  background: #EEEEEE;
+  color: #1E2A3B;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  font-size: 1.1rem;
+  min-width: 1.8rem;
+  height: 2.2rem;
+  text-align: center;
+  font-family: 'Tenada', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.digit-container::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.separator {
+  color: #1E2A3B;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin: 0 0.2rem;
+}
+
+/* 날짜 셀의 높이 고정 */
+.fc .fc-daygrid-day {
+  height: 70px !important;
+  max-height: 70px !important;
+}
+
+/* 타임그리드 이벤트 스타일링 */
+.fc-timegrid-event {
+  margin: 0 8px !important;
+  width: calc(100% - 16px) !important;
+  border-radius: 25px !important;
+}
+
+.fc-timegrid-event:hover {
+  transform: scale(1.02) !important;
+}
+
+.fc-timegrid-event .fc-event-main {
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 500 !important;
+  border-radius: 25px !important;
+}
+
+.fc-timegrid-event .fc-event-title {
+  width: 100% !important;
+  text-align: center !important;
+  padding: 0 4px !important;
+}
+
+/* 이벤트 호버 효과 */
+.event-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  opacity: 0 !important;
+  transition: opacity 0.2s ease-in-out !important;
+  border-radius: 25px !important;
+}
+
+.fc-timegrid-event:hover .event-overlay {
+  opacity: 1 !important;
+}
+
+/* 시간 구분선 스타일링 */
+.fc-timegrid-slot-minor {
+  border-top: none !important;
+}
+
+/* 스크롤바 숨기기 */
+.fc-scroller {
+  overflow: hidden !important;
+}
+
+/* 타임그리드 전체 컨테이너 높이 설정 */
+.fc-timegrid-body {
+  height: 392px !important;
+  /* 14시간(9시~22시) * 28px = 392px */
+}
+
+/* more 링크 스타일링 */
+.fc-daygrid-more-link {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 0.85em;
+  color: #6B7280;
+  text-decoration: none;
+  padding: 2px 4px;
+  background-color: white;
+  z-index: 1;
+}
+
+.fc-daygrid-more-link:hover {
+  color: #374151;
+  background-color: #F3F4F6;
+  border-radius: 4px;
+}
+
+/* 캘린더 전체 컨테이너 크기 조정 */
+.fc {
+  position: relative;
+  height: 530px !important;
+}
+
+/* 타임그리드 전체 컨테이너 높이 설정 */
+.fc-timegrid-body {
+  height: 392px !important;
+  /* 14시간(9시~22시) * 28px = 392px */
+}
+
+/* 타임그리드 슬롯 높이 설정 */
+.fc-timegrid-slot {
+  height: 2rem !important;
+}
+
+.fc-timegrid-slot-label {
+  height: 2rem !important;
+  vertical-align: middle;
+}
+
+.fc-timegrid-slot-lane {
+  height: 2rem !important;
 }

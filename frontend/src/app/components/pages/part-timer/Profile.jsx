@@ -9,38 +9,49 @@ export default function Profile() {
     const [userInfo, setUserInfo] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [profileImage, setProfileImage] = useState('/images/default-profile.png'); // 경로 수정
 
     useEffect(() => {
-        const fetchUserInfo = async () => {
+        const fetchData = async () => {
             try {
-                const token = localStorage.getItem('accessToken'); // JWT 토큰 가져오기
+                const token = localStorage.getItem('accessToken');
                 if (!token) {
                     setError('로그인이 필요합니다.');
                     return;
                 }
 
-                // JWT 토큰 디코딩하여 userId 추출
                 const decoded = jwtDecode(token);
-                const userId = decoded.userId; // JWT 페이로드에서 userId 추출
+                const userId = decoded.userId;
 
-                // const response = await axios.get(`http://localhost:8080/api/user-work/user/${userId}`, {
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/user-work/user/${userId}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
+                // 병렬로 두 요청을 처리
+                const [userInfoResponse, profileImageResponse] = await Promise.all([
+                    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/user-work/user/${userId}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }),
+                    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/user-profile/${userId}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    })
+                ]);
 
-                setUserInfo(response.data);
+                setUserInfo(userInfoResponse.data);
+
+                // API 응답 확인을 위한 콘솔 출력
+                console.log('Profile Image Response:', profileImageResponse.data);
+
+                // 프로필 이미지 응답 처리
+                if (profileImageResponse.data && profileImageResponse.data.filePath) {
+                    setProfileImage(profileImageResponse.data.filePath); // S3 전체 URL이 이미 포함되어 있음
+                }
                 setError(null);
             } catch (err) {
-                setError('사용자 정보를 불러오는데 실패했습니다.');
-                console.error('Error fetching user info:', err);
+                setError('정보를 불러오는데 실패했습니다.');
+                console.error('Error fetching data:', err);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchUserInfo();
+        fetchData();
     }, []);
 
     if (loading) {
@@ -61,7 +72,7 @@ export default function Profile() {
             <div className="hidden lg:flex flex-col items-center justify-center h-full p-6">
                 <div className="w-24 h-24 rounded-full overflow-hidden mb-4 relative border border-gray-100 shadow-sm">
                     <Image
-                        src="/boyoung.jpg"
+                        src={profileImage}
                         alt="프로필 이미지"
                         fill
                         sizes="(max-width: 96px) 100vw"
@@ -81,7 +92,7 @@ export default function Profile() {
                 <div className="flex items-center gap-4">
                     <div className="w-16 h-16 rounded-full border-2 border-gray-100 overflow-hidden relative">
                         <Image
-                            src="/boyoung.jpg"
+                            src={profileImage}
                             alt="프로필 이미지"
                             fill
                             className="object-cover"

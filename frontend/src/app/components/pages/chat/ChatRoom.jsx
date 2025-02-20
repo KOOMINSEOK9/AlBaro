@@ -49,8 +49,8 @@ const ChatRoom = () => {
         if (!userInfo?.storeId) return;
 
         try {
-            // const response = await axios.get(`http://localhost:8080/chat/store/${userInfo.storeId}`);
-            const response = await axios.get(`https://i12b105.p.ssafy.io/chat/store/${userInfo.storeId}`);
+            const response = await axios.get(`http://localhost:8080/chat/store/${userInfo.storeId}`);
+            // const response = await axios.get(`https://i12b105.p.ssafy.io/chat/store/${userInfo.storeId}`);
             const history = response.data;
 
             console.log('Chat history:', history);
@@ -187,6 +187,32 @@ const ChatRoom = () => {
         setShowEmojiPicker(false);
     };
 
+    // 메시지 렌더링 부분만 수정
+    const processMessages = (messages) => {
+        return messages.map((message, index) => {
+            let showTimestamp = true;
+
+            // 다음 메시지가 있는 경우
+            if (index < messages.length - 1) {
+                const nextMessage = messages[index + 1];
+                // 같은 사용자의 연속된 메시지이고 시간이 같으면 타임스탬프 숨김
+                if (message.userId === nextMessage.userId &&
+                    message.timestamp === nextMessage.timestamp) {
+                    showTimestamp = false;
+                }
+            }
+
+            return (
+                <ChatMessage
+                    key={message.id}
+                    message={message}
+                    isOwnMessage={message.userId === userInfo?.userId}
+                    showTimestamp={showTimestamp}
+                />
+            );
+        });
+    };
+
     if (!userInfo) {
         return (
             <div className="flex items-center justify-center h-full">
@@ -239,14 +265,8 @@ const ChatRoom = () => {
                 className="flex-1 overflow-y-auto px-6 py-4 bg-gray-50"
             >
                 <div className="flex flex-col justify-end min-h-full">
-                    <div className="space-y-4">
-                        {messages.map((message) => (
-                            <ChatMessage
-                                key={message.id}
-                                message={message}
-                                isOwnMessage={message.userId === userInfo.userId}
-                            />
-                        ))}
+                    <div className="space-y-2">
+                        {processMessages(messages)}
                         <div ref={messagesEndRef} />
                     </div>
                 </div>

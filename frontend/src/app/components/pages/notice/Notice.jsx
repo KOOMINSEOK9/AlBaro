@@ -15,7 +15,7 @@ const Notice = () => {
 
   // API 기본 설정
   const api = axios.create({
-    baseURL: '${process.env.NEXT_PUBLIC_API_URL}/api',
+    baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
     headers: {
       'Content-Type': 'application/json',
     },
@@ -83,7 +83,9 @@ const Notice = () => {
       const storeId = getStoreIdFromToken();
       if (!storeId) throw new Error('Invalid access token');
 
-      await api.post(`/notifications/${storeId}`, formData);
+      const userId = getStoreIdFromToken();
+      await api.post(`/notifications/${userId}`, formData);
+
       await fetchNotices();
       setShowForm(false);
       setFormData({

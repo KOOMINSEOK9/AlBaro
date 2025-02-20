@@ -1,46 +1,87 @@
 "use client";
 
 import { jwtDecode } from "jwt-decode";
-
 import Link from "next/link";
-import DropDownMenu from "../pages/common/DropDownMenu";
 import { useEffect, useState } from "react";
+import DropDownMenu from "./DropDownMenu";
+import axios from 'axios';
 
 const Header = () => {
-  const [view, setView] = useState(false);
-  const [accessToken, setAccessToken] = useState(null);
-  const [loginUserName, setLoginUserName] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [userInfo, setUserInfo] = useState({
+    name: null,
+    role: null
+  });
 
   useEffect(() => {
-    // 클라이언트 사이드에서만 실행되도록
+    const fetchUserInfo = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) return;
+
+        const decoded = jwtDecode(token);
+        const userId = decoded.userId;
+
+        console.log('Decoded token:', decoded); // 토큰 내용 확인
+
+        // API를 통해 사용자 정보 가져오기
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/user-work/user/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        setUserInfo({
+          name: response.data.userName,
+          role: decoded.role // 토큰의 role 값을 직접 사용
+        });
+
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    };
+
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("accessToken");
-      setAccessToken(token);
-
-      const decoded = jwtDecode(token);
-
-      setLoginUserName(decoded.username);
+      fetchUserInfo();
     }
   }, []);
 
+  // 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isDropdownOpen && !event.target.closest('.dropdown-container')) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [isDropdownOpen]);
+
   return (
-    <header className="bg-[#222831] text-white py-3 px-6 flex justify-between items-center relative">
+    <header className="bg-[#1a2236] text-white py-2 px-6 flex justify-between items-center relative border-b border-gray-700 shadow-sm">
       <Link href="/main" className="text-2xl font-bold">
         AlBaro
       </Link>
-      <div className="relative">
+
+      <div className="relative dropdown-container">
         <button
-          onClick={() => setView(!view)}
-          className="flex items-center gap-2 px-4 py-2 rounded-md"
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className="flex items-center justify-center gap-2 hover:bg-white/10 px-4 py-2 rounded-lg transition-colors"
         >
-          <span className="whitespace-nowrap">
-            {loginUserName}님 환영합니다.
+          <span className="text-sm font-medium mt-0.5">
+            {userInfo.name}님
           </span>
-          <span className="text-sm transition-transform duration-200 align-middle text-c">
-            {view ? "︿" : "﹀"}
+          <span
+            className={`text-xs px-3 py-1 rounded-full ${userInfo.role === 'manager'
+              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/20'
+              : 'bg-sky-500/20 text-sky-300 border border-sky-500/20'
+              }`}
+          >
+            {userInfo.role === 'manager' ? '점장' : '스태프'}
           </span>
         </button>
-        {view && <DropDownMenu />}
+        <DropDownMenu isOpen={isDropdownOpen} />
       </div>
     </header>
   );
