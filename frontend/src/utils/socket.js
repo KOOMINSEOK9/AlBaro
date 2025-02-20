@@ -8,7 +8,7 @@ export const connectWebSocket = (onMessageReceived, storeId) => {
     disconnectWebSocket();
   }
 
-  const socket = new SockJS('http://i12b105.p.ssafy.io:8080/ws');
+  const socket = new SockJS('https://i12b105.p.ssafy.io/ws');
   
   stompClient = new Client({
     webSocketFactory: () => socket,
