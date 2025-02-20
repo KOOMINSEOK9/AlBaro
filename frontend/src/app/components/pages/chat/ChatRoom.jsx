@@ -51,26 +51,26 @@ const ChatRoom = () => {
 
     try {
       // const response = await axios.get(`http://localhost:8080/chat/store/${userInfo.storeId}`);
-      // // const response = await axios.get(`https://i12b105.p.ssafy.io/chat/store/${userInfo.storeId}`);
-      // const history = response.data;
+      const response = await axios.get(`https://i12b105.p.ssafy.io/chat/store/${userInfo.storeId}`);
+      const history = response.data;
 
-      // console.log('Chat history:', history);
+      console.log('Chat history:', history);
 
-      // const formattedMessages = history.map(msg => ({
-      //   id: msg.id.toString(),
-      //   content: decodeURIComponent(msg.content),
-      //   userId: msg.userId,
-      //   userName: msg.userName,
-      //   timestamp: new Date(msg.sentTime).toLocaleTimeString('ko-KR', {
-      //     hour: 'numeric',
-      //     minute: '2-digit',
-      //     hour12: true
-      //   }),
-      // }))
-      //   .reverse();
+      const formattedMessages = history.map(msg => ({
+        id: msg.id.toString(),
+        content: decodeURIComponent(msg.content),
+        userId: msg.userId,
+        userName: msg.userName,
+        timestamp: new Date(msg.sentTime).toLocaleTimeString('ko-KR', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        }),
+      }))
+        .reverse();
 
-      // setMessages(formattedMessages);
-      // setError(null); 
+      setMessages(formattedMessages);
+      setError(null); 
       setMessages([]);  // 임시로 빈 배열 설정
     } catch (error) {
       console.error('Failed to fetch chat history:', error);
