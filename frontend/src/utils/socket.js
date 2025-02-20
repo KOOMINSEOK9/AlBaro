@@ -9,7 +9,7 @@ export const connectWebSocket = (onMessageReceived, storeId) => {
   }
 
   const socket = new SockJS('https://i12b105.p.ssafy.io/ws', null, {
-    transports: ['websocket', 'xhr-streaming', 'xhr-polling'],
+    transports: ['websocket'],
     timeout: 10000, // 10초
   });
   
