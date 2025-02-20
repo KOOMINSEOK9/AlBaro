@@ -38,15 +38,15 @@ public class ManagerWorkInformationService {
 
     // 2. 우리 가게 알바생이 대타 근무한 경우 (과거 근무만, 현재 달 기준)
     public List<ManagerWorkInformationResponse> getInternalSubstitutes(Integer storeId) {
-        List<Integer> storeUserIds = userRepository.findAll().stream()
+        List<Integer> storeAccountIds = userRepository.findAll().stream()
                 .filter(user -> user.getStore() != null && user.getStore().getStoreId().equals(storeId))
-                .map(User::getUserId)
+                .map(User::getAccountId) // 🔹 userId -> accountId 비교로 변경
                 .collect(Collectors.toList());
 
         return workInformationRepository.findAll().stream()
                 .filter(info -> info.getStore() != null && info.getStore().getStoreId().equals(storeId))
-                .filter(info -> storeUserIds.contains(info.getRealTimeWorker()))
-                .filter(info -> !info.getUser().getUserId().equals(info.getRealTimeWorker()))
+                .filter(info -> storeAccountIds.contains(info.getRealTimeWorker())) // 🔹 accountId 비교
+                .filter(info -> !info.getUser().getAccountId().equals(info.getRealTimeWorker())) // 🔹 accountId 비교
                 .filter(info -> info.getWorkDate().getYear() == LocalDateTime.now().getYear())
                 .filter(info -> info.getWorkDate().getMonth() == LocalDateTime.now().getMonth())
                 .filter(info -> LocalDateTime.now().isAfter(info.getWorkDate().atTime(info.getEndTime())))
@@ -56,14 +56,14 @@ public class ManagerWorkInformationService {
 
     // 3. 외부 알바생이 우리 가게에서 대타 근무한 경우 (과거 근무만, 현재 달 기준)
     public List<ManagerWorkInformationResponse> getExternalSubstitutes(Integer storeId) {
-        List<Integer> storeUserIds = userRepository.findAll().stream()
+        List<Integer> storeAccountIds = userRepository.findAll().stream()
                 .filter(user -> user.getStore() != null && user.getStore().getStoreId().equals(storeId))
-                .map(User::getUserId)
+                .map(User::getAccountId) // 🔹 userId -> accountId 비교로 변경
                 .collect(Collectors.toList());
 
         return workInformationRepository.findAll().stream()
                 .filter(info -> info.getStore() != null && info.getStore().getStoreId().equals(storeId))
-                .filter(info -> !storeUserIds.contains(info.getRealTimeWorker()))
+                .filter(info -> !storeAccountIds.contains(info.getRealTimeWorker())) // 🔹 accountId 비교
                 .filter(info -> info.getWorkDate().getYear() == LocalDateTime.now().getYear())
                 .filter(info -> info.getWorkDate().getMonth() == LocalDateTime.now().getMonth())
                 .filter(info -> LocalDateTime.now().isAfter(info.getWorkDate().atTime(info.getEndTime())))

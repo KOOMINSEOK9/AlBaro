@@ -31,7 +31,12 @@ public class ManagerWorkInformationResponse {
         this.storeName = workInformation.getStore().getStoreName();
 
         if (workInformation.getRealTimeWorker() != null) {
-            Optional<User> realTimeWorkerUser = userRepository.findById(workInformation.getRealTimeWorker());
+            // 🔹 기존: userId 기준으로 검색
+            // 🔹 변경: realTimeWorker(AccountId)와 동일한 AccountId를 가진 사용자의 userName 반환
+            Optional<User> realTimeWorkerUser = userRepository.findAll().stream()
+                    .filter(user -> user.getAccountId() != null && user.getAccountId().equals(workInformation.getRealTimeWorker()))
+                    .findFirst();
+
             this.realTimeWorkerName = realTimeWorkerUser.map(User::getUserName).orElse("N/A");
         } else {
             this.realTimeWorkerName = "N/A";
