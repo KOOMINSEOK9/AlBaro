@@ -73,12 +73,12 @@ const Header = () => {
             {userInfo.name}님
           </span>
           <span
-            className={`text-xs px-3 py-1 rounded-full ${userInfo.role === 'manager'
+            className={`text-xs px-3 py-1 rounded-full ${userInfo.role === 'MANAGER'
               ? 'bg-amber-500/20 text-amber-300 border border-amber-500/20'
               : 'bg-sky-500/20 text-sky-300 border border-sky-500/20'
               }`}
           >
-            {userInfo.role === 'manager' ? '점장' : '스태프'}
+            {userInfo.role === 'MANAGER' ? '점장' : '스태프'}
           </span>
         </button>
         <DropDownMenu isOpen={isDropdownOpen} />

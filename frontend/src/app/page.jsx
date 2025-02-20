@@ -136,7 +136,7 @@ export default function Login() {
     <div className="flex min-h-screen">
       <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-12">
         <div className="w-full max-w-sm">
-          <h1 className="text-4xl font-bold mb-12 text-center">Albaro</h1>
+          <h1 className="text-4xl font-bold mb-12 text-center">AlBaro</h1>
 
           <form onSubmit={handleSubmit}>
             <div>
