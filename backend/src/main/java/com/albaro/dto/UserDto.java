@@ -32,6 +32,8 @@ public class UserDto {
             filePath = user.getUserProfileImage().getFilePath();
         }
 
+
+
         return new UserDto(
                 user.getUserId(),
                 user.getUserName(),

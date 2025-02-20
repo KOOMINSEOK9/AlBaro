@@ -131,6 +131,6 @@ public class QRCodeService {
     //QR 코드 만료 여부 확인(1분 제한)
     private boolean isExpired(Long timestamp){
         long currentTime = Instant.now().getEpochSecond();
-        return currentTime - timestamp > 60;
+        return currentTime - timestamp > 43200;
     }
 }

@@ -1,92 +1,44 @@
 package com.albaro.dto;
 
 import com.albaro.entity.ChatRoom;
+import lombok.Getter;
+import lombok.Setter;
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
 public class ChatMessageDto {
     private Long id;
     private Long storeId;
-    private Integer userId;  // Long -> Integer로 변경
-    private String userName;
+    private Integer userId;
     private String content;
     private LocalDateTime sentTime;
-
-    public ChatMessageDto() {
-    }
-
-    public ChatMessageDto(Long id, Long storeId, Integer userId, String userName, String content, LocalDateTime sentTime) {
-        this.id = id;
-        this.storeId = storeId;
-        this.userId = userId;
-        this.userName = userName;
-        this.content = content;
-        this.sentTime = sentTime;
-    }
+    private String userName;
 
     public boolean isValid() {
-        return storeId != null &&
-                userId != null &&
-                content != null &&
-                !content.trim().isEmpty();
+        return content != null && !content.trim().isEmpty() 
+            && userId != null 
+            && userName != null 
+            && storeId != null;
     }
 
     public static ChatMessageDto fromEntity(ChatRoom chatRoom) {
-        return new ChatMessageDto(
-                chatRoom.getId(),
-                chatRoom.getStoreId(),
-                chatRoom.getUserId().intValue(),  // Long -> Integer 변환
-                chatRoom.getUserName(),
-                chatRoom.getContent(),
-                chatRoom.getSentTime()
+        ChatMessageDto dto = new ChatMessageDto();
+        dto.setId(chatRoom.getId());
+        dto.setStoreId(chatRoom.getStoreId());
+        dto.setUserId(chatRoom.getUserId());
+        dto.setContent(chatRoom.getContent());
+        dto.setSentTime(chatRoom.getSentTime());
+        dto.setUserName(chatRoom.getUserName());
+        return dto;
+    }
+
+    public ChatRoom toEntity() {
+        return ChatRoom.createMessage(
+            this.storeId,
+            this.userId,
+            this.content,
+            this.userName
         );
-    }
-
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getStoreId() {
-        return storeId;
-    }
-
-    public void setStoreId(Long storeId) {
-        this.storeId = storeId;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public LocalDateTime getSentTime() {
-        return sentTime;
-    }
-
-    public void setSentTime(LocalDateTime sentTime) {
-        this.sentTime = sentTime;
     }
 }
