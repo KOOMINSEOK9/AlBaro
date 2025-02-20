@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Base64;
+import java.util.Map;
+
 @RestController
 @RequestMapping("api/qr")
 public class QRCodeController {
@@ -23,7 +26,7 @@ public class QRCodeController {
     }
 
     @PostMapping("/generate")
-    public ResponseEntity<?> generateQR(@AuthenticationPrincipal User user){
+    public ResponseEntity<?> generateQR(@RequestBody User user){
 
         //로그인 한 직원 아이디로 QR 코드 생성
         byte[] qrCode = qrCodeService.generateUserQR(user.getUserId());
@@ -31,33 +34,35 @@ public class QRCodeController {
         if(qrCode == null){
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(qrCode);
-    }
+// Base64로 변환
+        String base64QrCode = Base64.getEncoder().encodeToString(qrCode);
+
+        // JSON 형태로 반환
+        return ResponseEntity.ok().body(Map.of("qrCode", base64QrCode));    }
 
 
     //QR코드 검증
     @PostMapping("/verify")
-    public ResponseEntity<AttendanceResponse> verifyQR(
-            @RequestBody QRVerificationRequest request,
-            @AuthenticationPrincipal User manager) {
+    public ResponseEntity<?> verifyQR(
+            @RequestBody QRVerificationRequest request) {
         try {
             // 디버깅
             System.out.println("Received token: " + request.getToken());
-            System.out.println("Manager storeId: " + manager.getStore().getStoreId());
+            System.out.println("Manager storeId: " + request.getStoreId());
 
             //1. QR 코드 검증
             UserQRData data = qrCodeService.verifyQRcode(request.getToken());
             System.out.println("Verified data: " + data);
 
             //2. 검증 후 출석정보 업데이트
-            qrCodeService.updateWorkInformation(data.getUserId(),manager.getStore().getStoreId());
+            qrCodeService.updateWorkInformation(data.getUserId(),request.getStoreId());
 
-            return ResponseEntity.ok(new AttendanceResponse(true));
+            return ResponseEntity.ok().body("qr 본인 인증 성공");
         } catch (Exception e) {
             // 구체적인 에러 메시지 포함
             System.out.println("Verification failed: " + e.getMessage());
             return ResponseEntity.badRequest()
-                    .body(new AttendanceResponse(false, e.getMessage()));
+                    .body("qr 본인 인증 실패" + e.getMessage());
         }
     }
 

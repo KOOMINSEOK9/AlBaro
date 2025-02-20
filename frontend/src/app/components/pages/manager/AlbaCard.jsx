@@ -100,10 +100,11 @@ const AlbaCard = ({ selectedDate, startTime, endTime, albas }) => {
           >
             <div>
               <Image
-                src="/profile.png"
+                src={alba.filePath}
                 alt="profileimg"
                 width={50}
                 height={50}
+                className="w-[45px] h-[45px] rounded-full"
               />
             </div>
 

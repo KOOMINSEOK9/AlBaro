@@ -67,6 +67,25 @@ export default function ManagerPage() {
     }
   });
 
+  // 우리 지점 알바생 리스트 조회
+  const [albaList, setAlbaList] = useState([]);
+
+  useEffect(() => {
+    if (loginUserStoreId) {
+      axios
+        .get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/manager/staff-with-images/${loginUserStoreId}`
+        )
+        .then((res) => {
+          // console.log("알바생 정보", res.data);
+          setAlbaList(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  });
+
   // 우리 지점 공석 근무 정보 조회
   const [isVacantList, setIsVacantList] = useState([]);
 
@@ -93,7 +112,7 @@ export default function ManagerPage() {
           `${process.env.NEXT_PUBLIC_API_URL}/api/manager/internal-substitutes/${loginUserStoreId}`
         )
         .then((res) => {
-          console.log("우리 지점 대타타", res.data);
+          //   console.log("우리 지점 대타타", res.data);
           setMyStoreDetaList(res.data);
         });
     }
@@ -134,7 +153,7 @@ export default function ManagerPage() {
               {/* Alba List - Full width on mobile */}
               <div className="lg:col-span-10">
                 <div className="lg:h-[230px]">
-                  <AlbaList />
+                  <AlbaList albaList={albaList} />
                 </div>
               </div>
 

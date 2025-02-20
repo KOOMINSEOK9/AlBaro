@@ -34,6 +34,8 @@ const AlbaCard = ({ selectedDate, startTime, endTime, albas }) => {
       : null;
 
     const filtered = albas.filter((alba) => {
+      console.log("albaCard alba", alba);
+
       const albaDate = new Date(alba.scheduleDate).setHours(0, 0, 0, 0); // 날짜만 비교
       const albaStartTime = new Date(
         `${alba.scheduleDate}T${alba.scheduleStartTime}`
@@ -130,10 +132,11 @@ const AlbaCard = ({ selectedDate, startTime, endTime, albas }) => {
           >
             <div>
               <Image
-                src="/profile.png"
+                src={alba.filePath}
                 alt="profileimg"
                 width={50}
                 height={50}
+                className="w-[45px] h-[45px] rounded-full"
               />
             </div>
             <div className="align-middle ml-1 mt-1">

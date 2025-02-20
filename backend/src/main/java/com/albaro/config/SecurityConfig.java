@@ -19,7 +19,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+// import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,6 +57,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+        http
+                .headers(headers -> headers
+                        .disable()
+                );
 
         http
                 .cors((cors) -> cors.configurationSource(new CorsConfigurationSource() {
@@ -124,6 +130,7 @@ public class SecurityConfig {
         http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
 
 
         return http.build();

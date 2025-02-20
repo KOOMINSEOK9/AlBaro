@@ -75,21 +75,6 @@ public class StoreService {
     //주변 지점 리스트 내의 근무 가능한 알바생 표시
     public List<UserDto> findWorkersInStores(int storeId) {
 
-//        // 반경 5KM 내 지점 조회(위도/경도 기반 필터링)
-//        double searchRadius = 5.0;
-//        List<Store> nearbyStoreEntities = storeRepository.findNearbyStores(
-//                userStoreEntity.getLatitude(),
-//                userStoreEntity.getLongitude(),
-//                searchRadius);
-//
-//        // 각 지점별 근무 가능한 알바생 조회 및 DTO 변환
-//        List<StoreDto> nearbyStoreList = nearbyStoreEntities.stream()
-//                .map(store -> {
-//
-//                    return StoreDto.fromEntity(store, availableWorkers);
-//                })
-//                .collect(Collectors.toList());
-
         List<UserDto> availableWorkers = scheduleReferenceRepository.findWorkersByStoreId(storeId);
 
         return availableWorkers;
