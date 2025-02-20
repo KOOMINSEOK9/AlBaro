@@ -73,7 +73,7 @@ public class StoreService {
     // --------------------------(점장 공석채우기(알바생 찾기) 로직)--------------------------------
 
     //주변 지점 리스트 내의 근무 가능한 알바생 표시
-    public List<UserDto> findWorkersInStores(int storeId) {
+    public List<UserDto> findWorkersInStores(Integer storeId) {
 
         List<UserDto> availableWorkers = scheduleReferenceRepository.findWorkersByStoreId(storeId);
 

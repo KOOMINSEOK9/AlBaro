@@ -75,7 +75,7 @@ public class ManagerWorkInformationService {
     public List<UserDto> getStaffListByStoreId(Integer storeId) {
         return userRepository.findAll().stream()
                 .filter(user -> user.getStore() != null && user.getStore().getStoreId().equals(storeId))
-                .filter(user -> "STAFF".equalsIgnoreCase(user.getRole()))
+                .filter(user -> "staff".equalsIgnoreCase(user.getRole()))
                 .map(UserDto::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -90,7 +90,7 @@ public class ManagerWorkInformationService {
     public List<UserProfileImageResponse> getStaffWithImagesByStoreId(Integer storeId) {
         return userRepository.findAll().stream()
                 .filter(user -> user.getStore() != null && user.getStore().getStoreId().equals(storeId))
-                .filter(user -> "STAFF".equalsIgnoreCase(user.getRole()))
+                .filter(user -> "staff".equalsIgnoreCase(user.getRole()))
                 .map(user -> {
                     String filePath = (user.getUserProfileImage() != null)
                             ? user.getUserProfileImage().getFilePath()
