@@ -19,6 +19,8 @@ const ChatRoom = () => {
   const chatContainerRef = useRef(null);
   const [lastMessageId, setLastMessageId] = useState(null);
   const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const scrollThrottleRef = useRef(null);
 
   // 토큰에서 정보 추출
   const [userInfo, setUserInfo] = useState(null);
@@ -50,10 +52,15 @@ const ChatRoom = () => {
 
   // 채팅 히스토리 가져오기
   const fetchChatHistory = useCallback(async (messageId = null) => {
-    if (!userInfo?.storeId || (messageId && !hasMore)) return;
+    if (!userInfo?.storeId || (messageId && !hasMore) || isLoadingMore) return;
 
     try {
-      setIsLoading(true);
+      if (messageId) {
+        setIsLoadingMore(true);
+      } else {
+        setIsLoading(true);
+      }
+
       const response = await axios.get(`/api/chat/store/${userInfo.storeId}`, {
         params: {
           limit: 50,
@@ -80,7 +87,6 @@ const ChatRoom = () => {
       }));
 
       if (messageId) {
-        // 이전 메시지 추가
         setMessages(prev => [...formattedMessages, ...prev]);
       } else {
         setMessages(formattedMessages);
@@ -88,15 +94,16 @@ const ChatRoom = () => {
 
       setHasMore(history.length === 50);
       if (history.length > 0) {
-        setLastMessageId(history[history.length - 1].id);
+        setLastMessageId(history[0].id);
       }
     } catch (error) {
       console.error('Failed to fetch chat history:', error);
       setError('채팅 내역을 불러오는데 실패했습니다.');
     } finally {
+      setIsLoadingMore(false);
       setIsLoading(false);
     }
-  }, [userInfo?.storeId, hasMore]);
+  }, [userInfo?.storeId, hasMore, isLoadingMore]);
 
   // 컴포넌트 마운트 시 채팅 히스토리 로드
   useEffect(() => {
@@ -159,21 +166,29 @@ const ChatRoom = () => {
     }
   }, [messages]);
 
-  // 스크롤 이벤트 핸들러
+  // 스크롤 이벤트 핸들러 (쓰로틀링 적용)
   const handleScroll = useCallback((e) => {
     const element = e.target;
-    if (element.scrollTop === 0 && !isLoading && hasMore) {
-      fetchChatHistory(lastMessageId);
-    }
-  }, [fetchChatHistory, isLoading, hasMore, lastMessageId]);
+    
+    // 쓰로틀링 적용 (200ms)
+    if (scrollThrottleRef.current) return;
+    
+    scrollThrottleRef.current = setTimeout(() => {
+      if (element.scrollTop === 0 && !isLoading && !isLoadingMore && hasMore) {
+        fetchChatHistory(lastMessageId);
+      }
+      scrollThrottleRef.current = null;
+    }, 200);
+  }, [fetchChatHistory, isLoading, isLoadingMore, hasMore, lastMessageId]);
 
+  // 컴포넌트 언마운트 시 쓰로틀링 타이머 정리
   useEffect(() => {
-    const chatContainer = chatContainerRef.current;
-    if (chatContainer) {
-      chatContainer.addEventListener('scroll', handleScroll);
-      return () => chatContainer.removeEventListener('scroll', handleScroll);
-    }
-  }, [handleScroll]);
+    return () => {
+      if (scrollThrottleRef.current) {
+        clearTimeout(scrollThrottleRef.current);
+      }
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -288,9 +303,10 @@ const ChatRoom = () => {
         <div
           ref={chatContainerRef}
           className={`flex-1 overflow-y-auto px-6 py-4 bg-gray-50 ${styles.customScrollbar}`}
+          onScroll={handleScroll}
         >
-          {isLoading && !lastMessageId && (
-            <div className="text-center py-2">로딩 중...</div>
+          {isLoadingMore && (
+            <div className="text-center py-2">이전 메시지 불러오는 중...</div>
           )}
           <div className="flex flex-col justify-end min-h-full">
             <div className="space-y-2">
