@@ -9,7 +9,18 @@ const nextConfig = {
     ],
   },
   reactStrictMode: true,
-  // 웹소켓 요청을 Next.js가 처리하지 않도록 설정
+  
+  // WebSocket 요청을 백엔드로 리다이렉트
+  async rewrites() {
+    return [
+      {
+        source: '/ws/:path*',
+        destination: 'http://backend:8080/ws/:path*', // Docker 내부 네트워크 주소
+      }
+    ];
+  },
+
+  // WebSocket 헤더 설정
   async headers() {
     return [
       {

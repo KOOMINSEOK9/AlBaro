@@ -82,6 +82,20 @@ pipeline {
                 }
             }
         }
+
+        
+        stage('Deploy') {
+            steps {
+                // Docker 네트워크 생성 확인
+                sh 'docker network ls'
+                // 컨테이너 상태 확인
+                sh 'docker ps'
+                // 로그 확인
+                sh 'docker logs nginx'
+                sh 'docker logs backend'
+            }
+        }
+    
     }
 
     post {

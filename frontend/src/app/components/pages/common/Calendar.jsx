@@ -473,7 +473,8 @@ const MyCalendar = () => {
     if (!loginUserUserId) return;
 
     // WebSocket 연결
-    const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}/ws/notifications/${loginUserUserId}`);
+    // const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}/ws/notifications/${loginUserUserId}`);
+    const ws = new WebSocket(`wss://i12b105.p.ssafy.io/ws/notifications/${loginUserUserId}`);
 
     ws.onmessage = (event) => {
       const notification = JSON.parse(event.data);
