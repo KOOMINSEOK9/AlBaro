@@ -91,7 +91,7 @@ const ChatRoom = () => {
       id: Date.now().toString(),
       content: decodeURIComponent(message.content),
       userId: message.userId,
-      userName: decodeURI(encodeURI(message.userName)),  // 한글 복원
+      userName: message.userName,
       timestamp: new Date().toLocaleTimeString('ko-KR', {
         hour: 'numeric',
         minute: '2-digit',

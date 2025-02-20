@@ -43,17 +43,15 @@ public class ChatService {
             User user = userRepository.findById(messageDto.getUserId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            // DB에서 가져온 userName으로 설정하고 UTF-8 인코딩 적용
-            String userName = new String(user.getUserName().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
-            messageDto.setUserName(userName);
+            messageDto.setUserName(user.getUserName());
 
             logger.debug("Received message data: {}", messageDto);
 
             ChatRoom chatRoom = ChatRoom.createMessage(
                     messageDto.getStoreId(),
                     messageDto.getUserId(),
-                    new String(messageDto.getContent().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8),
-                    userName
+                    messageDto.getContent(),
+                    user.getUserName()
             );
 
             chatRoomRepository.save(chatRoom);

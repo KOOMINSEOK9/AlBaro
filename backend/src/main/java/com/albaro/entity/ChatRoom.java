@@ -26,7 +26,7 @@ public class ChatRoom {
     @Column(name = "sentTime")
     private LocalDateTime sentTime;
 
-    @Column(name = "userName")
+    @Column(name = "userName", columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
     private String userName;
 
     public ChatRoom() {
@@ -96,10 +96,6 @@ public class ChatRoom {
     }
 
     public void setUserName(String userName) {
-        try {
-            this.userName = new String(userName.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            this.userName = userName;
-        }
+        this.userName = userName;
     }
 }
