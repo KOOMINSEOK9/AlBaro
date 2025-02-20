@@ -13,14 +13,10 @@ const ChatRoom = () => {
   const messagesEndRef = useRef(null);
   const [inputMessage, setInputMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const emojiPickerRef = useRef(null);
   const chatContainerRef = useRef(null);
-  const [lastMessageId, setLastMessageId] = useState(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const scrollThrottleRef = useRef(null);
 
   // 토큰에서 정보 추출
   const [userInfo, setUserInfo] = useState(null);
@@ -56,19 +52,21 @@ const ChatRoom = () => {
 
     try {
       setIsLoading(true);
-      const response = await axios.get(`/api/chat/store/${userInfo.storeId}`);
+      const response = await axios.get(`https://i12b105.p.ssafy.io/chat/store/${userInfo.storeId}`);
       const history = response.data;
+
+      console.log('Chat history:', history);
 
       const formattedMessages = history.map(msg => ({
         id: msg.id.toString(),
-        content: decodeURIComponent(msg.content),
+        content: decodeURIComponent(msg.content), // URL 디코딩
         userId: msg.userId,
         userName: msg.userName,
         timestamp: new Date(msg.sentTime).toLocaleTimeString('ko-KR', {
           hour: 'numeric',
           minute: '2-digit',
           hour12: true
-        })
+        }),
       }));
 
       setMessages(formattedMessages);
@@ -79,7 +77,7 @@ const ChatRoom = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [userInfo?.storeId]);
+  }, [userInfo?.storeId, setMessages]);
 
   // 컴포넌트 마운트 시 채팅 히스토리 로드
   useEffect(() => {
@@ -101,18 +99,20 @@ const ChatRoom = () => {
             hour: 'numeric',
             minute: '2-digit',
             hour12: true
-          })
+          }),
         };
-        setMessages(prev => [...prev, formattedMessage]);
+        addMessage(formattedMessage);
       };
 
       connectWebSocket(handleMessage, userInfo.storeId);
+      setConnected(true);
 
       return () => {
         disconnectWebSocket();
+        setConnected(false);
       };
     }
-  }, [userInfo]);
+  }, [userInfo, addMessage, setConnected]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -139,30 +139,6 @@ const ChatRoom = () => {
       scrollToBottom();
     }
   }, [messages]);
-
-  // 스크롤 이벤트 핸들러 (쓰로틀링 적용)
-  const handleScroll = useCallback((e) => {
-    const element = e.target;
-    
-    // 쓰로틀링 적용 (200ms)
-    if (scrollThrottleRef.current) return;
-    
-    scrollThrottleRef.current = setTimeout(() => {
-      if (element.scrollTop === 0 && !isLoading && !isLoadingMore && hasMore) {
-        fetchChatHistory(lastMessageId);
-      }
-      scrollThrottleRef.current = null;
-    }, 200);
-  }, [fetchChatHistory, isLoading, isLoadingMore, hasMore, lastMessageId]);
-
-  // 컴포넌트 언마운트 시 쓰로틀링 타이머 정리
-  useEffect(() => {
-    return () => {
-      if (scrollThrottleRef.current) {
-        clearTimeout(scrollThrottleRef.current);
-      }
-    };
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -277,11 +253,7 @@ const ChatRoom = () => {
         <div
           ref={chatContainerRef}
           className={`flex-1 overflow-y-auto px-6 py-4 bg-gray-50 ${styles.customScrollbar}`}
-          onScroll={handleScroll}
         >
-          {isLoadingMore && (
-            <div className="text-center py-2">이전 메시지 불러오는 중...</div>
-          )}
           <div className="flex flex-col justify-end min-h-full">
             <div className="space-y-2">
               {processMessages(messages)}
