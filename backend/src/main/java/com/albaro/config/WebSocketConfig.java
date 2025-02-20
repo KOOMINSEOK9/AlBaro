@@ -23,7 +23,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*")  // setAllowedOrigins 대신 setAllowedOriginPatterns 사용
+                .setAllowedOrigins(
+                    "https://i12b105.p.ssafy.io",
+                    "http://i12b105.p.ssafy.io"
+                )
                 .withSockJS()
                 .setWebSocketEnabled(true)       // WebSocket 활성화 명시적 설정
                 .setHeartbeatTime(25000)        // 하트비트 시간 설정
