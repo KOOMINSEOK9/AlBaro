@@ -106,8 +106,8 @@ public class SecurityConfig {
         //경로별 인가 작업(권한에 대한 내용)
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/ws-stomp/**", "/chat/**", "/ws-stomp/info/**", "/**").permitAll()
-                        .requestMatchers("/ws-stomp/**", "/sub/**", "/pub/**").permitAll()
+                        .requestMatchers("/ws/**", "/chat/**", "/ws/info/**", "/**").permitAll()
+                        .requestMatchers("/ws/**", "/sub/**", "/pub/**").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/manager").hasRole("MANAGER")
                         .anyRequest().authenticated());
