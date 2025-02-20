@@ -63,9 +63,15 @@ export const sendMessage = async (messageData) => {
   }
 
   try {
+    const messageWithUserInfo = {
+      ...messageData,
+      userName: localStorage.getItem('userName') || '익명',
+      userId: localStorage.getItem('userId'),
+    };
+
     await stompClient.publish({
       destination: '/pub/chat/message',
-      body: JSON.stringify(messageData),
+      body: JSON.stringify(messageWithUserInfo),
       headers: { 'content-type': 'application/json' }
     });
     return true;
