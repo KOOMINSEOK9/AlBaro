@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class ChatController {
     private static final Logger logger = LoggerFactory.getLogger(ChatController.class);
@@ -33,9 +35,10 @@ public class ChatController {
     }
 
     @GetMapping("/api/chat/store/{storeId}")
+    @ResponseBody  // 이 어노테이션 추가
     public List<ChatMessageDto> getChatHistory(
             @PathVariable Long storeId,
-            @RequestParam(defaultValue = "10") int limit) {
+            @RequestParam(defaultValue = "50") int limit) {
         logger.info("Fetching chat history for store: {}, limit: {}", storeId, limit);
         return chatService.getRecentChatHistory(storeId, limit);
     }
