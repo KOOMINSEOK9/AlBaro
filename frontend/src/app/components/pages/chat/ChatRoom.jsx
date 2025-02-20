@@ -91,7 +91,7 @@ const ChatRoom = () => {
       id: Date.now().toString(),
       content: decodeURIComponent(message.content),
       userId: message.userId,
-      userName: message.userName,
+      userName: decodeURIComponent(message.userName),
       timestamp: new Date().toLocaleTimeString('ko-KR', {
         hour: 'numeric',
         minute: '2-digit',
@@ -165,7 +165,7 @@ const ChatRoom = () => {
     const messageData = {
       content: encodeURIComponent(inputMessage.trim()),
       userId: parseInt(userInfo.userId),
-      userName: userInfo.userName,
+      userName: encodeURIComponent(userInfo.userName),
       storeId: userInfo.storeId,
       sentTime: new Date().toISOString()
     };
