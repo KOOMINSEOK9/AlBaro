@@ -46,11 +46,12 @@ const ChatRoom = () => {
     }
   }, []);
 
+  // 채팅 히스토리 가져오기
   const fetchChatHistory = useCallback(async () => {
     if (!userInfo?.storeId) return;
 
     try {
-      // const response = await axios.get(`http://localhost:8080/chat/store/${userInfo.storeId}`);
+      setIsLoading(true);
       const response = await axios.get(`https://i12b105.p.ssafy.io/chat/store/${userInfo.storeId}`);
       const history = response.data;
 
@@ -58,7 +59,7 @@ const ChatRoom = () => {
 
       const formattedMessages = history.map(msg => ({
         id: msg.id.toString(),
-        content: decodeURIComponent(msg.content),
+        content: decodeURIComponent(msg.content), // URL 디코딩
         userId: msg.userId,
         userName: msg.userName,
         timestamp: new Date(msg.sentTime).toLocaleTimeString('ko-KR', {
@@ -66,68 +67,52 @@ const ChatRoom = () => {
           minute: '2-digit',
           hour12: true
         }),
-      }))
-        .reverse();
+      }));
 
       setMessages(formattedMessages);
-      setError(null); 
-      setMessages([]);  // 임시로 빈 배열 설정
+      setError(null);
     } catch (error) {
       console.error('Failed to fetch chat history:', error);
-      if (error.response) {
-        setError(`${error.response.status} ${error.response.data}`);
-      } else {
-        setError('채팅 내역을 불러오는 중 오류가 발생했습니다.');
-      }
+      setError('채팅 내역을 불러오는데 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
   }, [userInfo?.storeId, setMessages]);
 
-  const handleMessageReceived = useCallback((message) => {
-    console.log('Received message:', message);
-
-    const formattedMessage = {
-      id: Date.now().toString(),
-      content: decodeURIComponent(message.content),
-      userId: message.userId,
-      userName: message.userName,
-      timestamp: new Date().toLocaleTimeString('ko-KR', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      }),
-    };
-    addMessage(formattedMessage);
-  }, [addMessage]);
-
+  // 컴포넌트 마운트 시 채팅 히스토리 로드
   useEffect(() => {
-    let mounted = true;
+    if (userInfo?.storeId) {
+      fetchChatHistory();
+    }
+  }, [userInfo, fetchChatHistory]);
 
-    const setupWebSocket = async () => {
-      if (mounted && userInfo?.storeId) {
-        try {
-          await fetchChatHistory();
-          connectWebSocket(handleMessageReceived, userInfo.storeId);
-          setConnected(true);
-          setError(null);
-        } catch (err) {
-          console.error('WebSocket connection failed:', err);
-          setError('채팅 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
-          setConnected(false);
-        }
-      }
-    };
+  // WebSocket 연결
+  useEffect(() => {
+    if (userInfo?.storeId) {
+      const handleMessage = (message) => {
+        const formattedMessage = {
+          id: Date.now().toString(),
+          content: decodeURIComponent(message.content),
+          userId: message.userId,
+          userName: message.userName,
+          timestamp: new Date().toLocaleTimeString('ko-KR', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          }),
+        };
+        addMessage(formattedMessage);
+      };
 
-    setupWebSocket();
+      connectWebSocket(handleMessage, userInfo.storeId);
+      setConnected(true);
 
-    return () => {
-      mounted = false;
-      disconnectWebSocket();
-      setConnected(false);
-      clearMessages();
-    };
-  }, [userInfo?.storeId, handleMessageReceived, setConnected, clearMessages, fetchChatHistory]);
+      return () => {
+        disconnectWebSocket();
+        setConnected(false);
+      };
+    }
+  }, [userInfo, addMessage, setConnected]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -250,7 +235,11 @@ const ChatRoom = () => {
         </div>
       </div>
 
-      {error && (
+      {isLoading ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-gray-500">채팅 내역을 불러오는 중...</div>
+        </div>
+      ) : error ? (
         <div className="bg-red-50 px-4 py-2 text-sm text-red-600">
           {error}
           <button
@@ -260,19 +249,19 @@ const ChatRoom = () => {
             다시 시도
           </button>
         </div>
-      )}
-
-      <div
-        ref={chatContainerRef}
-        className={`flex-1 overflow-y-auto px-6 py-4 bg-gray-50 ${styles.customScrollbar}`}
-      >
-        <div className="flex flex-col justify-end min-h-full">
-          <div className="space-y-2">
-            {processMessages(messages)}
-            <div ref={messagesEndRef} />
+      ) : (
+        <div
+          ref={chatContainerRef}
+          className={`flex-1 overflow-y-auto px-6 py-4 bg-gray-50 ${styles.customScrollbar}`}
+        >
+          <div className="flex flex-col justify-end min-h-full">
+            <div className="space-y-2">
+              {processMessages(messages)}
+              <div ref={messagesEndRef} />
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="border-t bg-white px-6 py-3">
         <form onSubmit={handleSubmit} className="flex items-center gap-3">
