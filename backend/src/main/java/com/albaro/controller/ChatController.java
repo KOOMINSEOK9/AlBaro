@@ -1,23 +1,30 @@
 package com.albaro.controller;
 
 import com.albaro.dto.ChatMessageDto;
+import com.albaro.service.ChatService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
 public class ChatController {
-    private final SimpMessagingTemplate messagingTemplate;
+    private static final Logger logger = LoggerFactory.getLogger(ChatController.class);
+    private final ChatService chatService;
 
     @MessageMapping("/chat/message")
     public void message(ChatMessageDto message) {
-        // 특정 storeId를 가진 채팅방으로 메시지 전송
-        messagingTemplate.convertAndSend(
-            "/sub/chat/room/" + message.getStoreId(), 
-            message
-        );
+        logger.info("Received message in controller: {}", message);
+        
+        // 메시지 유효성 검사
+        if (!message.isValid()) {
+            logger.error("Invalid message received: {}", message);
+            return;
+        }
+
+        // 서비스로 전달
+        chatService.sendMessage(message);
     }
 }

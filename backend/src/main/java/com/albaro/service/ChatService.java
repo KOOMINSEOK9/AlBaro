@@ -36,6 +36,7 @@ public class ChatService {
     @Transactional
     public void sendMessage(ChatMessageDto messageDto) {
         if (!messageDto.isValid()) {
+            logger.error("Invalid message data: {}", messageDto);
             throw new IllegalArgumentException("Invalid message data");
         }
 
@@ -45,7 +46,8 @@ public class ChatService {
 
             messageDto.setUserName(user.getUserName());
 
-            logger.debug("Received message data: {}", messageDto);
+            logger.info("Creating chat message with data - storeId: {}, userId: {}, userName: {}, content: {}", 
+                messageDto.getStoreId(), messageDto.getUserId(), user.getUserName(), messageDto.getContent());
 
             ChatRoom chatRoom = ChatRoom.createMessage(
                     messageDto.getStoreId(),
@@ -54,15 +56,15 @@ public class ChatService {
                     user.getUserName()
             );
 
-            chatRoomRepository.save(chatRoom);
+            ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
+            logger.info("Successfully saved chat message with id: {}", savedChatRoom.getId());
 
             messageDto.setId(chatRoom.getId());
             messageDto.setSentTime(chatRoom.getSentTime());
 
-            logger.debug("Sending message. UserName: {}, Content: {}",
-                    messageDto.getUserName(), messageDto.getContent());
+            logger.info("Sending message to WebSocket. MessageDto: {}", messageDto);
 
-            messagingTemplate.convertAndSend("/sub/chat/store/" + messageDto.getStoreId(), messageDto);
+            messagingTemplate.convertAndSend("/sub/chat/room/" + messageDto.getStoreId(), messageDto);
         } catch (Exception e) {
             logger.error("Error while sending message: ", e);
             throw new RuntimeException("Failed to send message", e);
