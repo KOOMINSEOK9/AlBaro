@@ -114,54 +114,89 @@ const ChatRoom = () => {
 
   // WebSocket 연결 상태 관리 추가
   const [wsConnected, setWsConnected] = useState(false);
+  const reconnectAttempts = useRef(0);
+  const maxReconnectAttempts = 5;
+  const wsRef = useRef(null);  // WebSocket 인스턴스 참조 저장
 
-  // WebSocket 재연결 로직
-  useEffect(() => {
-    const reconnectWebSocket = () => {
-      if (!wsConnected && userInfo?.storeId) {
-        const handleMessage = (message) => {
-          const formattedMessage = {
-            id: Date.now().toString(),
-            content: decodeURIComponent(message.content),
-            userId: message.userId,
-            userName: message.userName,
-            timestamp: new Date().toLocaleTimeString('ko-KR', {
-              hour: 'numeric',
-              minute: '2-digit',
-              hour12: true
-            }),
-          };
-          addMessage(formattedMessage);
+  // WebSocket 연결 관리
+  const connectWebSocketWithRetry = useCallback(() => {
+    if (!userInfo?.storeId || wsConnected || reconnectAttempts.current >= maxReconnectAttempts) return;
+
+    try {
+      const handleMessage = (message) => {
+        const formattedMessage = {
+          id: Date.now().toString(),
+          content: decodeURIComponent(message.content),
+          userId: message.userId,
+          userName: message.userName,
+          timestamp: new Date().toLocaleTimeString('ko-KR', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          })
         };
+        addMessage(formattedMessage);
+      };
 
-        try {
-          connectWebSocket(handleMessage, userInfo.storeId);
-          setWsConnected(true);
-        } catch (error) {
-          console.error('WebSocket connection failed:', error);
-          // 3초 후 재시도
-          setTimeout(reconnectWebSocket, 3000);
-        }
+      // 기존 연결이 있다면 정리
+      if (wsRef.current) {
+        disconnectWebSocket();
       }
-    };
 
-    reconnectWebSocket();
+      // 새로운 연결 생성
+      wsRef.current = connectWebSocket(handleMessage, userInfo.storeId);
+      setWsConnected(true);
+      reconnectAttempts.current = 0;  // 연결 성공시 카운트 리셋
+
+    } catch (error) {
+      console.error('WebSocket connection failed:', error);
+      reconnectAttempts.current += 1;
+      
+      // 지수 백오프로 재시도 (1초, 2초, 4초, 8초, 16초)
+      if (reconnectAttempts.current < maxReconnectAttempts) {
+        const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 16000);
+        setTimeout(connectWebSocketWithRetry, delay);
+      }
+    }
+  }, [userInfo?.storeId, wsConnected, addMessage]);
+
+  // 컴포넌트 마운트/언마운트 처리
+  useEffect(() => {
+    connectWebSocketWithRetry();
 
     return () => {
-      disconnectWebSocket();
+      if (wsRef.current) {
+        disconnectWebSocket();
+        wsRef.current = null;
+      }
       setWsConnected(false);
+      reconnectAttempts.current = 0;
     };
-  }, [userInfo, wsConnected]);
+  }, [connectWebSocketWithRetry]);
 
   // 연결 상태 모니터링
   useEffect(() => {
-    const handleConnectionError = () => {
-      setWsConnected(false);
+    const handleOnline = () => {
+      reconnectAttempts.current = 0;  // 온라인 상태가 되면 카운트 리셋
+      connectWebSocketWithRetry();
     };
 
-    window.addEventListener('offline', handleConnectionError);
-    return () => window.removeEventListener('offline', handleConnectionError);
-  }, []);
+    const handleOffline = () => {
+      setWsConnected(false);
+      if (wsRef.current) {
+        disconnectWebSocket();
+        wsRef.current = null;
+      }
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [connectWebSocketWithRetry]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
