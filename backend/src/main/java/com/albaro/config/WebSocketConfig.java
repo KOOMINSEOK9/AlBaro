@@ -20,32 +20,20 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final StompHandler stompHandler;
 
-    @Bean
-    public TaskScheduler messageBrokerTaskScheduler() {
-        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(1);
-        scheduler.setThreadNamePrefix("wss-heartbeat-thread-");
-        scheduler.initialize();
-        return scheduler;
-    }
-
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/queue", "/topic")
-            .setHeartbeatValue(new long[]{10000, 10000})  // 하트비트 설정 추가
-            .setTaskScheduler(messageBrokerTaskScheduler());  // 스케줄러 설정
+        config.enableSimpleBroker("/queue", "/topic");
         config.setApplicationDestinationPrefixes("/app");
         config.setUserDestinationPrefix("/user");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        // 여기가 중요한 부분입니다
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("https://i12b105.p.ssafy.io")
+                .setAllowedOrigins("*")  // 개발 중에는 모든 오리진 허용
                 .withSockJS()
-                .setStreamBytesLimit(512 * 1024)  // 512KB
-                .setHttpMessageCacheSize(1000)
-                .setDisconnectDelay(30 * 1000);   // 30초
+                .setClientLibraryUrl("https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js");  // SockJS 클라이언트 라이브러리 URL 지정
     }
 
     @Override
