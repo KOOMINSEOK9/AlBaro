@@ -1,35 +1,22 @@
 package com.albaro.config;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-
-    // @Override
-    // public void registerStompEndpoints(StompEndpointRegistry registry) {
-    //     registry.addEndpoint("/ws-stomp")
-    //             .setAllowedOriginPatterns("*")  // 개발 중에는 모든 origin 허용
-    //             .withSockJS()
-    //             .setClientLibraryUrl("https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js")
-    //             .setWebSocketEnabled(true)
-    //             .setSessionCookieNeeded(false);
-    // }
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws-stomp")
-                .setAllowedOrigins("*")
-                .withSockJS()
-                .setInterceptors(new HttpSessionHandshakeInterceptor())  // 세션 인터셉터 추가
-                .setWebSocketEnabled(true)  // WebSocket 명시적 활성화
-                .setSessionCookieNeeded(false); // 세션 쿠키 비활성화
-    }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -38,11 +25,28 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
 
     @Override
-    public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
-        registration.setMessageSizeLimit(128 * 1024)
-                   .setSendBufferSizeLimit(512 * 1024)
-                   .setSendTimeLimit(20000);
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws-stomp")
+                .setAllowedOriginPatterns("*")
+                .withSockJS()
+                .setWebSocketEnabled(true);
     }
 
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
+        registration.setMessageSizeLimit(64 * 1024)  // 64KB
+                .setSendBufferSizeLimit(512 * 1024)  // 512KB
+                .setSendTimeLimit(20000);  // 20초
+    }
 
+    @Override
+    public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
+        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        converter.setObjectMapper(objectMapper);
+        messageConverters.add(converter);
+        return false;
+    }
 }

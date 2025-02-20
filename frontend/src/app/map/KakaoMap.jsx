@@ -330,7 +330,7 @@ const KakaoMap = () => {
       <article className="w-3/4 flex flex-col overflow-hidden">
         {/* 상단 리스트 영역 (스크롤 가능) */}
         <section className=" overflow-auto mb-5 ml-5 mt-10">
-          {loginUserRole === "STAFF" ? (
+          {loginUserRole === "staff" ? (
             <TimeList
               selectedStore={selectedStore}
               selectedDate={selectedDate}
@@ -338,7 +338,7 @@ const KakaoMap = () => {
               workEndTime={endTime}
               times={canDetaTime}
             />
-          ) : loginUserRole === "MANAGER" ? (
+          ) : loginUserRole === "manager" ? (
             <AlbaList
               selectedStore={selectedStore}
               selectedDate={selectedDate}

@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import Image from "next/image";
 import AlbaCard from "./AlbaCard.jsx";
 import axios from "axios";
+import Login from "@/app/page.jsx";
 
 // const Alba = [
 //   {
@@ -138,6 +139,9 @@ const AlbaList = ({
   // const userId = 1;
 
   const filteredAlba = canDetaAlbaList.filter((alba) => {
+
+    // console.log(alba);
+
     const albaDate = new Date(alba.scheduleDate);
 
     const albaStartTime = new Date(
@@ -151,6 +155,7 @@ const AlbaList = ({
       albaDate.toDateString() === selectedDate.toDateString() &&
       (!startTime || albaStartTime <= startTime) &&
       (!endTime || albaEndTime >= endTime)
+      // alba.storeId === selectedStore.storeId
     );
   });
 
