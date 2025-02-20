@@ -52,7 +52,7 @@ const ChatRoom = () => {
 
     try {
       setIsLoading(true);
-      const response = await axios.get(`https://i12b105.p.ssafy.io/chat/store/${userInfo.storeId}`);
+      const response = await axios.get(`/api/chat/store/${userInfo.storeId}`);
       const history = response.data;
 
       console.log('Chat history:', history);

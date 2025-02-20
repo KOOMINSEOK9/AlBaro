@@ -5,8 +5,12 @@ import com.albaro.service.ChatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.stereotype.Controller;
 import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -26,5 +30,13 @@ public class ChatController {
 
         // 서비스로 전달
         chatService.sendMessage(message);
+    }
+
+    @GetMapping("/api/chat/store/{storeId}")
+    public List<ChatMessageDto> getChatHistory(
+            @PathVariable Long storeId,
+            @RequestParam(defaultValue = "10") int limit) {
+        logger.info("Fetching chat history for store: {}, limit: {}", storeId, limit);
+        return chatService.getRecentChatHistory(storeId, limit);
     }
 }
