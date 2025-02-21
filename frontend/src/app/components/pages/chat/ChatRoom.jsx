@@ -55,29 +55,37 @@ const ChatRoom = () => {
       const response = await axios.get(`/api/chat/store/${userInfo.storeId}`);
       const history = response.data;
 
-      console.log('Chat history:', history);
+      // 시간순으로 정렬 (오래된 메시지가 먼저 오도록)
+      const sortedHistory = [...history].sort((a, b) => 
+        new Date(a.sentTime) - new Date(b.sentTime)
+      );
 
-      const formattedMessages = history.map(msg => ({
+      const formattedMessages = sortedHistory.map(msg => ({
         id: msg.id.toString(),
-        content: decodeURIComponent(msg.content), // URL 디코딩
+        content: decodeURIComponent(msg.content),
         userId: msg.userId,
         userName: msg.userName,
         timestamp: new Date(msg.sentTime).toLocaleTimeString('ko-KR', {
           hour: 'numeric',
           minute: '2-digit',
           hour12: true
-        }),
+        })
       }));
 
       setMessages(formattedMessages);
       setError(null);
+
+      // 새로운 메시지가 추가될 때마다 스크롤을 맨 아래로 이동
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
     } catch (error) {
       console.error('Failed to fetch chat history:', error);
       setError('채팅 내역을 불러오는데 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
-  }, [userInfo?.storeId, setMessages]);
+  }, [userInfo?.storeId]);
 
   // 컴포넌트 마운트 시 채팅 히스토리 로드
   useEffect(() => {
@@ -99,9 +107,10 @@ const ChatRoom = () => {
             hour: 'numeric',
             minute: '2-digit',
             hour12: true
-          }),
+          })
         };
-        addMessage(formattedMessage);
+        // 새 메시지는 항상 배열의 끝에 추가
+        setMessages(prev => [...prev, formattedMessage]);
       };
 
       connectWebSocket(handleMessage, userInfo.storeId);
@@ -112,7 +121,7 @@ const ChatRoom = () => {
         setConnected(false);
       };
     }
-  }, [userInfo, addMessage, setConnected]);
+  }, [userInfo]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
